@@ -11,7 +11,6 @@ import android.webkit.WebViewClient;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.zip.GZIPInputStream;
 
 public class MainActivity extends Activity {
     private WebView webView;
@@ -42,7 +41,7 @@ public class MainActivity extends Activity {
         webView.setWebViewClient(new WebViewClient());
 
         try {
-            String html = readCompressedHtml();
+            String html = readAsset("index.html");
             webView.loadDataWithBaseURL(
                 "https://local.macompta/",
                 html,
@@ -60,19 +59,16 @@ public class MainActivity extends Activity {
         }
     }
 
-    private String readCompressedHtml() throws Exception {
-        InputStream source = getAssets().open("index.html.gz");
-        GZIPInputStream gzip = new GZIPInputStream(source);
-        ByteArrayOutputStream htmlBuffer = new ByteArrayOutputStream();
-
+    private String readAsset(String name) throws Exception {
+        InputStream source = getAssets().open(name);
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         byte[] temp = new byte[4096];
         int read;
-        while ((read = gzip.read(temp)) != -1) {
-            htmlBuffer.write(temp, 0, read);
+        while ((read = source.read(temp)) != -1) {
+            buffer.write(temp, 0, read);
         }
-
-        gzip.close();
-        return new String(htmlBuffer.toByteArray(), StandardCharsets.UTF_8);
+        source.close();
+        return new String(buffer.toByteArray(), StandardCharsets.UTF_8);
     }
 
     @Override
