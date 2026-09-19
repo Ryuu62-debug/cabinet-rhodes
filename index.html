@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1b100b" />
+  <title>Cabinet Médical de Rhodes</title>
+  <style>
+    :root{
+      --ink:#1b100b;
+      --ink-2:#281710;
+      --panel:#35251d;
+      --panel-2:#443128;
+      --wood:#5b3020;
+      --wine:#7a130d;
+      --wine-2:#961a10;
+      --gold:#c79c54;
+      --gold-2:#e2c07a;
+      --paper:#ead9a7;
+      --paper-2:#f6e8c1;
+      --muted:#ad956f;
+      --line:rgba(215,178,105,.45);
+      --good:#78a66c;
+      --bad:#bd5a4d;
+      --shadow:0 18px 50px rgba(0,0,0,.4);
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--paper-2);
+      font-family: Georgia, "Times New Roman", serif;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(129,65,35,.15), transparent 30%),
+        radial-gradient(circle at 80% 20%, rgba(128,24,18,.1), transparent 35%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.015) 0 1px, transparent 1px 4px),
+        #090706;
+      overflow-x:hidden;
+    }
+
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    .app{display:grid;grid-template-columns:270px 1fr;min-height:100vh}
+    .sidebar{
+      position:sticky;top:0;height:100vh;
+      padding:24px 18px;
+      background:
+        linear-gradient(rgba(28,15,10,.92),rgba(18,10,7,.96)),
+        repeating-linear-gradient(90deg,#2a140d 0 3px,#351a10 3px 8px,#24120c 8px 12px);
+      border-right:1px solid rgba(226,192,122,.28);
+      box-shadow:12px 0 32px rgba(0,0,0,.28);
+      z-index:20;
+      overflow:auto;
+    }
+    .brand{text-align:center;margin-bottom:24px}
+    .seal{
+      width:82px;height:82px;margin:0 auto 12px;border-radius:50%;
+      display:grid;place-items:center;
+      color:#f4d88f;font-size:42px;
+      background:radial-gradient(circle,#8c160f 0 45%,#53110c 46% 52%,#d3a84f 54% 58%,#3a1c12 60%);
+      border:2px solid #e5c16f;
+      box-shadow:0 0 0 4px #5d3820,0 8px 28px rgba(0,0,0,.45),inset 0 0 15px rgba(0,0,0,.4);
+    }
+    .brand h1{
+      font-size:19px;line-height:1.15;margin:0;text-transform:uppercase;letter-spacing:1.3px;color:#f2dba4
+    }
+    .brand p{margin:6px 0 0;color:var(--muted);font-size:12px;letter-spacing:2px;text-transform:uppercase}
+    .nav{display:grid;gap:7px}
+    .nav button{
+      position:relative;width:100%;text-align:left;
+      color:#d9c79c;background:transparent;border:1px solid transparent;
+      padding:12px 12px 12px 42px;border-radius:4px;
+      transition:.18s ease;
+    }
+    .nav button:hover{background:rgba(199,156,84,.08);border-color:rgba(199,156,84,.16);color:#fff1c8}
+    .nav button.active{
+      background:linear-gradient(90deg,rgba(126,19,13,.72),rgba(97,25,16,.3));
+      border-color:rgba(226,192,122,.38);color:#ffe8ad;
+      box-shadow:inset 3px 0 0 var(--gold-2);
+    }
+    .nav .ico{position:absolute;left:13px;top:11px;width:22px;text-align:center}
+    .telegram{
+      margin-top:26px;padding:14px 12px;text-align:center;
+      background:#efe1b9;color:#1a110c;border:3px double #9d7740;
+      box-shadow:inset 0 0 18px rgba(107,70,30,.16),0 8px 20px rgba(0,0,0,.26);
+    }
+    .telegram small{display:block;color:#79160f;font-weight:bold;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+    .telegram strong{font-size:22px}
+
+    main{min-width:0;padding:28px clamp(18px,3vw,44px) 70px}
+    .topbar{
+      min-height:92px;display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:24px;
+      padding:20px 24px;
+      background:
+        linear-gradient(90deg,rgba(88,43,28,.96),rgba(62,34,25,.9)),
+        repeating-linear-gradient(90deg,#5a2e1f 0 8px,#4b261a 8px 15px);
+      border:1px solid #9d7740;
+      box-shadow:var(--shadow);position:relative;overflow:hidden;
+    }
+    .topbar:before,.topbar:after{content:"";position:absolute;height:1px;left:10px;right:10px;background:#d5ad62;opacity:.55}
+    .topbar:before{top:6px}.topbar:after{bottom:6px}
+    .topbar h2{margin:0;color:#fff0c3;font-size:clamp(24px,3vw,38px);text-transform:uppercase;letter-spacing:1px}
+    .topbar p{margin:5px 0 0;color:#c8ae7b;font-size:13px;letter-spacing:1.8px;text-transform:uppercase}
+    .date-badge{white-space:nowrap;text-align:right;color:#ead39a;font-size:13px}
+    .date-badge strong{display:block;font-size:19px;color:#fff0c3}
+
+    .view{display:none;animation:fade .2s ease}
+    .view.active{display:block}
+    @keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+    .grid{display:grid;gap:18px}
+    .grid.cards{grid-template-columns:repeat(4,minmax(160px,1fr))}
+    .grid.two{grid-template-columns:1.1fr .9fr}
+    .card{
+      background:linear-gradient(180deg,rgba(63,45,35,.98),rgba(41,30,24,.98));
+      border:1px solid rgba(207,164,88,.48);
+      box-shadow:0 10px 28px rgba(0,0,0,.28);
+      position:relative;
+    }
+    .card:before{content:"";position:absolute;inset:5px;border:1px solid rgba(224,190,119,.09);pointer-events:none}
+    .card-body{padding:20px}
+    .metric{padding:19px 18px 17px;min-height:122px}
+    .metric .label{font-size:12px;letter-spacing:1.2px;color:#bfa87a;text-transform:uppercase}
+    .metric .value{font-size:31px;font-weight:bold;color:#f4d990;margin-top:12px}
+    .metric .sub{font-size:12px;color:#9f8a69;margin-top:5px}
+    .metric.accent{background:linear-gradient(145deg,#6e160f,#3b2119)}
+    .metric.accent .value{color:#ffe5a3}
+
+    .section-title{
+      margin:0;padding:13px 16px;
+      color:#fff0c9;text-transform:uppercase;letter-spacing:.7px;font-size:18px;
+      background:linear-gradient(90deg,#603523,#4a2a20);
+      border-bottom:1px solid #9c7746;
+    }
+    .section-title small{font-weight:normal;font-size:12px;text-transform:none;color:#cbb58a;margin-left:10px}
+
+    .quick-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+    .btn{
+      border:1px solid #a67d40;color:#f9e5b3;background:linear-gradient(#7f1a11,#64110b);
+      padding:10px 14px;border-radius:3px;font-weight:bold;
+      text-transform:uppercase;font-size:12px;letter-spacing:.6px;
+      box-shadow:inset 0 0 0 1px rgba(255,222,146,.12),0 4px 11px rgba(0,0,0,.22);
+    }
+    .btn:hover{filter:brightness(1.08)}
+    .btn.secondary{background:linear-gradient(#5f4637,#443126)}
+    .btn.ghost{background:transparent;border-color:#755d40;color:#cdb886}
+    .btn.good{background:linear-gradient(#557348,#365436);border-color:#829a67}
+    .btn.danger{background:linear-gradient(#87251b,#5d140e);border-color:#bd6651}
+    .btn:disabled{opacity:.4;cursor:not-allowed;filter:grayscale(.4)}
+    .btn.big{font-size:14px;padding:13px 18px}
+
+    .table-wrap{overflow:auto}
+    table{width:100%;border-collapse:collapse;min-width:680px}
+    th{
+      background:#6f1a12;color:#f5db9c;text-transform:uppercase;
+      font-size:12px;letter-spacing:.5px;padding:12px 10px;border:1px solid #b4894e;
+    }
+    td{
+      padding:10px;border:1px dotted rgba(198,156,83,.58);
+      color:#e6d4a6;background:rgba(42,42,42,.64);
+      vertical-align:middle;
+    }
+    tbody tr:hover td{background:rgba(74,58,44,.8)}
+    .resource-name{font-weight:bold;color:#f0d797;text-transform:uppercase}
+    .money{font-variant-numeric:tabular-nums;color:#e3ba68;font-weight:bold}
+    .good{color:#a8cd91}.bad{color:#df8172}.muted{color:#9b8769}
+    .pill{display:inline-block;border:1px solid #8c6e44;background:#2b211b;padding:4px 7px;border-radius:12px;font-size:11px}
+    .pill.red{border-color:#9d4a3c;color:#e59383}.pill.green{border-color:#607c51;color:#a9ce96}.pill.gold{color:#e5c176}
+
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .form-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .field label{display:block;color:#d9c495;font-size:12px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+    input,select,textarea{
+      width:100%;border:1px solid #806540;background:#181411;color:#f4e4bd;
+      padding:10px 11px;border-radius:3px;outline:none;
+    }
+    input:focus,select:focus,textarea:focus{border-color:#d1a85d;box-shadow:0 0 0 2px rgba(209,168,93,.1)}
+    input[type=number]{font-variant-numeric:tabular-nums}
+    textarea{min-height:88px;resize:vertical}
+    .hint{font-size:12px;color:#a6906b;margin-top:6px}
+    .form-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+    hr.sep{border:0;border-top:1px solid rgba(201,163,95,.24);margin:18px 0}
+
+    .inventory-summary{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 14px}
+    .inventory-summary .pill{font-size:12px;padding:7px 10px}
+    .stock-low{background:rgba(112,26,17,.35)!important}
+
+    .craft-head{display:grid;grid-template-columns:1.25fr .55fr auto;gap:12px;align-items:end}
+    .recipe-note{
+      margin-top:14px;padding:13px 14px;border-left:3px solid var(--gold);
+      background:rgba(199,156,84,.08);color:#cbb790;font-size:13px
+    }
+    .progress{
+      height:8px;background:#17120f;border:1px solid #604b34;border-radius:10px;overflow:hidden;min-width:100px
+    }
+    .progress span{display:block;height:100%;background:linear-gradient(90deg,#8c6f3b,#d4b06a)}
+    .progress span.short{background:linear-gradient(90deg,#7e2318,#bd5a4d)}
+
+    .recipe-matrix input{
+      min-width:60px;text-align:center;background:#201a16;padding:8px 5px
+    }
+    .recipe-matrix td:first-child{background:#6d0d08;color:#f0cf89;font-weight:bold}
+    .recipe-matrix th:first-child{background:#5f3a28}
+
+    .history-controls{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;margin-bottom:13px}
+    .empty{padding:38px 20px;text-align:center;color:#9f8d6a;font-style:italic}
+
+    .toast{
+      position:fixed;right:24px;bottom:24px;z-index:99;max-width:360px;
+      padding:13px 16px;border:1px solid #9b7747;background:#2b2018;color:#f1dfb4;
+      box-shadow:0 14px 38px rgba(0,0,0,.42);transform:translateY(20px);opacity:0;pointer-events:none;
+      transition:.22s ease;
+    }
+    .toast.show{transform:none;opacity:1}
+
+    .warning{
+      border:1px solid rgba(190,91,73,.52);background:rgba(92,26,17,.28);
+      padding:12px 14px;color:#dfae9c;margin-top:14px;font-size:13px
+    }
+
+    .footer{margin-top:34px;text-align:center;color:#705f49;font-size:11px;letter-spacing:1px;text-transform:uppercase}
+
+    @media(max-width:1150px){
+      .grid.cards{grid-template-columns:repeat(2,1fr)}
+      .grid.two{grid-template-columns:1fr}
+    }
+    @media(max-width:850px){
+      .app{grid-template-columns:1fr}
+      .sidebar{position:relative;height:auto;padding:15px}
+      .brand{display:flex;align-items:center;text-align:left;gap:12px;margin:0 0 14px}
+      .seal{width:56px;height:56px;font-size:28px;margin:0}
+      .nav{grid-template-columns:repeat(2,1fr)}
+      .telegram{display:none}
+      main{padding:18px 12px 50px}
+      .topbar{padding:16px;min-height:auto}
+      .date-badge{display:none}
+      .craft-head,.history-controls,.form-grid.three{grid-template-columns:1fr}
+    }
+    @media(max-width:620px){
+      .grid.cards,.form-grid{grid-template-columns:1fr}
+      .nav{grid-template-columns:1fr 1fr}
+      .topbar h2{font-size:23px}
+    }
+    @media print{
+      .sidebar,.topbar,.form-actions,.quick-actions,.btn,.footer{display:none!important}
+      body{background:white;color:black}
+      main{padding:0}
+      .view{display:none!important}
+      #inventory.view{display:block!important}
+      .card,td,th{box-shadow:none;background:white!important;color:black!important;border-color:#777!important}
+      .section-title{background:white!important;color:black!important}
+    }
+  
+    body.locked .app{filter:blur(2px);pointer-events:none;user-select:none}
+    .auth-gate{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:22px;background:radial-gradient(circle at 50% 20%,rgba(112,43,25,.32),transparent 38%),rgba(7,5,4,.96)}
+    .auth-gate.hidden{display:none}
+    .auth-card{width:min(520px,100%);background:linear-gradient(180deg,#4a3125,#251a15);border:1px solid #c79c54;box-shadow:0 25px 80px #000;padding:30px;position:relative}
+    .auth-card:before{content:"";position:absolute;inset:6px;border:1px solid rgba(226,192,122,.16);pointer-events:none}
+    .auth-card .seal{width:74px;height:74px;font-size:38px}
+    .auth-card h2{text-align:center;text-transform:uppercase;color:#f3daa0;margin:14px 0 5px;letter-spacing:1px}
+    .auth-card p{text-align:center;color:#b8a17a;margin:0 0 20px}
+    .auth-card .field{margin-top:12px}
+    .auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+    .auth-message{min-height:22px;margin-top:14px;text-align:center;color:#dfae9c;font-size:13px}
+    .user-box{margin-top:14px;padding:12px;border:1px solid rgba(199,156,84,.25);background:rgba(0,0,0,.16);font-size:12px}
+    .user-box strong{display:block;color:#ecd69e;font-size:14px;overflow:hidden;text-overflow:ellipsis}
+    .user-box .mutedline{color:#9e8967;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .sync-state{margin-top:8px;font-size:11px;text-transform:uppercase;letter-spacing:.6px}
+    .sync-state.ok{color:#a8cd91}.sync-state.busy{color:#e3ba68}.sync-state.bad{color:#df8172}
+    .user-actions{display:flex;gap:6px;margin-top:9px}
+    .user-actions .btn{padding:7px 8px;font-size:10px;flex:1}
+    .access-card{width:min(560px,100%)}
+    .access-status{margin:18px 0;padding:14px;border:1px solid rgba(199,156,84,.38);background:rgba(199,156,84,.08);text-align:center;color:#ead7a7}
+    .status-pending{color:#e3ba68}.status-approved{color:#a8cd91}.status-revoked{color:#df8172}
+    .admin-only{display:none}
+    body.is-admin .admin-only{display:block}
+    .nav .admin-only{display:none}
+    body.is-admin .nav .admin-only{display:block}
+    .user-table .btn{padding:7px 9px;font-size:10px}
+    .user-table td{vertical-align:middle}
+
+  </style>
+</head>
+<body class="locked">
+
+<div class="auth-gate" id="authGate">
+  <div class="auth-card">
+    <div class="seal">⚕</div>
+    <h2>Cabinet Médical de Rhodes</h2>
+    <p>Registre en ligne du personnel médical</p>
+    <div class="field"><label>Adresse e-mail</label><input id="authEmail" type="email" autocomplete="email" placeholder="medecin@exemple.fr"></div>
+    <div class="field"><label>Mot de passe</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+    <div class="auth-actions"><button class="btn" id="authLogin" type="button">Se connecter</button><button class="btn secondary" id="authSignup" type="button">Créer un compte</button></div>
+    <div class="auth-message" id="authMessage"></div>
+  </div>
+</div>
+
+<div class="auth-gate hidden" id="accessGate">
+  <div class="auth-card access-card">
+    <div class="seal">⚕</div>
+    <h2>Accès au Cabinet de Rhodes</h2>
+    <p id="accessLead">Vérification de ton autorisation…</p>
+    <div class="access-status" id="accessStatusBox">Connexion au registre…</div>
+    <div class="auth-actions">
+      <button class="btn" id="checkAccessBtn" type="button">Vérifier mon accès</button>
+      <button class="btn danger" id="accessLogoutBtn" type="button">Se déconnecter</button>
+    </div>
+    <div class="auth-message" id="accessMessage"></div>
+  </div>
+</div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="seal">⚕</div>
+      <div>
+        <h1>Cabinet Médical<br>de Rhodes</h1>
+        <p>Lemoyne</p>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <button class="active" data-view="dashboard"><span class="ico">⌂</span>Tableau de bord</button>
+      <button data-view="inventory"><span class="ico">▦</span>Inventaire</button>
+      <button data-view="movements"><span class="ico">⇄</span>Entrées / sorties</button>
+      <button data-view="craft"><span class="ico">⚒</span>Fabrication</button>
+      <button data-view="recipes"><span class="ico">✎</span>Recettes</button>
+      <button data-view="suppliers"><span class="ico">☏</span>Fournisseurs</button>
+      <button data-view="history"><span class="ico">≡</span>Historique</button>
+      <button class="admin-only" id="usersNav" data-view="users"><span class="ico">♟</span>Utilisateurs</button>
+      <button data-view="settings"><span class="ico">⚙</span>Paramètres</button>
+    </nav>
+
+    <div class="telegram">
+      <small>Mon télégramme</small>
+      <strong id="telegramPlaque">RH1959</strong>
+    </div>
+    <div class="user-box">
+      <strong id="userName">Médecin</strong>
+      <div class="mutedline" id="userRole">Personnel médical</div>
+      <div class="mutedline" id="userEmail"></div>
+      <div class="sync-state busy" id="syncState">Connexion…</div>
+      <div class="user-actions">
+        <button class="btn ghost" id="refreshBtn" type="button">Actualiser</button>
+        <button class="btn danger" id="logoutBtn" type="button">Quitter</button>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <div>
+        <h2 id="pageTitle">Tableau de bord</h2>
+        <p>Registre du cabinet · gestion du stock et des dépenses</p>
+      </div>
+      <div class="date-badge">
+        Registre ouvert le
+        <strong id="todayLabel">—</strong>
+      </div>
+    </header>
+
+    <section id="dashboard" class="view active">
+      <div class="grid cards">
+        <div class="card metric accent">
+          <div class="label">Montant de la caisse</div>
+          <div class="value" id="dashCash">0,00 $</div>
+          <div class="sub">Argent disponible</div>
+        </div>
+        <div class="card metric">
+          <div class="label">Valeur du stock</div>
+          <div class="value" id="dashStockValue">0,00 $</div>
+          <div class="sub">Selon les prix unitaires actuels</div>
+        </div>
+        <div class="card metric">
+          <div class="label">Valeur du cabinet</div>
+          <div class="value" id="dashCabinetValue">0,00 $</div>
+          <div class="sub">Caisse + valeur du stock</div>
+        </div>
+        <div class="card metric">
+          <div class="label">Dépenses du mois</div>
+          <div class="value" id="dashMonthExpenses">0,00 $</div>
+          <div class="sub" id="dashMonthName">Mois en cours</div>
+        </div>
+      </div>
+
+      <div class="grid two" style="margin-top:18px">
+        <div class="card">
+          <h3 class="section-title">État rapide du stock <small>ressources les plus basses</small></h3>
+          <div class="card-body" id="lowStockPanel"></div>
+        </div>
+
+        <div class="card">
+          <h3 class="section-title">Derniers mouvements</h3>
+          <div class="card-body" id="recentPanel"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3 class="section-title">Actions rapides</h3>
+        <div class="card-body">
+          <p class="muted" style="margin-top:0">Accès direct aux opérations les plus fréquentes du cabinet.</p>
+          <div class="quick-actions">
+            <button class="btn" data-goto="movements">Nouvelle entrée / sortie</button>
+            <button class="btn good" data-goto="craft">Fabriquer un soin</button>
+            <button class="btn secondary" data-goto="inventory">Voir l'inventaire</button>
+            <button class="btn ghost" data-goto="suppliers">Voir les fournisseurs</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="inventory" class="view">
+      <div class="card">
+        <h3 class="section-title">Inventaire du stock <small>quantités et prix modifiables</small></h3>
+        <div class="card-body">
+          <div class="inventory-summary">
+            <span class="pill gold" id="inventoryCount">0 ressources</span>
+            <span class="pill gold" id="inventoryValue">Valeur : 0,00 $</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Ressource</th><th>Stock</th><th>Prix unitaire</th><th>Valeur du stock</th><th>État</th></tr></thead>
+              <tbody id="inventoryBody"></tbody>
+            </table>
+          </div>
+          <div class="form-actions">
+            <button class="btn" id="saveInventory">Enregistrer les modifications</button>
+            <button class="btn secondary" onclick="window.print()">Imprimer l'inventaire</button>
+          </div>
+          <p class="hint">Les corrections faites ici modifient directement le stock. Pour garder une trace, utilise plutôt « Entrées / sorties ».</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="movements" class="view">
+      <div class="grid two">
+        <div class="card">
+          <h3 class="section-title">Entrée / sortie de stock</h3>
+          <div class="card-body">
+            <form id="movementForm">
+              <div class="form-grid">
+                <div class="field"><label>Date</label><input type="date" id="mvDate" required></div>
+                <div class="field"><label>Ressource</label><select id="mvResource" required></select></div>
+                <div class="field">
+                  <label>Type d'opération</label>
+                  <select id="mvType">
+                    <option value="ACHAT">Achat — entrée + dépense</option>
+                    <option value="DEPOT">Dépôt — entrée sans dépense</option>
+                    <option value="SORTIE">Sortie / utilisation</option>
+                    <option value="VENTE">Vente — sortie + recette</option>
+                    <option value="CORRECTION_PLUS">Correction +</option>
+                    <option value="CORRECTION_MOINS">Correction −</option>
+                  </select>
+                </div>
+                <div class="field"><label>Quantité</label><input type="number" id="mvQty" min="0.01" step="0.01" required></div>
+                <div class="field"><label>Prix unitaire ($)</label><input type="number" id="mvPrice" min="0" step="0.01"></div>
+                <div class="field"><label>Total</label><input type="text" id="mvTotal" readonly value="0,00 $"></div>
+              </div>
+              <div class="field" style="margin-top:14px">
+                <label>Note / provenance</label>
+                <input type="text" id="mvNote" placeholder="Ex. William Flower's, achat à Rhodes…">
+              </div>
+              <div class="form-actions">
+                <button class="btn big" type="submit">Enregistrer l'opération</button>
+                <button class="btn secondary" type="button" id="resetMovement">Reset saisie</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="section-title">Mouvement de caisse <small>sans modifier le stock</small></h3>
+          <div class="card-body">
+            <div style="font-size:13px;color:#b7a17a;margin-bottom:12px">Caisse actuelle</div>
+            <div style="font-size:36px;font-weight:bold;color:#f2d384" id="cashBig">0,00 $</div>
+            <hr class="sep">
+            <form id="cashForm">
+              <div class="form-grid">
+                <div class="field">
+                  <label>Opération</label>
+                  <select id="cashType"><option value="CAISSE_ENTREE">Entrée d'argent</option><option value="CAISSE_SORTIE">Dépense / retrait</option></select>
+                </div>
+                <div class="field"><label>Montant ($)</label><input type="number" id="cashAmount" min="0.01" step="0.01" required></div>
+              </div>
+              <div class="field" style="margin-top:14px"><label>Motif</label><input id="cashNote" placeholder="Ex. versement, loyer, achat divers…"></div>
+              <div class="form-actions"><button class="btn" type="submit">Valider le mouvement</button></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="craft" class="view">
+      <div class="card">
+        <h3 class="section-title">Fabrication des soins</h3>
+        <div class="card-body">
+          <div class="craft-head">
+            <div class="field"><label>Recette</label><select id="craftRecipe"></select></div>
+            <div class="field"><label>Quantité à fabriquer</label><input type="number" id="craftQty" value="1" min="1" step="1"></div>
+            <button class="btn good big" id="craftButton">Fabriquer</button>
+          </div>
+          <div class="recipe-note" id="craftDescription">Sélectionne un soin pour afficher les matériaux nécessaires.</div>
+          <div class="table-wrap" style="margin-top:16px">
+            <table>
+              <thead><tr><th>Matériau</th><th>Par unité</th><th>Nécessaire</th><th>En stock</th><th>Disponibilité</th><th>À commander</th></tr></thead>
+              <tbody id="craftBody"></tbody>
+            </table>
+          </div>
+          <div class="form-actions">
+            <button class="btn secondary" id="resetCraft">Reset fabrication</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="recipes" class="view">
+      <div class="grid two">
+        <div class="card">
+          <h3 class="section-title">Ajouter une recette <small>crée automatiquement le nouveau soin dans l'inventaire</small></h3>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="field">
+                <label>Nom du nouveau soin</label>
+                <input id="newRecipeName" placeholder="Ex. Tonique fortifiant">
+              </div>
+              <div class="field">
+                <label>Prix unitaire du soin ($)</label>
+                <input id="newRecipePrice" type="number" min="0" step="0.01" value="0">
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn good" id="addNewRecipe">Ajouter la recette</button>
+            </div>
+            <p class="hint">Après l'ajout, la nouvelle recette apparaît dans le tableau ci-dessous : indique simplement les quantités de chaque ingrédient puis clique sur « Enregistrer les recettes ».</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="section-title">Ajouter un ingrédient <small>si une future recette utilise une nouvelle ressource</small></h3>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="field">
+                <label>Nom de l'ingrédient</label>
+                <input id="newIngredientName" placeholder="Ex. Ginseng">
+              </div>
+              <div class="field">
+                <label>Prix unitaire ($)</label>
+                <input id="newIngredientPrice" type="number" min="0" step="0.01" value="0">
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn secondary" id="addNewIngredient">Ajouter l'ingrédient</button>
+            </div>
+            <p class="hint">L'ingrédient sera ajouté à l'inventaire, aux fournisseurs et comme nouvelle colonne dans toutes les recettes.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px">
+        <h3 class="section-title">Recettes du cabinet <small>quantités et noms modifiables</small></h3>
+        <div class="card-body">
+          <div class="table-wrap">
+            <table class="recipe-matrix">
+              <thead id="recipeHead"></thead>
+              <tbody id="recipeBody"></tbody>
+            </table>
+          </div>
+          <div class="form-actions">
+            <button class="btn" id="saveRecipes">Enregistrer les recettes</button>
+          </div>
+          <p class="hint">0 signifie que le matériau n'entre pas dans la recette. Le bouton « Retirer » enlève uniquement la recette de fabrication : le soin reste dans l'inventaire afin de ne pas perdre un éventuel stock existant.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="suppliers" class="view">
+      <div class="card">
+        <h3 class="section-title">Fournisseurs d'ingrédients</h3>
+        <div class="card-body">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Ingrédient</th><th>Prix unité</th><th>Nom / Télégramme</th><th>Lieu</th></tr></thead>
+              <tbody id="suppliersBody"></tbody>
+            </table>
+          </div>
+          <div class="form-actions"><button class="btn" id="saveSuppliers">Enregistrer les fournisseurs</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="history" class="view">
+      <div class="card">
+        <h3 class="section-title">Historique du registre</h3>
+        <div class="card-body">
+          <div class="history-controls">
+            <input type="search" id="historySearch" placeholder="Rechercher une ressource ou une note…">
+            <select id="historyType"><option value="">Tous les types</option></select>
+            <input type="month" id="historyMonth">
+            <button class="btn secondary" id="clearHistoryFilters">Effacer filtres</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Date</th><th>Opération</th><th>Ressource</th><th>Qté</th><th>Prix / montant</th><th>Caisse</th><th>Note</th></tr></thead>
+              <tbody id="historyBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="users" class="view">
+      <div class="card">
+        <h3 class="section-title">Gestion des accès <small>administrateur uniquement</small></h3>
+        <div class="card-body">
+          <div class="inventory-summary">
+            <span class="pill gold" id="usersPendingCount">0 en attente</span>
+            <span class="pill green" id="usersApprovedCount">0 autorisés</span>
+            <span class="pill red" id="usersRevokedCount">0 accès retirés</span>
+          </div>
+          <p class="muted">Une personne peut créer son compte depuis l'adresse du site, mais elle ne voit aucune donnée tant que tu ne l'as pas autorisée ici.</p>
+          <div class="table-wrap">
+            <table class="user-table">
+              <thead><tr><th>Nom</th><th>E-mail</th><th>Rôle</th><th>Statut</th><th>Inscription</th><th>Action</th></tr></thead>
+              <tbody id="usersBody"><tr><td colspan="6" class="empty">Chargement…</td></tr></tbody>
+            </table>
+          </div>
+          <div class="form-actions"><button class="btn secondary" id="refreshUsers">Actualiser les comptes</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="settings" class="view">
+      <div class="grid two">
+        <div class="card">
+          <h3 class="section-title">Identité du cabinet</h3>
+          <div class="card-body">
+            <div class="field"><label>Nom du cabinet</label><input id="settingName"></div>
+            <div class="form-grid" style="margin-top:14px">
+              <div class="field"><label>Ville / région</label><input id="settingPlace"></div>
+              <div class="field"><label>Télégramme</label><input id="settingTelegram"></div>
+            </div>
+            <div class="field" style="margin-top:14px"><label>Montant de caisse actuel ($)</label><input type="number" min="0" step="0.01" id="settingCash"></div>
+            <div class="form-actions"><button class="btn" id="saveSettings">Enregistrer</button></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="section-title">Sauvegarde des données</h3>
+          <div class="card-body">
+            <p class="muted" style="margin-top:0">Les données sont enregistrées dans la base Supabase en ligne et partagées entre les médecins.</p>
+            <div class="form-actions">
+              <button class="btn secondary" id="exportData">Exporter une sauvegarde</button>
+              <label class="btn ghost" style="display:inline-flex;align-items:center">Importer une sauvegarde<input type="file" id="importData" accept=".json" hidden></label>
+            </div>
+            <div class="warning">
+              Cette version est reliée à la base en ligne du Cabinet-Rhodes. Seuls les comptes autorisés par l’administrateur peuvent accéder aux données.
+            </div>
+            <hr class="sep">
+            <button class="btn danger admin-only" id="resetAll">Réinitialiser toutes les données</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">Cabinet Médical de Rhodes · Registre privé du personnel médical</div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(async function(){
+  const SUPABASE_URL = "https://zuduxergikwysupesdep.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_eN_1pWK19vVPNHhziPGOww_6hOXdXz3";
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+  });
+
+  const defaults = {
+    settings:{name:"Cabinet Médical de Rhodes",place:"Rhodes · Lemoyne",telegram:"RH1959"},
+    cash:0,resources:[],recipes:[],suppliers:[],history:[]
+  };
+  let state = JSON.parse(JSON.stringify(defaults));
+  let currentUser = null;
+  let currentProfile = null;
+  let isAdmin = false;
+  let isRefreshing = false;
+  let refreshTimer = null;
+
+  const $=id=>document.getElementById(id);
+  const money=n=>new Intl.NumberFormat("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(n)||0)+" $";
+  const num=n=>Number(n)||0;
+  const todayISO=()=>new Date().toISOString().slice(0,10);
+  const res=id=>state.resources.find(r=>r.id===id);
+  const recipe=id=>state.recipes.find(r=>r.productId===id);
+  const ingredientResources=()=>state.resources.filter(r=>r.kind==="ingredient");
+  const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
+
+  function toast(msg){
+    $("toast").textContent=msg;
+    $("toast").classList.add("show");
+    clearTimeout(toast.t);
+    toast.t=setTimeout(()=>$("toast").classList.remove("show"),2800);
+  }
+  function setSync(text,kind="ok"){
+    const el=$("syncState");
+    if(!el)return;
+    el.textContent=text;
+    el.className="sync-state "+kind;
+  }
+  function typeLabel(t){
+    return {
+      ACHAT:"Achat",DEPOT:"Dépôt",SORTIE:"Sortie",VENTE:"Vente",
+      CORRECTION_PLUS:"Correction +",CORRECTION_MOINS:"Correction −",
+      FABRICATION:"Fabrication",CONSOMMATION_FAB:"Consommation fabrication",
+      CAISSE_ENTREE:"Entrée de caisse",CAISSE_SORTIE:"Dépense de caisse"
+    }[t]||t;
+  }
+  function dbError(error, fallback="Une erreur est survenue."){
+    console.error(error);
+    const msg=error?.message||fallback;
+    toast(msg.includes("duplicate")?"Ce nom existe déjà.":msg);
+  }
+  function stockValue(){return state.resources.reduce((a,r)=>a+num(r.stock)*num(r.unitPrice),0);}
+  function monthExpenses(){
+    const ym=todayISO().slice(0,7);
+    return state.history.filter(h=>String(h.date||"").startsWith(ym) && (h.type==="ACHAT"||h.type==="CAISSE_SORTIE"))
+      .reduce((a,h)=>a+Math.max(0,-num(h.cashDelta)),0);
+  }
+
+  function setView(id){
+    document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
+    document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
+    const btn=document.querySelector(`#nav button[data-view="${id}"]`);
+    $("pageTitle").textContent=btn?btn.textContent.trim():"Cabinet Médical";
+    if(id==="users" && isAdmin) loadUsers();
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+  document.querySelectorAll("#nav button").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.view)));
+  document.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.goto)));
+
+  async function loadRemoteState(silent=false){
+    if(!currentUser || isRefreshing)return;
+    isRefreshing=true;
+    if(!silent)setSync("Synchronisation…","busy");
+    try{
+      const [cab,resources,recipes,ingredients,suppliers,movements] = await Promise.all([
+        sb.from("cabinet_state").select("*").eq("id",1).single(),
+        sb.from("resources").select("*").eq("active",true).order("name"),
+        sb.from("recipes").select("*").eq("active",true).order("name"),
+        sb.from("recipe_ingredients").select("*"),
+        sb.from("suppliers").select("*").eq("active",true),
+        sb.from("movements").select("*").order("created_at",{ascending:true}).limit(2000)
+      ]);
+      for(const r of [cab,resources,recipes,ingredients,suppliers,movements]) if(r.error) throw r.error;
+
+      const c=cab.data||{};
+      state.settings={name:c.cabinet_name||defaults.settings.name,place:c.place||defaults.settings.place,telegram:c.telegram||""};
+      state.cash=num(c.cash_balance);
+      state.resources=(resources.data||[]).map(r=>({
+        id:r.id,name:r.name,stock:num(r.stock),unitPrice:num(r.unit_price),kind:r.category==="ingredient"?"ingredient":"soin"
+      }));
+      state.recipes=(recipes.data||[]).map(rc=>{
+        const map={};
+        (ingredients.data||[]).filter(i=>i.recipe_id===rc.id).forEach(i=>map[i.ingredient_resource_id]=num(i.quantity));
+        return {dbId:rc.id,productId:rc.product_resource_id,ingredients:map,outputQuantity:num(rc.output_quantity)||1};
+      });
+      const suppByResource=new Map();
+      (suppliers.data||[]).forEach(s=>{
+        if(!suppByResource.has(s.resource_id))suppByResource.set(s.resource_id,s);
+      });
+      state.suppliers=ingredientResources().map(r=>{
+        const s=suppByResource.get(r.id);
+        return {
+          dbId:s?.id||null,resourceId:r.id,unitPrice:num(s?.unit_price ?? r.unitPrice),
+          name:[s?.supplier_name,s?.telegram].filter(Boolean).join(" / "),place:s?.location||""
+        };
+      });
+      state.history=(movements.data||[]).map(h=>({
+        id:h.id,date:h.effective_date||String(h.created_at||"").slice(0,10),type:h.movement_type,
+        resourceId:h.resource_id,resourceName:h.resource_id?res(h.resource_id)?.name||"Ressource":"Caisse",
+        qty:h.resource_id?Math.abs(num(h.quantity_delta)):null,unitPrice:h.unit_price==null?null:num(h.unit_price),
+        total:h.unit_price==null?null:Math.abs(num(h.quantity_delta))*num(h.unit_price),
+        amount:h.resource_id?null:Math.abs(num(h.cash_delta)),cashDelta:num(h.cash_delta),note:h.note||""
+      }));
+      renderAll();
+      const p=currentProfile;
+      $("userName").textContent=p?.display_name||currentUser.email||"Médecin";
+      $("userRole").textContent=isAdmin?"Administrateur":"Personnel médical";
+      setSync("En ligne · synchronisé","ok");
+    }catch(error){
+      console.error(error);
+      setSync("Erreur de synchronisation","bad");
+      if(!silent)dbError(error,"Impossible de charger la base de données.");
+    }finally{isRefreshing=false;}
+  }
+
+  function renderDashboard(){
+    $("dashCash").textContent=money(state.cash);
+    $("dashStockValue").textContent=money(stockValue());
+    $("dashCabinetValue").textContent=money(state.cash+stockValue());
+    $("dashMonthExpenses").textContent=money(monthExpenses());
+    $("cashBig").textContent=money(state.cash);
+    $("dashMonthName").textContent=new Intl.DateTimeFormat("fr-FR",{month:"long",year:"numeric"}).format(new Date());
+    const low=[...state.resources].sort((a,b)=>num(a.stock)-num(b.stock)).slice(0,6);
+    $("lowStockPanel").innerHTML=low.length?low.map(r=>`<div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid rgba(199,156,84,.12)"><div><strong style="color:#ecd69e">${esc(r.name)}</strong><div class="hint">${r.kind==="soin"?"Soin fabriqué":"Ingrédient"}</div></div><span class="pill ${num(r.stock)<=5?"red":"gold"}">${num(r.stock)} en stock</span></div>`).join(""):`<div class="empty">Aucune ressource.</div>`;
+    const recent=[...state.history].reverse().slice(0,5);
+    $("recentPanel").innerHTML=recent.length?recent.map(h=>`<div style="padding:9px 0;border-bottom:1px solid rgba(199,156,84,.12)"><div style="display:flex;justify-content:space-between;gap:10px"><strong style="color:#ecd69e">${esc(typeLabel(h.type))}</strong><span class="muted">${esc(h.date)}</span></div><div class="hint">${esc(h.resourceId?res(h.resourceId)?.name||h.resourceName||"Ressource":h.note||"Caisse")}${h.qty?` · ${h.qty}`:""}</div></div>`).join(""):`<div class="empty">Aucun mouvement enregistré.</div>`;
+  }
+  function renderInventory(){
+    $("inventoryBody").innerHTML=state.resources.map(r=>`<tr class="${num(r.stock)<=0?"stock-low":""}" data-id="${esc(r.id)}"><td class="resource-name">${esc(r.name)}</td><td><input class="inv-stock" type="number" min="0" step="0.01" value="${num(r.stock)}"></td><td><input class="inv-price" type="number" min="0" step="0.01" value="${num(r.unitPrice).toFixed(2)}"></td><td class="money">${money(num(r.stock)*num(r.unitPrice))}</td><td>${num(r.stock)<=0?'<span class="pill red">Épuisé</span>':num(r.stock)<=5?'<span class="pill red">Faible</span>':'<span class="pill green">Disponible</span>'}</td></tr>`).join("");
+    $("inventoryCount").textContent=state.resources.length+" ressources";
+    $("inventoryValue").textContent="Valeur : "+money(stockValue());
+  }
+  function fillMovementResources(){
+    const current=$("mvResource").value;
+    $("mvResource").innerHTML=state.resources.map(r=>`<option value="${esc(r.id)}">${esc(r.name)}</option>`).join("");
+    if(state.resources.some(r=>r.id===current))$("mvResource").value=current;
+    else if(state.resources[0])$("mvResource").value=state.resources[0].id;
+    syncMovementPrice();
+  }
+  function syncMovementPrice(){const r=res($("mvResource").value);if(r)$("mvPrice").value=num(r.unitPrice).toFixed(2);calcMovementTotal();}
+  function calcMovementTotal(){ $("mvTotal").value=money(num($("mvQty").value)*num($("mvPrice").value)); }
+  function renderCraft(){
+    const selected=$("craftRecipe").value || state.recipes[0]?.productId || "";
+    $("craftRecipe").innerHTML=state.recipes.map(rc=>`<option value="${esc(rc.productId)}">${esc(res(rc.productId)?.name||rc.productId)}</option>`).join("");
+    if(state.recipes.some(r=>r.productId===selected))$("craftRecipe").value=selected;
+    const rc=recipe($("craftRecipe").value); const qty=Math.max(1,parseInt($("craftQty").value||1,10));
+    if(!rc){$("craftBody").innerHTML=`<tr><td colspan="6" class="empty">Aucune recette.</td></tr>`;$("craftButton").disabled=true;return;}
+    const rows=Object.entries(rc.ingredients).filter(([,q])=>num(q)>0); let allOk=true;
+    $("craftBody").innerHTML=rows.map(([id,per])=>{const r=res(id),need=num(per)*qty,have=num(r?.stock),missing=Math.max(0,need-have),ratio=need?Math.min(100,(have/need)*100):100;if(missing>0)allOk=false;return `<tr><td class="resource-name">${esc(r?.name||id)}</td><td>${num(per)}</td><td><strong>${need}</strong></td><td>${have}</td><td><div class="progress"><span class="${missing>0?"short":""}" style="width:${ratio}%"></span></div><div class="hint">${missing>0?"Stock insuffisant":"Disponible"}</div></td><td class="${missing>0?"bad":"good"}"><strong>${missing}</strong></td></tr>`;}).join("");
+    const product=res(rc.productId);
+    $("craftDescription").innerHTML=`Fabrication de <strong>${qty} ${esc(product?.name||rc.productId)}</strong>. Les matériaux seront retirés et le produit ajouté au stock en une seule opération sécurisée.`;
+    $("craftButton").disabled=!allOk||!rows.length;
+  }
+  function renderRecipes(){
+    const ingredients=ingredientResources();
+    $("recipeHead").innerHTML="<tr><th>Recette</th>"+ingredients.map(r=>`<th>${esc(r.name)}</th>`).join("")+"<th>Action</th></tr>";
+    $("recipeBody").innerHTML=state.recipes.length?state.recipes.map(rc=>`<tr data-product="${esc(rc.productId)}" data-recipe="${esc(rc.dbId)}"><td><input class="recipe-name" value="${esc(res(rc.productId)?.name||rc.productId)}" aria-label="Nom de la recette"></td>${ingredients.map(r=>`<td><input type="number" min="0" step="1" data-ing="${esc(r.id)}" value="${num(rc.ingredients[r.id])}"></td>`).join("")}<td><button class="btn danger delete-recipe" type="button" data-product="${esc(rc.productId)}">Retirer</button></td></tr>`).join(""):`<tr><td colspan="${ingredients.length+2}" class="empty">Aucune recette enregistrée.</td></tr>`;
+  }
+  function renderSuppliers(){
+    $("suppliersBody").innerHTML=state.suppliers.map(s=>{const r=res(s.resourceId);return `<tr data-id="${esc(s.resourceId)}"><td class="resource-name">${esc(r?.name||s.resourceId)}</td><td><input class="sup-price" type="number" min="0" step="0.01" value="${num(s.unitPrice).toFixed(2)}"></td><td><input class="sup-name" value="${esc(s.name)}"></td><td><input class="sup-place" value="${esc(s.place)}"></td></tr>`;}).join("");
+  }
+  function renderHistory(){
+    const types=[...new Set(state.history.map(h=>h.type))],current=$("historyType").value;
+    $("historyType").innerHTML='<option value="">Tous les types</option>'+types.map(t=>`<option value="${esc(t)}">${esc(typeLabel(t))}</option>`).join("");
+    $("historyType").value=types.includes(current)?current:"";
+    const q=$("historySearch").value.trim().toLowerCase(),t=$("historyType").value,m=$("historyMonth").value;
+    const filtered=[...state.history].reverse().filter(h=>{const rn=h.resourceId?res(h.resourceId)?.name||h.resourceName||"":h.resourceName||"";const hay=(typeLabel(h.type)+" "+rn+" "+(h.note||"")).toLowerCase();return (!q||hay.includes(q))&&(!t||h.type===t)&&(!m||String(h.date||"").startsWith(m));});
+    $("historyBody").innerHTML=filtered.length?filtered.map(h=>`<tr><td>${esc(h.date||"")}</td><td><span class="pill ${["ACHAT","CAISSE_SORTIE"].includes(h.type)?"red":["VENTE","CAISSE_ENTREE"].includes(h.type)?"green":"gold"}">${esc(typeLabel(h.type))}</span></td><td>${esc(h.resourceId?res(h.resourceId)?.name||h.resourceName||"—":h.resourceName||"—")}</td><td>${h.qty!=null?esc(h.qty):"—"}</td><td class="money">${h.unitPrice!=null?money(h.total!=null?h.total:num(h.qty)*num(h.unitPrice)):h.amount!=null?money(h.amount):"—"}</td><td class="${num(h.cashDelta)<0?"bad":num(h.cashDelta)>0?"good":"muted"}">${num(h.cashDelta)===0?"—":(num(h.cashDelta)>0?"+":"")+money(h.cashDelta)}</td><td>${esc(h.note||"")}</td></tr>`).join(""):`<tr><td colspan="7" class="empty">Aucun mouvement ne correspond aux filtres.</td></tr>`;
+  }
+  async function loadUsers(){
+    if(!isAdmin)return;
+    $("usersBody").innerHTML='<tr><td colspan="6" class="empty">Chargement des comptes…</td></tr>';
+    try{
+      const {data,error}=await sb.from("profiles").select("id,email,display_name,role,access_status,created_at").order("created_at",{ascending:true});
+      if(error)throw error;
+      const rows=data||[];
+      $("usersPendingCount").textContent=rows.filter(x=>x.access_status==="pending").length+" en attente";
+      $("usersApprovedCount").textContent=rows.filter(x=>x.access_status==="approved").length+" autorisés";
+      $("usersRevokedCount").textContent=rows.filter(x=>x.access_status==="revoked").length+" accès retirés";
+      $("usersBody").innerHTML=rows.length?rows.map(u=>{
+        const self=u.id===currentUser?.id;
+        const status=u.access_status||"pending";
+        const statusLabel=status==="approved"?"Autorisé":status==="revoked"?"Accès retiré":"En attente";
+        const statusClass=status==="approved"?"green":status==="revoked"?"red":"gold";
+        let action='—';
+        if(!self){
+          action=status==="approved"
+            ? `<button class="btn danger user-access-btn" data-id="${esc(u.id)}" data-status="revoked">Retirer l’accès</button>`
+            : `<button class="btn good user-access-btn" data-id="${esc(u.id)}" data-status="approved">${status==="revoked"?"Réautoriser":"Autoriser"}</button>`;
+        }
+        const created=u.created_at?new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"}).format(new Date(u.created_at)):"—";
+        return `<tr><td class="resource-name">${esc(u.display_name||"—")}</td><td>${esc(u.email||"—")}</td><td>${u.role==="admin"?'<span class="pill gold">Administrateur</span>':'Médecin'}</td><td><span class="pill ${statusClass}">${statusLabel}</span></td><td>${created}</td><td>${action}</td></tr>`;
+      }).join(""):'<tr><td colspan="6" class="empty">Aucun compte.</td></tr>';
+    }catch(err){dbError(err,"Impossible de charger les comptes.");}
+  }
+
+  function renderSettings(){
+    $("settingName").value=state.settings.name||"";$("settingPlace").value=state.settings.place||"";$("settingTelegram").value=state.settings.telegram||"";$("settingCash").value=num(state.cash).toFixed(2);$("telegramPlaque").textContent=state.settings.telegram||"—";
+    document.querySelector(".brand h1").innerHTML=esc(state.settings.name).replace(/\sde\sRhodes/i,"<br>de Rhodes");
+    document.querySelector(".brand p").textContent=state.settings.place;
+  }
+  function renderAll(){renderDashboard();renderInventory();fillMovementResources();renderCraft();renderRecipes();renderSuppliers();renderHistory();renderSettings();}
+
+  $("saveInventory").addEventListener("click",async()=>{
+    try{
+      setSync("Enregistrement…","busy");
+      const jobs=[];
+      document.querySelectorAll("#inventoryBody tr").forEach(tr=>{
+        jobs.push(sb.from("resources").update({stock:Math.max(0,num(tr.querySelector(".inv-stock").value)),unit_price:Math.max(0,num(tr.querySelector(".inv-price").value))}).eq("id",tr.dataset.id));
+      });
+      const results=await Promise.all(jobs); const bad=results.find(x=>x.error); if(bad)throw bad.error;
+      await loadRemoteState();toast("Inventaire enregistré en ligne.");
+    }catch(e){dbError(e);setSync("Erreur","bad");}
+  });
+  $("mvResource").addEventListener("change",syncMovementPrice);$("mvQty").addEventListener("input",calcMovementTotal);$("mvPrice").addEventListener("input",calcMovementTotal);
+  $("movementForm").addEventListener("submit",async e=>{
+    e.preventDefault();
+    const resource=res($("mvResource").value),type=$("mvType").value,qty=num($("mvQty").value),price=num($("mvPrice").value),total=qty*price;
+    if(!resource||qty<=0){toast("Indique une ressource et une quantité valide.");return;}
+    const removes=["SORTIE","VENTE","CORRECTION_MOINS"].includes(type);
+    if(removes&&num(resource.stock)<qty){toast("Stock insuffisant pour cette sortie.");return;}
+    const qDelta=["ACHAT","DEPOT","CORRECTION_PLUS"].includes(type)?qty:removes?-qty:0;
+    const cashDelta=type==="ACHAT"?-total:type==="VENTE"?total:0;
+    try{
+      const {error}=await sb.rpc("apply_movement",{p_resource_id:resource.id,p_quantity_delta:qDelta,p_unit_price:["ACHAT","VENTE"].includes(type)?price:null,p_cash_delta:cashDelta,p_movement_type:type,p_note:$("mvNote").value.trim()||null,p_effective_date:$("mvDate").value||todayISO()});
+      if(error)throw error;
+      $("movementForm").reset();$("mvDate").value=todayISO();await loadRemoteState();toast("Opération enregistrée en ligne.");
+    }catch(err){dbError(err);}
+  });
+  $("resetMovement").addEventListener("click",()=>{$("movementForm").reset();$("mvDate").value=todayISO();fillMovementResources();calcMovementTotal();toast("Zone de saisie réinitialisée.");});
+  $("cashForm").addEventListener("submit",async e=>{
+    e.preventDefault();const type=$("cashType").value,amount=num($("cashAmount").value);if(amount<=0)return;const delta=type==="CAISSE_ENTREE"?amount:-amount;
+    try{const {error}=await sb.rpc("apply_movement",{p_resource_id:null,p_quantity_delta:0,p_unit_price:null,p_cash_delta:delta,p_movement_type:type,p_note:$("cashNote").value.trim()||null,p_effective_date:todayISO()});if(error)throw error;$("cashForm").reset();await loadRemoteState();toast("Mouvement de caisse enregistré.");}catch(err){dbError(err);}
+  });
+  $("craftRecipe").addEventListener("change",renderCraft);$("craftQty").addEventListener("input",renderCraft);
+  $("resetCraft").addEventListener("click",()=>{if(state.recipes[0])$("craftRecipe").value=state.recipes[0].productId;$("craftQty").value=1;renderCraft();toast("Zone de fabrication réinitialisée.");});
+  $("craftButton").addEventListener("click",async()=>{
+    const rc=recipe($("craftRecipe").value),qty=Math.max(1,parseInt($("craftQty").value||1,10));if(!rc)return;
+    try{const {error}=await sb.rpc("craft_recipe",{p_recipe_id:rc.dbId,p_quantity:qty});if(error)throw error;await loadRemoteState();renderCraft();toast(`${qty} ${res(rc.productId)?.name||"produit"} fabriqué(s).`);}catch(err){dbError(err);}
+  });
+  $("addNewRecipe").addEventListener("click",async()=>{
+    const name=$("newRecipeName").value.trim(),price=Math.max(0,num($("newRecipePrice").value));if(!name){toast("Indique le nom de la nouvelle recette.");return;}
+    try{
+      let product=state.resources.find(r=>r.name.trim().toLowerCase()===name.toLowerCase());
+      if(product&&recipe(product.id)){toast("Une recette portant ce nom existe déjà.");return;}
+      if(!product){const {data,error}=await sb.from("resources").insert({name,category:"produit",unit_price:price,stock:0}).select().single();if(error)throw error;product={id:data.id,name:data.name};}
+      else {const {error}=await sb.from("resources").update({category:"produit",unit_price:price>0?price:product.unitPrice}).eq("id",product.id);if(error)throw error;}
+      const {error}=await sb.from("recipes").insert({name,product_resource_id:product.id,output_quantity:1});if(error)throw error;
+      $("newRecipeName").value="";$("newRecipePrice").value="0";await loadRemoteState();$("craftRecipe").value=product.id;renderCraft();toast(`Recette « ${name} » ajoutée.`);
+    }catch(err){dbError(err);}
+  });
+  $("addNewIngredient").addEventListener("click",async()=>{
+    const name=$("newIngredientName").value.trim(),price=Math.max(0,num($("newIngredientPrice").value));if(!name){toast("Indique le nom du nouvel ingrédient.");return;}if(state.resources.some(r=>r.name.trim().toLowerCase()===name.toLowerCase())){toast("Cette ressource existe déjà.");return;}
+    try{const {error}=await sb.from("resources").insert({name,category:"ingredient",unit_price:price,stock:0});if(error)throw error;$("newIngredientName").value="";$("newIngredientPrice").value="0";await loadRemoteState();toast(`Ingrédient « ${name} » ajouté.`);}catch(err){dbError(err);}
+  });
+  $("recipeBody").addEventListener("click",async e=>{
+    const btn=e.target.closest(".delete-recipe");if(!btn)return;const rc=recipe(btn.dataset.product);if(!rc)return;const product=res(rc.productId);if(!confirm(`Retirer la recette « ${product?.name||""} » de la fabrication ? Le produit restera dans l'inventaire.`))return;
+    try{const {error}=await sb.from("recipes").update({active:false}).eq("id",rc.dbId);if(error)throw error;await loadRemoteState();toast("Recette retirée de la fabrication.");}catch(err){dbError(err);}
+  });
+  $("saveRecipes").addEventListener("click",async()=>{
+    try{
+      setSync("Enregistrement des recettes…","busy");
+      for(const tr of document.querySelectorAll("#recipeBody tr[data-product]")){
+        const rc=recipe(tr.dataset.product);if(!rc)continue;const name=tr.querySelector(".recipe-name")?.value.trim()||res(rc.productId)?.name;
+        let q=await sb.from("resources").update({name}).eq("id",rc.productId);if(q.error)throw q.error;
+        q=await sb.from("recipes").update({name}).eq("id",rc.dbId);if(q.error)throw q.error;
+        q=await sb.from("recipe_ingredients").delete().eq("recipe_id",rc.dbId);if(q.error)throw q.error;
+        const rows=[];tr.querySelectorAll("input[data-ing]").forEach(inp=>{const n=Math.max(0,num(inp.value));if(n>0)rows.push({recipe_id:rc.dbId,ingredient_resource_id:inp.dataset.ing,quantity:n});});
+        if(rows.length){q=await sb.from("recipe_ingredients").insert(rows);if(q.error)throw q.error;}
+      }
+      await loadRemoteState();toast("Recettes enregistrées en ligne.");
+    }catch(err){dbError(err);setSync("Erreur","bad");}
+  });
+  $("saveSuppliers").addEventListener("click",async()=>{
+    try{
+      for(const tr of document.querySelectorAll("#suppliersBody tr")){
+        const resourceId=tr.dataset.id,price=Math.max(0,num(tr.querySelector(".sup-price").value)),name=tr.querySelector(".sup-name").value.trim(),place=tr.querySelector(".sup-place").value.trim();
+        let q=await sb.from("resources").update({unit_price:price}).eq("id",resourceId);if(q.error)throw q.error;
+        const existing=state.suppliers.find(x=>x.resourceId===resourceId);
+        const payload={resource_id:resourceId,unit_price:price,supplier_name:name||null,telegram:null,location:place||null,active:true};
+        q=existing?.dbId?await sb.from("suppliers").update(payload).eq("id",existing.dbId):await sb.from("suppliers").insert(payload);if(q.error)throw q.error;
+      }
+      await loadRemoteState();toast("Fournisseurs enregistrés en ligne.");
+    }catch(err){dbError(err);}
+  });
+  $("refreshUsers").addEventListener("click",loadUsers);
+  $("usersBody").addEventListener("click",async e=>{
+    const btn=e.target.closest(".user-access-btn");
+    if(!btn||!isAdmin)return;
+    const targetStatus=btn.dataset.status;
+    const wording=targetStatus==="approved"?"autoriser ce compte":"retirer l’accès à ce compte";
+    if(!confirm(`Confirmer : ${wording} ?`))return;
+    try{
+      btn.disabled=true;
+      const {error}=await sb.rpc("admin_set_user_access",{p_user_id:btn.dataset.id,p_status:targetStatus});
+      if(error)throw error;
+      await loadUsers();
+      toast(targetStatus==="approved"?"Accès autorisé.":"Accès retiré immédiatement.");
+    }catch(err){dbError(err);}finally{btn.disabled=false;}
+  });
+
+  ["historySearch","historyType","historyMonth"].forEach(id=>$(id).addEventListener(id==="historySearch"?"input":"change",renderHistory));
+  $("clearHistoryFilters").addEventListener("click",()=>{$("historySearch").value="";$("historyType").value="";$("historyMonth").value="";renderHistory();});
+  $("saveSettings").addEventListener("click",async()=>{
+    const payload={cabinet_name:$("settingName").value.trim()||defaults.settings.name,place:$("settingPlace").value.trim()||defaults.settings.place,telegram:$("settingTelegram").value.trim(),cash_balance:Math.max(0,num($("settingCash").value))};
+    try{const {error}=await sb.from("cabinet_state").update(payload).eq("id",1);if(error)throw error;await loadRemoteState();toast("Paramètres enregistrés en ligne.");}catch(err){dbError(err);}
+  });
+  $("exportData").addEventListener("click",()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="cabinet-rhodes-sauvegarde-"+todayISO()+".json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);});
+  $("importData").addEventListener("change",e=>{e.target.value="";toast("L'import direct d'une ancienne sauvegarde est désactivé sur la version en ligne. Garde le fichier : je peux le convertir si besoin.");});
+  $("resetAll").addEventListener("click",async()=>{
+    if(!isAdmin){toast("Action réservée à l’administrateur.");return;}
+    if(!confirm("Réinitialiser TOUT le registre EN LIGNE ? Cela effacera le stock, la caisse, les fournisseurs et l'historique pour tous les médecins."))return;
+    if(!confirm("Dernière confirmation : cette action concerne toute la base partagée."))return;
+    try{const {error}=await sb.rpc("reset_cabinet");if(error)throw error;await loadRemoteState();toast("Registre partagé remis à zéro.");}catch(err){dbError(err);}
+  });
+
+  async function signIn(){
+    const email=$("authEmail").value.trim(),password=$("authPassword").value;if(!email||!password){$("authMessage").textContent="Entre ton e-mail et ton mot de passe.";return;}
+    $("authMessage").textContent="Connexion…";
+    const {error}=await sb.auth.signInWithPassword({email,password});
+    if(error)$("authMessage").textContent=error.message;else $("authMessage").textContent="";
+  }
+  async function signUp(){
+    const email=$("authEmail").value.trim(),password=$("authPassword").value;if(!email||password.length<6){$("authMessage").textContent="Entre un e-mail et un mot de passe d'au moins 6 caractères.";return;}
+    $("authMessage").textContent="Création du compte…";
+    const {data,error}=await sb.auth.signUp({email,password,options:{data:{display_name:email.split("@")[0]}}});
+    if(error)$("authMessage").textContent=error.message;
+    else if(!data.session)$("authMessage").textContent="Compte créé. Vérifie l'e-mail de confirmation, puis reconnecte-toi. Ton accès devra ensuite être autorisé par l’administrateur.";
+    else $("authMessage").textContent="Compte créé. Ton accès est maintenant en attente d’autorisation.";
+  }
+  $("authLogin").addEventListener("click",signIn);$("authSignup").addEventListener("click",signUp);
+  $("authPassword").addEventListener("keydown",e=>{if(e.key==="Enter")signIn();});
+  $("logoutBtn").addEventListener("click",async()=>{await sb.auth.signOut();});
+  $("accessLogoutBtn").addEventListener("click",async()=>{await sb.auth.signOut();});
+  $("refreshBtn").addEventListener("click",async()=>{await checkAccess(true);if(currentProfile?.access_status==="approved")await loadRemoteState();});
+  $("checkAccessBtn").addEventListener("click",()=>checkAccess(false));
+
+  function showAccessGate(profile){
+    const status=profile?.access_status||"pending";
+    $("accessGate").classList.remove("hidden");
+    document.body.classList.add("locked");
+    const box=$("accessStatusBox");
+    box.className="access-status "+(status==="revoked"?"status-revoked":"status-pending");
+    if(status==="revoked"){
+      $("accessLead").textContent="Ton compte est connecté, mais il n’a plus accès au registre.";
+      box.textContent="ACCÈS RETIRÉ PAR L’ADMINISTRATEUR";
+      $("accessMessage").textContent="Contacte l’administrateur du cabinet si cet accès doit être rétabli.";
+    }else{
+      $("accessLead").textContent="Ton compte a bien été créé.";
+      box.textContent="EN ATTENTE D’AUTORISATION";
+      $("accessMessage").textContent="L’administrateur doit valider ton compte avant que tu puisses voir le stock, la caisse ou les recettes.";
+    }
+  }
+
+  function openApp(){
+    $("accessGate").classList.add("hidden");
+    document.body.classList.remove("locked");
+    document.body.classList.toggle("is-admin",isAdmin);
+    $("userEmail").textContent=currentUser?.email||"";
+    $("userName").textContent=currentProfile?.display_name||currentUser?.email||"Médecin";
+    $("userRole").textContent=isAdmin?"Administrateur":"Personnel médical";
+    if(!isAdmin && document.querySelector("#users.view.active"))setView("dashboard");
+    loadRemoteState();
+  }
+
+  async function checkAccess(silent=false){
+    if(!currentUser)return false;
+    if(!silent)$("accessMessage").textContent="Vérification…";
+    const {data,error}=await sb.from("profiles").select("id,email,display_name,role,access_status,created_at").eq("id",currentUser.id).maybeSingle();
+    if(error){
+      console.error(error);
+      showAccessGate({access_status:"pending"});
+      $("accessMessage").textContent="Impossible de vérifier l’autorisation pour le moment.";
+      return false;
+    }
+    currentProfile=data||null;
+    isAdmin=currentProfile?.role==="admin" && currentProfile?.access_status==="approved";
+    document.body.classList.toggle("is-admin",isAdmin);
+    if(currentProfile?.access_status==="approved"){
+      openApp();
+      return true;
+    }
+    showAccessGate(currentProfile);
+    return false;
+  }
+
+  function applySession(session){
+    currentUser=session?.user||null;
+    currentProfile=null;isAdmin=false;
+    $("authGate").classList.toggle("hidden",!!currentUser);
+    document.body.classList.remove("is-admin");
+    if(currentUser){
+      $("authGate").classList.add("hidden");
+      document.body.classList.add("locked");
+      checkAccess(false);
+      clearInterval(refreshTimer);
+      refreshTimer=setInterval(async()=>{
+        if(!currentUser)return;
+        const a=document.activeElement;
+        const editing=a&&["INPUT","SELECT","TEXTAREA"].includes(a.tagName);
+        const ok=await checkAccess(true);
+        if(ok && !editing)loadRemoteState(true);
+      },20000);
+    }else{
+      clearInterval(refreshTimer);refreshTimer=null;
+      $("accessGate").classList.add("hidden");
+      $("authGate").classList.remove("hidden");
+      document.body.classList.add("locked");
+      setSync("Hors ligne","bad");
+    }
+  }
+  sb.auth.onAuthStateChange((_event,session)=>applySession(session));
+  const {data:{session}}=await sb.auth.getSession();
+  applySession(session);
+
+  $("todayLabel").textContent=new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"long",year:"numeric"}).format(new Date());
+  $("mvDate").value=todayISO();
+})();
+
+</script>
+</body>
+</html>
