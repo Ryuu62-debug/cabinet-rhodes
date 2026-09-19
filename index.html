@@ -585,7 +585,7 @@
           <div class="form-actions">
             <button class="btn" id="saveRecipes">Enregistrer les recettes</button>
           </div>
-          <p class="hint">0 signifie que le matériau n'entre pas dans la recette. Le bouton « Retirer » enlève uniquement la recette de fabrication : le soin reste dans l'inventaire afin de ne pas perdre un éventuel stock existant.</p>
+          <p class="hint">Le coût de fabrication est calculé automatiquement à partir du prix actuel de chaque ingrédient × la quantité utilisée dans la recette. Tant que les prix fournisseurs ne sont pas renseignés, le coût peut donc rester à 0,00 $. 0 signifie que le matériau n'entre pas dans la recette. Le bouton « Retirer » enlève uniquement la recette de fabrication : le soin reste dans l'inventaire afin de ne pas perdre un éventuel stock existant.</p>
         </div>
       </div>
     </section>
@@ -894,8 +894,11 @@
   }
   function renderRecipes(){
     const ingredients=ingredientResources();
-    $("recipeHead").innerHTML="<tr><th>Recette</th>"+ingredients.map(r=>`<th>${esc(r.name)}</th>`).join("")+"<th>Action</th></tr>";
-    $("recipeBody").innerHTML=state.recipes.length?state.recipes.map(rc=>`<tr data-product="${esc(rc.productId)}" data-recipe="${esc(rc.dbId)}"><td><input class="recipe-name" value="${esc(res(rc.productId)?.name||rc.productId)}" aria-label="Nom de la recette"></td>${ingredients.map(r=>`<td><input type="number" min="0" step="1" data-ing="${esc(r.id)}" value="${num(rc.ingredients[r.id])}"></td>`).join("")}<td><button class="btn danger delete-recipe" type="button" data-product="${esc(rc.productId)}">Retirer</button></td></tr>`).join(""):`<tr><td colspan="${ingredients.length+2}" class="empty">Aucune recette enregistrée.</td></tr>`;
+    $("recipeHead").innerHTML="<tr><th>Recette</th>"+ingredients.map(r=>`<th>${esc(r.name)}</th>`).join("")+"<th>Coût fabrication</th><th>Action</th></tr>";
+    $("recipeBody").innerHTML=state.recipes.length?state.recipes.map(rc=>{
+      const cost=ingredients.reduce((total,r)=>total+num(rc.ingredients[r.id])*num(r.unitPrice),0);
+      return `<tr data-product="${esc(rc.productId)}" data-recipe="${esc(rc.dbId)}"><td><input class="recipe-name" value="${esc(res(rc.productId)?.name||rc.productId)}" aria-label="Nom de la recette"></td>${ingredients.map(r=>`<td><input type="number" min="0" step="1" data-ing="${esc(r.id)}" value="${num(rc.ingredients[r.id])}"></td>`).join("")}<td class="money recipe-cost"><strong>${money(cost)}</strong></td><td><button class="btn danger delete-recipe" type="button" data-product="${esc(rc.productId)}">Retirer</button></td></tr>`;
+    }).join(""):`<tr><td colspan="${ingredients.length+3}" class="empty">Aucune recette enregistrée.</td></tr>`;
   }
   function renderSuppliers(){
     $("suppliersBody").innerHTML=state.suppliers.map(s=>{
@@ -1043,6 +1046,20 @@
       await loadRemoteState();
       toast(`Ingrédient « ${ingredient.name} » retiré.`);
     }catch(err){dbError(err);}
+  });
+
+  $("recipeBody").addEventListener("input",e=>{
+    const inp=e.target.closest("input[data-ing]");
+    if(!inp)return;
+    const tr=inp.closest("tr[data-product]");
+    if(!tr)return;
+    let cost=0;
+    tr.querySelectorAll("input[data-ing]").forEach(field=>{
+      const ingredient=res(field.dataset.ing);
+      cost+=Math.max(0,num(field.value))*num(ingredient?.unitPrice);
+    });
+    const cell=tr.querySelector(".recipe-cost");
+    if(cell)cell.innerHTML="<strong>"+money(cost)+"</strong>";
   });
 
   $("recipeBody").addEventListener("click",async e=>{
