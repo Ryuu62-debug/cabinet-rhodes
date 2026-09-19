@@ -790,13 +790,19 @@
           name:[s?.supplier_name,s?.telegram].filter(Boolean).join(" / "),place:s?.location||""
         };
       });
-      state.history=(movements.data||[]).map(h=>({
-        id:h.id,date:h.effective_date||String(h.created_at||"").slice(0,10),type:h.movement_type,
-        resourceId:h.resource_id,resourceName:h.resource_id?res(h.resource_id)?.name||"Ressource":"Caisse",
-        qty:h.resource_id?Math.abs(num(h.quantity_delta)):null,unitPrice:h.unit_price==null?null:num(h.unit_price),
-        total:h.unit_price==null?null:Math.abs(num(h.quantity_delta))*num(h.unit_price),
-        amount:h.resource_id?null:Math.abs(num(h.cash_delta)),cashDelta:num(h.cash_delta),note:h.note||""
-      }));
+      state.history=(movements.data||[]).map(h=>{
+        const isCash=["CAISSE_ENTREE","CAISSE_SORTIE"].includes(h.movement_type);
+        return {
+          id:h.id,date:h.effective_date||String(h.created_at||"").slice(0,10),type:h.movement_type,
+          resourceId:h.resource_id,
+          resourceName:h.resource_id?res(h.resource_id)?.name||"Ressource":(isCash?"Caisse":"Autre"),
+          qty:(h.resource_id||!isCash)?Math.abs(num(h.quantity_delta)):null,
+          unitPrice:h.unit_price==null?null:num(h.unit_price),
+          total:h.unit_price==null?null:Math.abs(num(h.quantity_delta))*num(h.unit_price),
+          amount:isCash?Math.abs(num(h.cash_delta)):null,
+          cashDelta:num(h.cash_delta),note:h.note||""
+        };
+      });
       renderAll();
       const p=currentProfile;
       $("userName").textContent=p?.display_name||currentUser.email||"Médecin";
@@ -828,12 +834,19 @@
   }
   function fillMovementResources(){
     const current=$("mvResource").value;
-    $("mvResource").innerHTML=state.resources.map(r=>`<option value="${esc(r.id)}">${esc(r.name)}</option>`).join("");
-    if(state.resources.some(r=>r.id===current))$("mvResource").value=current;
+    $("mvResource").innerHTML=state.resources.map(r=>`<option value="${esc(r.id)}">${esc(r.name)}</option>`).join("")+
+      '<option value="__OTHER__">Autre (indiquer le motif dans la note ci-dessous)</option>';
+    if(state.resources.some(r=>r.id===current)||current==="__OTHER__")$("mvResource").value=current;
     else if(state.resources[0])$("mvResource").value=state.resources[0].id;
     syncMovementPrice();
   }
-  function syncMovementPrice(){const r=res($("mvResource").value);if(r)$("mvPrice").value=num(r.unitPrice).toFixed(2);calcMovementTotal();}
+  function syncMovementPrice(){
+    const isOther=$("mvResource").value==="__OTHER__";
+    const r=isOther?null:res($("mvResource").value);
+    if(r)$("mvPrice").value=num(r.unitPrice).toFixed(2);
+    if(isOther)$("mvPrice").value="0.00";
+    calcMovementTotal();
+  }
   function calcMovementTotal(){ $("mvTotal").value=money(num($("mvQty").value)*num($("mvPrice").value)); }
   function renderCraft(){
     const selected=$("craftRecipe").value || state.recipes[0]?.productId || "";
@@ -912,16 +925,20 @@
   $("mvResource").addEventListener("change",syncMovementPrice);$("mvQty").addEventListener("input",calcMovementTotal);$("mvPrice").addEventListener("input",calcMovementTotal);
   $("movementForm").addEventListener("submit",async e=>{
     e.preventDefault();
-    const resource=res($("mvResource").value),type=$("mvType").value,qty=num($("mvQty").value),price=num($("mvPrice").value),total=qty*price;
-    if(!resource||qty<=0){toast("Indique une ressource et une quantité valide.");return;}
+    const isOther=$("mvResource").value==="__OTHER__";
+    const resource=isOther?null:res($("mvResource").value);
+    const type=$("mvType").value,qty=num($("mvQty").value),price=num($("mvPrice").value),total=qty*price;
+    const note=$("mvNote").value.trim();
+    if((!isOther&&!resource)||qty<=0){toast("Indique une ressource et une quantité valide.");return;}
+    if(isOther&&!note){toast("Pour « Autre », indique obligatoirement le motif dans la note.");$("mvNote").focus();return;}
     const removes=["SORTIE","VENTE","CORRECTION_MOINS"].includes(type);
-    if(removes&&num(resource.stock)<qty){toast("Stock insuffisant pour cette sortie.");return;}
+    if(resource&&removes&&num(resource.stock)<qty){toast("Stock insuffisant pour cette sortie.");return;}
     const qDelta=["ACHAT","DEPOT","CORRECTION_PLUS"].includes(type)?qty:removes?-qty:0;
     const cashDelta=type==="ACHAT"?-total:type==="VENTE"?total:0;
     try{
-      const {error}=await db.rpc("apply_movement",{p_resource_id:resource.id,p_quantity_delta:qDelta,p_unit_price:["ACHAT","VENTE"].includes(type)?price:null,p_cash_delta:cashDelta,p_movement_type:type,p_note:$("mvNote").value.trim()||null,p_effective_date:$("mvDate").value||todayISO()});
+      const {error}=await db.rpc("apply_movement",{p_resource_id:resource?.id||null,p_quantity_delta:qDelta,p_unit_price:["ACHAT","VENTE"].includes(type)?price:null,p_cash_delta:cashDelta,p_movement_type:type,p_note:note||null,p_effective_date:$("mvDate").value||todayISO()});
       if(error)throw error;
-      $("movementForm").reset();$("mvDate").value=todayISO();await loadRemoteState();toast("Opération enregistrée en ligne.");
+      $("movementForm").reset();$("mvDate").value=todayISO();fillMovementResources();await loadRemoteState();toast("Opération enregistrée en ligne.");
     }catch(err){dbError(err);}
   });
   $("resetMovement").addEventListener("click",()=>{$("movementForm").reset();$("mvDate").value=todayISO();fillMovementResources();calcMovementTotal();toast("Zone de saisie réinitialisée.");});
