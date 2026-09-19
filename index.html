@@ -285,6 +285,9 @@
     .user-table td{vertical-align:middle}
     .user-table .user-display-name{min-width:160px}
     .user-row-actions{display:flex;gap:6px;flex-wrap:wrap}
+    .telegram-cell{display:flex;align-items:center;gap:6px;min-width:170px}
+    .telegram-cell .sup-telegram{min-width:115px}
+    .telegram-cell .copy-telegram-btn{flex:0 0 auto;width:36px;padding:9px 0;font-size:16px;line-height:1}
 
   </style>
 </head>
@@ -593,7 +596,7 @@
         <div class="card-body">
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Ingrédient</th><th>Prix unité</th><th>Nom / Télégramme</th><th>Lieu</th></tr></thead>
+              <thead><tr><th>Ingrédient</th><th>Prix unité</th><th>Nom du fournisseur</th><th>Télégramme</th><th>Lieu</th></tr></thead>
               <tbody id="suppliersBody"></tbody>
             </table>
           </div>
@@ -801,7 +804,7 @@
         const s=suppByResource.get(r.id);
         return {
           dbId:s?.id||null,resourceId:r.id,unitPrice:num(s?.unit_price ?? r.unitPrice),
-          name:[s?.supplier_name,s?.telegram].filter(Boolean).join(" / "),place:s?.location||""
+          name:s?.supplier_name||"",telegram:s?.telegram||"",place:s?.location||""
         };
       });
       state.history=(movements.data||[]).map(h=>{
@@ -894,7 +897,7 @@
     $("recipeBody").innerHTML=state.recipes.length?state.recipes.map(rc=>`<tr data-product="${esc(rc.productId)}" data-recipe="${esc(rc.dbId)}"><td><input class="recipe-name" value="${esc(res(rc.productId)?.name||rc.productId)}" aria-label="Nom de la recette"></td>${ingredients.map(r=>`<td><input type="number" min="0" step="1" data-ing="${esc(r.id)}" value="${num(rc.ingredients[r.id])}"></td>`).join("")}<td><button class="btn danger delete-recipe" type="button" data-product="${esc(rc.productId)}">Retirer</button></td></tr>`).join(""):`<tr><td colspan="${ingredients.length+2}" class="empty">Aucune recette enregistrée.</td></tr>`;
   }
   function renderSuppliers(){
-    $("suppliersBody").innerHTML=state.suppliers.map(s=>{const r=res(s.resourceId);return `<tr data-id="${esc(s.resourceId)}"><td class="resource-name">${esc(r?.name||s.resourceId)}</td><td><input class="sup-price" type="number" min="0" step="0.01" value="${num(s.unitPrice).toFixed(2)}"></td><td><input class="sup-name" value="${esc(s.name)}"></td><td><input class="sup-place" value="${esc(s.place)}"></td></tr>`;}).join("");
+    $("suppliersBody").innerHTML=state.suppliers.map(s=>{const r=res(s.resourceId);return `<tr data-id="${esc(s.resourceId)}"><td class="resource-name">${esc(r?.name||s.resourceId)}</td><td><input class="sup-price" type="number" min="0" step="0.01" value="${num(s.unitPrice).toFixed(2)}"></td><td><input class="sup-name" value="${esc(s.name)}"></td><td><div class="telegram-cell"><input class="sup-telegram" value="${esc(s.telegram)}" placeholder="Ex. RH6536"><button class="btn ghost copy-telegram-btn" type="button" title="Copier le télégramme" aria-label="Copier le télégramme">⧉</button></div></td><td><input class="sup-place" value="${esc(s.place)}"></td></tr>`;}).join("");
   }
   function renderHistory(){
     const types=[...new Set(state.history.map(h=>h.type))],current=$("historyType").value;
@@ -1053,13 +1056,31 @@
       await loadRemoteState();toast("Recettes enregistrées en ligne.");
     }catch(err){dbError(err);setSync("Erreur","bad");}
   });
+  $("suppliersBody").addEventListener("click",async e=>{
+    const btn=e.target.closest(".copy-telegram-btn");
+    if(!btn)return;
+    const input=btn.closest(".telegram-cell")?.querySelector(".sup-telegram");
+    const value=input?.value.trim();
+    if(!value){toast("Aucun télégramme à copier.");return;}
+    try{
+      await navigator.clipboard.writeText(value);
+      toast("Télégramme copié : "+value);
+    }catch(_err){
+      input.focus();
+      input.select();
+      try{document.execCommand("copy");toast("Télégramme copié : "+value);}
+      catch(_e){toast("Impossible de copier automatiquement.");}
+      input.setSelectionRange(value.length,value.length);
+    }
+  });
+
   $("saveSuppliers").addEventListener("click",async()=>{
     try{
       for(const tr of document.querySelectorAll("#suppliersBody tr")){
-        const resourceId=tr.dataset.id,price=Math.max(0,num(tr.querySelector(".sup-price").value)),name=tr.querySelector(".sup-name").value.trim(),place=tr.querySelector(".sup-place").value.trim();
+        const resourceId=tr.dataset.id,price=Math.max(0,num(tr.querySelector(".sup-price").value)),name=tr.querySelector(".sup-name").value.trim(),telegram=tr.querySelector(".sup-telegram").value.trim().toUpperCase(),place=tr.querySelector(".sup-place").value.trim();
         let q=await db.from("resources").update({unit_price:price}).eq("id",resourceId);if(q.error)throw q.error;
         const existing=state.suppliers.find(x=>x.resourceId===resourceId);
-        const payload={resource_id:resourceId,unit_price:price,supplier_name:name||null,telegram:null,location:place||null,active:true};
+        const payload={resource_id:resourceId,unit_price:price,supplier_name:name||null,telegram:telegram||null,location:place||null,active:true};
         q=existing?.dbId?await db.from("suppliers").update(payload).eq("id",existing.dbId):await db.from("suppliers").insert(payload);if(q.error)throw q.error;
       }
       await loadRemoteState();toast("Fournisseurs enregistrés en ligne.");
