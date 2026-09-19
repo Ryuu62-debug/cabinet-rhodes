@@ -22,6 +22,12 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Cache stable Android debug key
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: ma-compta-debug-keystore-v1
+
       - name: Install Android platform
         run: |
           SDKMANAGER="$(find /usr/local/lib/android/sdk/cmdline-tools -type f -name sdkmanager | head -n 1)"
