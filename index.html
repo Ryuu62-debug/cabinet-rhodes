@@ -283,6 +283,8 @@
     body.is-admin .nav .admin-only{display:block}
     .user-table .btn{padding:7px 9px;font-size:10px}
     .user-table td{vertical-align:middle}
+    .user-table .user-display-name{min-width:160px}
+    .user-row-actions{display:flex;gap:6px;flex-wrap:wrap}
 
   </style>
 </head>
@@ -293,6 +295,7 @@
     <div class="seal">⚕</div>
     <h2>Cabinet Médical de Rhodes</h2>
     <p>Registre en ligne du personnel médical</p>
+    <div class="field"><label>Nom affiché / nom RP <span class="muted">(pour créer un compte)</span></label><input id="authDisplayName" type="text" autocomplete="name" maxlength="60" placeholder="Ex. John Myers"></div>
     <div class="field"><label>Adresse e-mail</label><input id="authEmail" type="email" autocomplete="email" placeholder="medecin@exemple.fr"></div>
     <div class="field"><label>Mot de passe</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="••••••••"></div>
     <div class="auth-actions"><button class="btn" id="authLogin" type="button">Se connecter</button><button class="btn secondary" id="authSignup" type="button">Créer un compte</button></div>
@@ -912,14 +915,21 @@
         const status=u.access_status||"pending";
         const statusLabel=status==="approved"?"Autorisé":status==="revoked"?"Accès retiré":"En attente";
         const statusClass=status==="approved"?"green":status==="revoked"?"red":"gold";
-        let action='—';
+        let accessAction='';
         if(!self){
-          action=status==="approved"
+          accessAction=status==="approved"
             ? `<button class="btn danger user-access-btn" data-id="${esc(u.id)}" data-status="revoked">Retirer l’accès</button>`
             : `<button class="btn good user-access-btn" data-id="${esc(u.id)}" data-status="approved">${status==="revoked"?"Réautoriser":"Autoriser"}</button>`;
         }
         const created=u.created_at?new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"}).format(new Date(u.created_at)):"—";
-        return `<tr><td class="resource-name">${esc(u.display_name||"—")}</td><td>${esc(u.email||"—")}</td><td>${u.role==="admin"?'<span class="pill gold">Administrateur</span>':'Médecin'}</td><td><span class="pill ${statusClass}">${statusLabel}</span></td><td>${created}</td><td>${action}</td></tr>`;
+        return `<tr data-user-id="${esc(u.id)}">
+          <td><input class="user-display-name" maxlength="60" value="${esc(u.display_name||"")}" aria-label="Nom affiché de ${esc(u.email||"l'utilisateur")}"></td>
+          <td>${esc(u.email||"—")}</td>
+          <td>${u.role==="admin"?'<span class="pill gold">Administrateur</span>':'Médecin'}</td>
+          <td><span class="pill ${statusClass}">${statusLabel}</span></td>
+          <td>${created}</td>
+          <td><div class="user-row-actions"><button class="btn secondary save-user-name-btn" data-id="${esc(u.id)}">Enregistrer le nom</button>${accessAction}</div></td>
+        </tr>`;
       }).join(""):'<tr><td colspan="6" class="empty">Aucun compte.</td></tr>';
     }catch(err){dbError(err,"Impossible de charger les comptes.");}
   }
@@ -1053,8 +1063,29 @@
   });
   $("refreshUsers").addEventListener("click",loadUsers);
   $("usersBody").addEventListener("click",async e=>{
+    if(!isAdmin)return;
+
+    const nameBtn=e.target.closest(".save-user-name-btn");
+    if(nameBtn){
+      const tr=nameBtn.closest("tr");
+      const name=tr?.querySelector(".user-display-name")?.value.trim()||"";
+      if(name.length<2){toast("Le nom doit contenir au moins 2 caractères.");return;}
+      try{
+        nameBtn.disabled=true;
+        const {error}=await db.rpc("admin_set_display_name",{p_user_id:nameBtn.dataset.id,p_display_name:name});
+        if(error)throw error;
+        if(nameBtn.dataset.id===currentUser?.id){
+          if(currentProfile)currentProfile.display_name=name;
+          $("userName").textContent=name;
+        }
+        await loadUsers();
+        toast("Nom modifié.");
+      }catch(err){dbError(err);}finally{nameBtn.disabled=false;}
+      return;
+    }
+
     const btn=e.target.closest(".user-access-btn");
-    if(!btn||!isAdmin)return;
+    if(!btn)return;
     const targetStatus=btn.dataset.status;
     const wording=targetStatus==="approved"?"autoriser ce compte":"retirer l’accès à ce compte";
     if(!confirm(`Confirmer : ${wording} ?`))return;
@@ -1089,12 +1120,14 @@
     if(error)$("authMessage").textContent=error.message;else $("authMessage").textContent="";
   }
   async function signUp(){
-    const email=$("authEmail").value.trim(),password=$("authPassword").value;if(!email||password.length<6){$("authMessage").textContent="Entre un e-mail et un mot de passe d'au moins 6 caractères.";return;}
+    const displayName=$("authDisplayName").value.trim(),email=$("authEmail").value.trim(),password=$("authPassword").value;
+    if(displayName.length<2){$("authMessage").textContent="Choisis d'abord ton nom affiché / nom RP.";return;}
+    if(!email||password.length<6){$("authMessage").textContent="Entre un e-mail et un mot de passe d'au moins 6 caractères.";return;}
     $("authMessage").textContent="Création du compte…";
-    const {data,error}=await sb.auth.signUp({email,password,options:{data:{display_name:email.split("@")[0]}}});
+    const {data,error}=await sb.auth.signUp({email,password,options:{data:{display_name:displayName}}});
     if(error)$("authMessage").textContent=error.message;
-    else if(!data.session)$("authMessage").textContent="Compte créé. Vérifie l'e-mail de confirmation, puis reconnecte-toi. Ton accès devra ensuite être autorisé par l’administrateur.";
-    else $("authMessage").textContent="Compte créé. Ton accès est maintenant en attente d’autorisation.";
+    else if(!data.session)$("authMessage").textContent="Compte créé sous le nom « "+displayName+" ». Vérifie l'e-mail de confirmation, puis reconnecte-toi. Ton accès devra ensuite être autorisé par l’administrateur.";
+    else $("authMessage").textContent="Compte créé sous le nom « "+displayName+" ». Ton accès est maintenant en attente d’autorisation.";
   }
   $("authLogin").addEventListener("click",signIn);$("authSignup").addEventListener("click",signUp);
   $("authPassword").addEventListener("keydown",e=>{if(e.key==="Enter")signIn();});
