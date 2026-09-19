@@ -1051,14 +1051,14 @@
   async function checkAccess(silent=false){
     if(!currentUser)return false;
     if(!silent)$("accessMessage").textContent="Vérification…";
-    const {data,error}=await sb.from("profiles").select("id,email,display_name,role,access_status,created_at").eq("id",currentUser.id).maybeSingle();
+    const {data,error}=await sb.rpc("get_my_profile");
     if(error){
       console.error(error);
       showAccessGate({access_status:"pending"});
       $("accessMessage").textContent="Erreur de vérification : "+(error.message||"inconnue");
       return false;
     }
-    currentProfile=data||null;
+    currentProfile=Array.isArray(data)?(data[0]||null):(data||null);
     isAdmin=currentProfile?.role==="admin" && currentProfile?.access_status==="approved";
     document.body.classList.toggle("is-admin",isAdmin);
     if(currentProfile?.access_status==="approved"){
