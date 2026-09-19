@@ -206,6 +206,8 @@
     }
     .recipe-matrix td:first-child{background:#6d0d08;color:#f0cf89;font-weight:bold}
     .recipe-matrix th:first-child{background:#5f3a28}
+    .recipe-matrix .recipe-cost{min-width:125px;white-space:nowrap;background:rgba(126,91,43,.28)}
+    .recipe-matrix th:nth-child(2){min-width:125px;background:#7b4b24}
 
     .history-controls{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;margin-bottom:13px}
     .empty{padding:38px 20px;text-align:center;color:#9f8d6a;font-style:italic}
@@ -894,10 +896,10 @@
   }
   function renderRecipes(){
     const ingredients=ingredientResources();
-    $("recipeHead").innerHTML="<tr><th>Recette</th>"+ingredients.map(r=>`<th>${esc(r.name)}</th>`).join("")+"<th>Coût fabrication</th><th>Action</th></tr>";
+    $("recipeHead").innerHTML="<tr><th>Recette</th><th>Coût fabrication</th>"+ingredients.map(r=>`<th>${esc(r.name)}</th>`).join("")+"<th>Action</th></tr>";
     $("recipeBody").innerHTML=state.recipes.length?state.recipes.map(rc=>{
       const cost=ingredients.reduce((total,r)=>total+num(rc.ingredients[r.id])*num(r.unitPrice),0);
-      return `<tr data-product="${esc(rc.productId)}" data-recipe="${esc(rc.dbId)}"><td><input class="recipe-name" value="${esc(res(rc.productId)?.name||rc.productId)}" aria-label="Nom de la recette"></td>${ingredients.map(r=>`<td><input type="number" min="0" step="1" data-ing="${esc(r.id)}" value="${num(rc.ingredients[r.id])}"></td>`).join("")}<td class="money recipe-cost"><strong>${money(cost)}</strong></td><td><button class="btn danger delete-recipe" type="button" data-product="${esc(rc.productId)}">Retirer</button></td></tr>`;
+      return `<tr data-product="${esc(rc.productId)}" data-recipe="${esc(rc.dbId)}"><td><input class="recipe-name" value="${esc(res(rc.productId)?.name||rc.productId)}" aria-label="Nom de la recette"></td><td class="money recipe-cost"><strong>${money(cost)}</strong></td>${ingredients.map(r=>`<td><input type="number" min="0" step="1" data-ing="${esc(r.id)}" value="${num(rc.ingredients[r.id])}"></td>`).join("")}<td><button class="btn danger delete-recipe" type="button" data-product="${esc(rc.productId)}">Retirer</button></td></tr>`;
     }).join(""):`<tr><td colspan="${ingredients.length+3}" class="empty">Aucune recette enregistrée.</td></tr>`;
   }
   function renderSuppliers(){
