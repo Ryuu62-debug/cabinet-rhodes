@@ -856,7 +856,7 @@
     if(!isAdmin)return;
     $("usersBody").innerHTML='<tr><td colspan="6" class="empty">Chargement des comptes…</td></tr>';
     try{
-      const {data,error}=await sb.from("profiles").select("id,email,display_name,role,access_status,created_at").order("created_at",{ascending:true});
+      const {data,error}=await sb.rpc("admin_list_profiles");
       if(error)throw error;
       const rows=data||[];
       $("usersPendingCount").textContent=rows.filter(x=>x.access_status==="pending").length+" en attente";
