@@ -1,0 +1,45 @@
+name: Build Ma Compta APK
+
+on:
+  push:
+    branches:
+      - ma-compta-apk
+    paths:
+      - 'ma-compta-android/**'
+      - '.github/workflows/build-ma-compta-apk.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android platform
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Build APK
+        working-directory: ma-compta-android
+        run: gradle :app:assembleDebug --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ma-Compta-APK
+          path: ma-compta-android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
