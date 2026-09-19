@@ -725,7 +725,7 @@
   const recipe=id=>state.recipes.find(r=>r.productId===id);
   const activeResources=()=>state.resources.filter(r=>r.active!==false);
   const ingredientResources=()=>state.resources.filter(r=>r.active!==false&&r.kind==="ingredient");
-  const SUPPLIER_PLACES=["Wapiti","Colter","Annesburg","Van Horn","Saint-Denis","Rhodes","Valentine","Blackwater","Strawberry","Armadillo","Tumbleweed","Lagras","Butcher Creek","Emerald Ranch"];
+  const SUPPLIER_PLACES=["Wapiti","Colter","Annesburg","Van Horn","Saint-Denis","Rhodes","Valentine","Blackwater","Strawberry","Emerald Ranch"];
   const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
 
   function toast(msg){
