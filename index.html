@@ -553,6 +553,15 @@
               <button class="btn secondary" id="addNewIngredient">Ajouter l'ingrédient</button>
             </div>
             <p class="hint">L'ingrédient sera ajouté à l'inventaire, aux fournisseurs et comme nouvelle colonne dans toutes les recettes.</p>
+            <div style="height:1px;background:rgba(199,156,84,.25);margin:18px 0"></div>
+            <div class="field">
+              <label>Retirer un ingrédient</label>
+              <select id="removeIngredientSelect"></select>
+            </div>
+            <div class="form-actions">
+              <button class="btn danger" id="removeIngredient">Retirer l'ingrédient</button>
+            </div>
+            <p class="hint">L'ingrédient sera retiré de l'inventaire, des fournisseurs et de toutes les recettes. L'historique déjà enregistré sera conservé.</p>
           </div>
         </div>
       </div>
@@ -707,7 +716,8 @@
   const todayISO=()=>new Date().toISOString().slice(0,10);
   const res=id=>state.resources.find(r=>r.id===id);
   const recipe=id=>state.recipes.find(r=>r.productId===id);
-  const ingredientResources=()=>state.resources.filter(r=>r.kind==="ingredient");
+  const activeResources=()=>state.resources.filter(r=>r.active!==false);
+  const ingredientResources=()=>state.resources.filter(r=>r.active!==false&&r.kind==="ingredient");
   const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
 
   function toast(msg){
@@ -735,7 +745,7 @@
     const msg=error?.message||fallback;
     toast(msg.includes("duplicate")?"Ce nom existe déjà.":msg);
   }
-  function stockValue(){return state.resources.reduce((a,r)=>a+num(r.stock)*num(r.unitPrice),0);}
+  function stockValue(){return activeResources().reduce((a,r)=>a+num(r.stock)*num(r.unitPrice),0);}
   function monthExpenses(){
     const ym=todayISO().slice(0,7);
     return state.history.filter(h=>String(h.date||"").startsWith(ym) && (h.type==="ACHAT"||h.type==="CAISSE_SORTIE"))
@@ -760,7 +770,7 @@
     try{
       const [cab,resources,recipes,ingredients,suppliers,movements] = await Promise.all([
         db.from("cabinet_state").select("*").eq("id",1).single(),
-        db.from("resources").select("*").eq("active",true).order("name"),
+        db.from("resources").select("*").order("name"),
         db.from("recipes").select("*").eq("active",true).order("name"),
         db.from("recipe_ingredients").select("*"),
         db.from("suppliers").select("*").eq("active",true),
@@ -772,7 +782,7 @@
       state.settings={name:c.cabinet_name||defaults.settings.name,place:c.place||defaults.settings.place,telegram:c.telegram||""};
       state.cash=num(c.cash_balance);
       state.resources=(resources.data||[]).map(r=>({
-        id:r.id,name:r.name,stock:num(r.stock),unitPrice:num(r.unit_price),kind:r.category==="ingredient"?"ingredient":"soin"
+        id:r.id,name:r.name,stock:num(r.stock),unitPrice:num(r.unit_price),kind:r.category==="ingredient"?"ingredient":"soin",active:r.active!==false
       }));
       state.recipes=(recipes.data||[]).map(rc=>{
         const map={};
@@ -822,22 +832,22 @@
     $("dashMonthExpenses").textContent=money(monthExpenses());
     $("cashBig").textContent=money(state.cash);
     $("dashMonthName").textContent=new Intl.DateTimeFormat("fr-FR",{month:"long",year:"numeric"}).format(new Date());
-    const low=[...state.resources].sort((a,b)=>num(a.stock)-num(b.stock)).slice(0,6);
+    const low=[...activeResources()].sort((a,b)=>num(a.stock)-num(b.stock)).slice(0,6);
     $("lowStockPanel").innerHTML=low.length?low.map(r=>`<div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid rgba(199,156,84,.12)"><div><strong style="color:#ecd69e">${esc(r.name)}</strong><div class="hint">${r.kind==="soin"?"Soin fabriqué":"Ingrédient"}</div></div><span class="pill ${num(r.stock)<=5?"red":"gold"}">${num(r.stock)} en stock</span></div>`).join(""):`<div class="empty">Aucune ressource.</div>`;
     const recent=[...state.history].reverse().slice(0,5);
     $("recentPanel").innerHTML=recent.length?recent.map(h=>`<div style="padding:9px 0;border-bottom:1px solid rgba(199,156,84,.12)"><div style="display:flex;justify-content:space-between;gap:10px"><strong style="color:#ecd69e">${esc(typeLabel(h.type))}</strong><span class="muted">${esc(h.date)}</span></div><div class="hint">${esc(h.resourceId?res(h.resourceId)?.name||h.resourceName||"Ressource":h.note||"Caisse")}${h.qty?` · ${h.qty}`:""}</div></div>`).join(""):`<div class="empty">Aucun mouvement enregistré.</div>`;
   }
   function renderInventory(){
-    $("inventoryBody").innerHTML=state.resources.map(r=>`<tr class="${num(r.stock)<=0?"stock-low":""}" data-id="${esc(r.id)}"><td class="resource-name">${esc(r.name)}</td><td><input class="inv-stock" type="number" min="0" step="0.01" value="${num(r.stock)}"></td><td><input class="inv-price" type="number" min="0" step="0.01" value="${num(r.unitPrice).toFixed(2)}"></td><td class="money">${money(num(r.stock)*num(r.unitPrice))}</td><td>${num(r.stock)<=0?'<span class="pill red">Épuisé</span>':num(r.stock)<=5?'<span class="pill red">Faible</span>':'<span class="pill green">Disponible</span>'}</td></tr>`).join("");
-    $("inventoryCount").textContent=state.resources.length+" ressources";
+    $("inventoryBody").innerHTML=activeResources().map(r=>`<tr class="${num(r.stock)<=0?"stock-low":""}" data-id="${esc(r.id)}"><td class="resource-name">${esc(r.name)}</td><td><input class="inv-stock" type="number" min="0" step="0.01" value="${num(r.stock)}"></td><td><input class="inv-price" type="number" min="0" step="0.01" value="${num(r.unitPrice).toFixed(2)}"></td><td class="money">${money(num(r.stock)*num(r.unitPrice))}</td><td>${num(r.stock)<=0?'<span class="pill red">Épuisé</span>':num(r.stock)<=5?'<span class="pill red">Faible</span>':'<span class="pill green">Disponible</span>'}</td></tr>`).join("");
+    $("inventoryCount").textContent=activeResources().length+" ressources";
     $("inventoryValue").textContent="Valeur : "+money(stockValue());
   }
   function fillMovementResources(){
     const current=$("mvResource").value;
-    $("mvResource").innerHTML=state.resources.map(r=>`<option value="${esc(r.id)}">${esc(r.name)}</option>`).join("")+
+    $("mvResource").innerHTML=activeResources().map(r=>`<option value="${esc(r.id)}">${esc(r.name)}</option>`).join("")+
       '<option value="__OTHER__">Autre (indiquer le motif dans la note ci-dessous)</option>';
-    if(state.resources.some(r=>r.id===current)||current==="__OTHER__")$("mvResource").value=current;
-    else if(state.resources[0])$("mvResource").value=state.resources[0].id;
+    if(activeResources().some(r=>r.id===current)||current==="__OTHER__")$("mvResource").value=current;
+    else if(activeResources()[0])$("mvResource").value=activeResources()[0].id;
     syncMovementPrice();
   }
   function syncMovementPrice(){
@@ -860,6 +870,15 @@
     const product=res(rc.productId);
     $("craftDescription").innerHTML=`Fabrication de <strong>${qty} ${esc(product?.name||rc.productId)}</strong>. Les matériaux seront retirés et le produit ajouté au stock en une seule opération sécurisée.`;
     $("craftButton").disabled=!allOk||!rows.length;
+  }
+  function fillRemoveIngredientSelect(){
+    const select=$("removeIngredientSelect");
+    if(!select)return;
+    const ingredients=ingredientResources();
+    select.innerHTML=ingredients.length
+      ? ingredients.map(r=>`<option value="${esc(r.id)}">${esc(r.name)}</option>`).join("")
+      : '<option value="">Aucun ingrédient</option>';
+    $("removeIngredient").disabled=!ingredients.length;
   }
   function renderRecipes(){
     const ingredients=ingredientResources();
@@ -909,7 +928,7 @@
     document.querySelector(".brand h1").innerHTML=esc(state.settings.name).replace(/\sde\sRhodes/i,"<br>de Rhodes");
     document.querySelector(".brand p").textContent=state.settings.place;
   }
-  function renderAll(){renderDashboard();renderInventory();fillMovementResources();renderCraft();renderRecipes();renderSuppliers();renderHistory();renderSettings();}
+  function renderAll(){renderDashboard();renderInventory();fillMovementResources();renderCraft();renderRecipes();fillRemoveIngredientSelect();renderSuppliers();renderHistory();renderSettings();}
 
   $("saveInventory").addEventListener("click",async()=>{
     try{
@@ -958,15 +977,49 @@
       let product=state.resources.find(r=>r.name.trim().toLowerCase()===name.toLowerCase());
       if(product&&recipe(product.id)){toast("Une recette portant ce nom existe déjà.");return;}
       if(!product){const {data,error}=await db.from("resources").insert({name,category:"produit",unit_price:price,stock:0}).select().single();if(error)throw error;product={id:data.id,name:data.name};}
-      else {const {error}=await db.from("resources").update({category:"produit",unit_price:price>0?price:product.unitPrice}).eq("id",product.id);if(error)throw error;}
+      else {const {error}=await db.from("resources").update({active:true,category:"produit",unit_price:price>0?price:product.unitPrice}).eq("id",product.id);if(error)throw error;}
       const {error}=await db.from("recipes").insert({name,product_resource_id:product.id,output_quantity:1});if(error)throw error;
       $("newRecipeName").value="";$("newRecipePrice").value="0";await loadRemoteState();$("craftRecipe").value=product.id;renderCraft();toast(`Recette « ${name} » ajoutée.`);
     }catch(err){dbError(err);}
   });
   $("addNewIngredient").addEventListener("click",async()=>{
-    const name=$("newIngredientName").value.trim(),price=Math.max(0,num($("newIngredientPrice").value));if(!name){toast("Indique le nom du nouvel ingrédient.");return;}if(state.resources.some(r=>r.name.trim().toLowerCase()===name.toLowerCase())){toast("Cette ressource existe déjà.");return;}
-    try{const {error}=await db.from("resources").insert({name,category:"ingredient",unit_price:price,stock:0});if(error)throw error;$("newIngredientName").value="";$("newIngredientPrice").value="0";await loadRemoteState();toast(`Ingrédient « ${name} » ajouté.`);}catch(err){dbError(err);}
+    const name=$("newIngredientName").value.trim(),price=Math.max(0,num($("newIngredientPrice").value));
+    if(!name){toast("Indique le nom du nouvel ingrédient.");return;}
+    const existing=state.resources.find(r=>r.name.trim().toLowerCase()===name.toLowerCase());
+    if(existing?.active!==false){toast("Cette ressource existe déjà.");return;}
+    try{
+      let error;
+      if(existing){
+        ({error}=await db.from("resources").update({active:true,category:"ingredient",unit_price:price}).eq("id",existing.id));
+      }else{
+        ({error}=await db.from("resources").insert({name,category:"ingredient",unit_price:price,stock:0,active:true}));
+      }
+      if(error)throw error;
+      $("newIngredientName").value="";$("newIngredientPrice").value="0";
+      await loadRemoteState();
+      toast(existing?`Ingrédient « ${name} » réactivé.`:`Ingrédient « ${name} » ajouté.`);
+    }catch(err){dbError(err);}
   });
+  $("removeIngredient").addEventListener("click",async()=>{
+    const id=$("removeIngredientSelect").value;
+    const ingredient=res(id);
+    if(!ingredient)return;
+    const usedBy=state.recipes
+      .filter(rc=>num(rc.ingredients[id])>0)
+      .map(rc=>res(rc.productId)?.name||"une recette");
+    const stock=num(ingredient.stock);
+    let message=`Retirer l'ingrédient « ${ingredient.name} » ?\n\nIl disparaîtra de l'inventaire, des fournisseurs et des recettes.`;
+    if(usedBy.length)message+=`\n\nUtilisé actuellement dans : ${usedBy.join(", ")}.`;
+    if(stock>0)message+=`\n\nAttention : il reste ${stock} en stock.`;
+    if(!confirm(message))return;
+    try{
+      const {error}=await db.rpc("remove_ingredient",{p_resource_id:id});
+      if(error)throw error;
+      await loadRemoteState();
+      toast(`Ingrédient « ${ingredient.name} » retiré.`);
+    }catch(err){dbError(err);}
+  });
+
   $("recipeBody").addEventListener("click",async e=>{
     const btn=e.target.closest(".delete-recipe");if(!btn)return;const rc=recipe(btn.dataset.product);if(!rc)return;const product=res(rc.productId);if(!confirm(`Retirer la recette « ${product?.name||""} » de la fabrication ? Le produit restera dans l'inventaire.`))return;
     try{const {error}=await db.from("recipes").update({active:false}).eq("id",rc.dbId);if(error)throw error;await loadRemoteState();toast("Recette retirée de la fabrication.");}catch(err){dbError(err);}
