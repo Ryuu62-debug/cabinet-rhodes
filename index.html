@@ -448,12 +448,9 @@
                 <div class="field">
                   <label>Type d'opération</label>
                   <select id="mvType">
-                    <option value="ACHAT">Achat — entrée + dépense</option>
-                    <option value="DEPOT">Dépôt — entrée sans dépense</option>
-                    <option value="SORTIE">Sortie / utilisation</option>
-                    <option value="VENTE">Vente — sortie + recette</option>
+                    <option value="ACHAT">Achat</option>
                     <option value="CORRECTION_PLUS">Correction +</option>
-                    <option value="CORRECTION_MOINS">Correction −</option>
+                    <option value="CORRECTION_MOINS">Correction -</option>
                   </select>
                 </div>
                 <div class="field"><label>Quantité</label><input type="number" id="mvQty" min="0.01" step="0.01" required></div>
@@ -728,7 +725,7 @@
   function typeLabel(t){
     return {
       ACHAT:"Achat",DEPOT:"Dépôt",SORTIE:"Sortie",VENTE:"Vente",
-      CORRECTION_PLUS:"Correction +",CORRECTION_MOINS:"Correction −",
+      CORRECTION_PLUS:"Correction +",CORRECTION_MOINS:"Correction -",
       FABRICATION:"Fabrication",CONSOMMATION_FAB:"Consommation fabrication",
       CAISSE_ENTREE:"Entrée de caisse",CAISSE_SORTIE:"Dépense de caisse"
     }[t]||t;
