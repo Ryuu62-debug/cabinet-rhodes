@@ -842,7 +842,8 @@
     const rc=recipe($("craftRecipe").value); const qty=Math.max(1,parseInt($("craftQty").value||1,10));
     if(!rc){$("craftBody").innerHTML=`<tr><td colspan="6" class="empty">Aucune recette.</td></tr>`;$("craftButton").disabled=true;return;}
     const rows=Object.entries(rc.ingredients).filter(([,q])=>num(q)>0); let allOk=true;
-    $("craftBody").innerHTML=rows.map(([id,per])=>{const r=res(id),need=num(per)*qty,have=num(r?.stock),missing=Math.max(0,need-have),ratio=need?Math.min(100,(have/need)*100):100;if(missing>0)allOk=false;return `<tr><td class="resource-name">${esc(r?.name||id)}</td><td>${num(per)}</td><td><strong>${need}</strong></td><td>${have}</td><td><div class="progress"><span class="${missing>0?"short":""}" style="width:${ratio}%"></span></div><div class="hint">${missing>0?"Stock insuffisant":"Disponible"}</div></td><td class="${missing>0?"bad":"good"}"><strong>${missing}</strong></td></tr>`;}).join("");
+    const STOCK_BAR_MAX=200;
+    $("craftBody").innerHTML=rows.map(([id,per])=>{const r=res(id),need=num(per)*qty,have=num(r?.stock),missing=Math.max(0,need-have),ratio=Math.min(100,(have/STOCK_BAR_MAX)*100);if(missing>0)allOk=false;return `<tr><td class="resource-name">${esc(r?.name||id)}</td><td>${num(per)}</td><td><strong>${need}</strong></td><td>${have}</td><td><div class="progress"><span class="${missing>0?"short":""}" style="width:${ratio}%"></span></div><div class="hint">${missing>0?"Stock insuffisant":"Disponible"} · ${have}/${STOCK_BAR_MAX}</div></td><td class="${missing>0?"bad":"good"}"><strong>${missing}</strong></td></tr>`;}).join("");
     const product=res(rc.productId);
     $("craftDescription").innerHTML=`Fabrication de <strong>${qty} ${esc(product?.name||rc.productId)}</strong>. Les matériaux seront retirés et le produit ajouté au stock en une seule opération sécurisée.`;
     $("craftButton").disabled=!allOk||!rows.length;
