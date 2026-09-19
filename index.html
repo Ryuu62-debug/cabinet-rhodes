@@ -725,6 +725,7 @@
   const recipe=id=>state.recipes.find(r=>r.productId===id);
   const activeResources=()=>state.resources.filter(r=>r.active!==false);
   const ingredientResources=()=>state.resources.filter(r=>r.active!==false&&r.kind==="ingredient");
+  const SUPPLIER_PLACES=["Wapiti","Colter","Annesburg","Van Horn","Saint-Denis","Rhodes","Valentine","Blackwater","Strawberry","Armadillo","Tumbleweed","Lagras","Butcher Creek","Emerald Ranch"];
   const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
 
   function toast(msg){
@@ -897,7 +898,13 @@
     $("recipeBody").innerHTML=state.recipes.length?state.recipes.map(rc=>`<tr data-product="${esc(rc.productId)}" data-recipe="${esc(rc.dbId)}"><td><input class="recipe-name" value="${esc(res(rc.productId)?.name||rc.productId)}" aria-label="Nom de la recette"></td>${ingredients.map(r=>`<td><input type="number" min="0" step="1" data-ing="${esc(r.id)}" value="${num(rc.ingredients[r.id])}"></td>`).join("")}<td><button class="btn danger delete-recipe" type="button" data-product="${esc(rc.productId)}">Retirer</button></td></tr>`).join(""):`<tr><td colspan="${ingredients.length+2}" class="empty">Aucune recette enregistrée.</td></tr>`;
   }
   function renderSuppliers(){
-    $("suppliersBody").innerHTML=state.suppliers.map(s=>{const r=res(s.resourceId);return `<tr data-id="${esc(s.resourceId)}"><td class="resource-name">${esc(r?.name||s.resourceId)}</td><td><input class="sup-price" type="number" min="0" step="0.01" value="${num(s.unitPrice).toFixed(2)}"></td><td><input class="sup-name" value="${esc(s.name)}"></td><td><div class="telegram-cell"><input class="sup-telegram" value="${esc(s.telegram)}" placeholder="Ex. RH6536"><button class="btn ghost copy-telegram-btn" type="button" title="Copier le télégramme" aria-label="Copier le télégramme">⧉</button></div></td><td><input class="sup-place" value="${esc(s.place)}"></td></tr>`;}).join("");
+    $("suppliersBody").innerHTML=state.suppliers.map(s=>{
+      const r=res(s.resourceId);
+      const currentPlace=(s.place||"").trim();
+      const places=currentPlace && !SUPPLIER_PLACES.includes(currentPlace)?[...SUPPLIER_PLACES,currentPlace]:SUPPLIER_PLACES;
+      const placeOptions=places.map(p=>`<option value="${esc(p)}" ${p===currentPlace?"selected":""}>${esc(p)}</option>`).join("");
+      return `<tr data-id="${esc(s.resourceId)}"><td class="resource-name">${esc(r?.name||s.resourceId)}</td><td><input class="sup-price" type="number" min="0" step="0.01" value="${num(s.unitPrice).toFixed(2)}"></td><td><input class="sup-name" value="${esc(s.name)}"></td><td><div class="telegram-cell"><input class="sup-telegram" value="${esc(s.telegram)}" placeholder="Ex. RH6536"><button class="btn ghost copy-telegram-btn" type="button" title="Copier le télégramme" aria-label="Copier le télégramme">⧉</button></div></td><td><select class="sup-place"><option value="">— Choisir —</option>${placeOptions}</select></td></tr>`;
+    }).join("");
   }
   function renderHistory(){
     const types=[...new Set(state.history.map(h=>h.type))],current=$("historyType").value;
