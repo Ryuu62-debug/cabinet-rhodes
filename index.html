@@ -1055,7 +1055,7 @@
     if(error){
       console.error(error);
       showAccessGate({access_status:"pending"});
-      $("accessMessage").textContent="Impossible de vérifier l’autorisation pour le moment.";
+      $("accessMessage").textContent="Erreur de vérification : "+(error.message||"inconnue");
       return false;
     }
     currentProfile=data||null;
