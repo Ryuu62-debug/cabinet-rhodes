@@ -614,7 +614,7 @@
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Date</th><th>Opération</th><th>Ressource</th><th>Qté</th><th>Prix / montant</th><th>Caisse</th><th>Effectué par</th><th>Note</th></tr></thead>
+              <thead><tr><th>Date</th><th>Heure</th><th>Opération</th><th>Ressource</th><th>Qté</th><th>Prix / montant</th><th>Caisse</th><th>Effectué par</th><th>Note</th></tr></thead>
               <tbody id="historyBody"></tbody>
             </table>
           </div>
@@ -807,7 +807,10 @@
       state.history=(movements.data||[]).map(h=>{
         const isCash=["CAISSE_ENTREE","CAISSE_SORTIE"].includes(h.movement_type);
         return {
-          id:h.id,date:h.effective_date||String(h.created_at||"").slice(0,10),type:h.movement_type,
+          id:h.id,
+          date:h.effective_date||String(h.created_at||"").slice(0,10),
+          time:h.created_at?new Intl.DateTimeFormat("fr-FR",{hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date(h.created_at)):"—",
+          type:h.movement_type,
           resourceId:h.resource_id,
           resourceName:h.resource_id?res(h.resource_id)?.name||"Ressource":(isCash?"Caisse":"Autre"),
           qty:(h.resource_id||!isCash)?Math.abs(num(h.quantity_delta)):null,
@@ -899,7 +902,7 @@
     $("historyType").value=types.includes(current)?current:"";
     const q=$("historySearch").value.trim().toLowerCase(),t=$("historyType").value,m=$("historyMonth").value;
     const filtered=[...state.history].reverse().filter(h=>{const rn=h.resourceId?res(h.resourceId)?.name||h.resourceName||"":h.resourceName||"";const hay=(typeLabel(h.type)+" "+rn+" "+(h.actorName||"")+" "+(h.note||"")).toLowerCase();return (!q||hay.includes(q))&&(!t||h.type===t)&&(!m||String(h.date||"").startsWith(m));});
-    $("historyBody").innerHTML=filtered.length?filtered.map(h=>`<tr><td>${esc(h.date||"")}</td><td><span class="pill ${["ACHAT","CAISSE_SORTIE"].includes(h.type)?"red":["VENTE","CAISSE_ENTREE"].includes(h.type)?"green":"gold"}">${esc(typeLabel(h.type))}</span></td><td>${esc(h.resourceId?res(h.resourceId)?.name||h.resourceName||"—":h.resourceName||"—")}</td><td>${h.qty!=null?esc(h.qty):"—"}</td><td class="money">${h.unitPrice!=null?money(h.total!=null?h.total:num(h.qty)*num(h.unitPrice)):h.amount!=null?money(h.amount):"—"}</td><td class="${num(h.cashDelta)<0?"bad":num(h.cashDelta)>0?"good":"muted"}">${num(h.cashDelta)===0?"—":(num(h.cashDelta)>0?"+":"")+money(h.cashDelta)}</td><td><strong style="color:#ecd69e">${esc(h.actorName||"Utilisateur inconnu")}</strong></td><td>${esc(h.note||"")}</td></tr>`).join(""):`<tr><td colspan="8" class="empty">Aucun mouvement ne correspond aux filtres.</td></tr>`;
+    $("historyBody").innerHTML=filtered.length?filtered.map(h=>`<tr><td>${esc(h.date||"")}</td><td>${esc(h.time||"—")}</td><td><span class="pill ${["ACHAT","CAISSE_SORTIE"].includes(h.type)?"red":["VENTE","CAISSE_ENTREE"].includes(h.type)?"green":"gold"}">${esc(typeLabel(h.type))}</span></td><td>${esc(h.resourceId?res(h.resourceId)?.name||h.resourceName||"—":h.resourceName||"—")}</td><td>${h.qty!=null?esc(h.qty):"—"}</td><td class="money">${h.unitPrice!=null?money(h.total!=null?h.total:num(h.qty)*num(h.unitPrice)):h.amount!=null?money(h.amount):"—"}</td><td class="${num(h.cashDelta)<0?"bad":num(h.cashDelta)>0?"good":"muted"}">${num(h.cashDelta)===0?"—":(num(h.cashDelta)>0?"+":"")+money(h.cashDelta)}</td><td><strong style="color:#ecd69e">${esc(h.actorName||"Utilisateur inconnu")}</strong></td><td>${esc(h.note||"")}</td></tr>`).join(""):`<tr><td colspan="9" class="empty">Aucun mouvement ne correspond aux filtres.</td></tr>`;
   }
   async function loadUsers(){
     if(!isAdmin)return;
