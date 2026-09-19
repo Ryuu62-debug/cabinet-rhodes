@@ -53,29 +53,35 @@ public class MainActivity extends Activity {
                 null
             );
         } catch (Exception e) {
+            String msg = e.getClass().getSimpleName() + ": " + (e.getMessage() == null ? "" : e.getMessage());
             webView.loadData(
-                "<html><body style='font-family:sans-serif;padding:24px'><h2>Ma Compta</h2><p>Impossible de charger l'application locale.</p></body></html>",
+                "<html><body style='font-family:sans-serif;padding:24px'><h2>Ma Compta</h2><p>Impossible de charger l'application locale.</p><p style='color:#777;font-size:12px'>" + msg + "</p></body></html>",
                 "text/html",
                 "UTF-8"
             );
         }
     }
 
-    private String readCompressedHtml() throws Exception {
-        InputStream source = getAssets().open("index.html.gz.b64");
-        ByteArrayOutputStream textBuffer = new ByteArrayOutputStream();
+    private String readTextAsset(String name) throws Exception {
+        InputStream source = getAssets().open(name);
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         byte[] temp = new byte[4096];
         int read;
         while ((read = source.read(temp)) != -1) {
-            textBuffer.write(temp, 0, read);
+            buffer.write(temp, 0, read);
         }
         source.close();
+        return new String(buffer.toByteArray(), StandardCharsets.UTF_8).replaceAll("\\s+", "");
+    }
 
-        String encoded = new String(textBuffer.toByteArray(), StandardCharsets.UTF_8).replaceAll("\\s+", "");
-        byte[] compressed = Base64.decode(encoded, Base64.DEFAULT);
+    private String readCompressedHtml() throws Exception {
+        String encoded = readTextAsset("index.part1.b64") + readTextAsset("index.part2.b64");
+        byte[] compressed = Base64.decode(encoded, Base64.NO_WRAP);
 
         GZIPInputStream gzip = new GZIPInputStream(new ByteArrayInputStream(compressed));
         ByteArrayOutputStream htmlBuffer = new ByteArrayOutputStream();
+        byte[] temp = new byte[4096];
+        int read;
         while ((read = gzip.read(temp)) != -1) {
             htmlBuffer.write(temp, 0, read);
         }
