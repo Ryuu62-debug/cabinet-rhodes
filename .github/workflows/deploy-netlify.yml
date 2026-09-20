@@ -1,0 +1,37 @@
+name: Déployer le Cabinet sur Netlify
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "_headers"
+      - "favicon-16x16.png"
+      - "favicon-32x32.png"
+      - "favicon.svg"
+      - "favicon-rhodes-exact-v6.svg"
+      - "rhodes-logo-favicon.svg"
+      - "netlify.toml"
+      - ".github/workflows/deploy-netlify.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le site
+        uses: actions/checkout@v4
+
+      - name: Vérifier la configuration Netlify
+        run: |
+          test -n "${NETLIFY_AUTH_TOKEN}" || (echo "NETLIFY_AUTH_TOKEN absent" && exit 2)
+          test -n "${NETLIFY_SITE_ID}" || (echo "NETLIFY_SITE_ID absent" && exit 3)
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+      - name: Déployer en production sur Netlify
+        run: npx --yes netlify-cli@latest deploy --prod --dir . --site "${NETLIFY_SITE_ID}" --auth "${NETLIFY_AUTH_TOKEN}"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
