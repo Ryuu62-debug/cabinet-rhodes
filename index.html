@@ -300,7 +300,7 @@
 </head>
 <body class="locked">
 
-<div class="auth-gate" id="authGate">
+<div class="auth-gate hidden" id="authGate">
   <div class="auth-card">
     <div class="seal">⚕</div>
     <h2>Cabinet Médical de Rhodes</h2>
@@ -698,7 +698,13 @@
   const SUPABASE_URL = "https://zuduxergikwysupesdep.supabase.co";
   const SUPABASE_KEY = "sb_publishable_eN_1pWK19vVPNHhziPGOww_6hOXdXz3";
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-    auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+    auth:{
+      persistSession:true,
+      autoRefreshToken:true,
+      detectSessionInUrl:true,
+      storage:window.localStorage,
+      storageKey:"sb-zuduxergikwysupesdep-auth-token"
+    }
   });
   let db = sb;
 
@@ -706,7 +712,12 @@
     if(session?.access_token){
       db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
         global:{headers:{Authorization:"Bearer "+session.access_token}},
-        auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
+        auth:{
+          persistSession:false,
+          autoRefreshToken:false,
+          detectSessionInUrl:false,
+          storageKey:"cabinet-rhodes-data-client"
+        }
       });
     }else{
       db = sb;
@@ -1459,9 +1470,13 @@
       setSync("Hors ligne","bad");
     }
   }
-  sb.auth.onAuthStateChange((_event,session)=>applySession(session));
-  const {data:{session}}=await sb.auth.getSession();
+  const {data:{session},error:sessionError}=await sb.auth.getSession();
+  if(sessionError)console.warn("Restauration de session :",sessionError);
   applySession(session);
+  sb.auth.onAuthStateChange((event,nextSession)=>{
+    if(event==="INITIAL_SESSION")return;
+    applySession(nextSession);
+  });
 
   $("todayLabel").textContent=new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"long",year:"numeric"}).format(new Date());
   $("mvDate").value=todayISO();
