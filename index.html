@@ -1251,8 +1251,10 @@
         if(!currentUser)return;
         const a=document.activeElement;
         const editing=a&&["INPUT","SELECT","TEXTAREA"].includes(a.tagName);
+        const activeView=document.querySelector(".view.active")?.id||"";
+        const safeAutoRefresh=["dashboard","history"].includes(activeView);
         const ok=await checkAccess(true);
-        if(ok && !editing)loadRemoteState(true);
+        if(ok && !editing && safeAutoRefresh)loadRemoteState(true);
       },20000);
     }else{
       clearInterval(refreshTimer);refreshTimer=null;
