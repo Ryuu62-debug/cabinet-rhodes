@@ -867,7 +867,7 @@
     mine.lastActivity=now;
     if(now-mine.lastTouch>=8000){
       mine.lastTouch=now;
-      db.rpc("touch_edit_lock",{p_lock_key:ctx.key}).catch(()=>{});
+      (async()=>{try{await db.rpc("touch_edit_lock",{p_lock_key:ctx.key});}catch(_){}})();
     }
   }
 
