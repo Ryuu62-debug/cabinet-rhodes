@@ -291,7 +291,12 @@
     .telegram-cell .sup-telegram{min-width:115px}
     .telegram-cell .copy-telegram-btn{flex:0 0 auto;width:36px;padding:9px 0;font-size:16px;line-height:1}
 
-  </style>
+  
+  .edit-lock-badge{display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:4px 8px;border:1px solid rgba(240,196,105,.55);border-radius:999px;background:rgba(104,58,20,.88);color:#ffe6a8;font-size:11px;font-weight:700;white-space:nowrap}
+  .edit-lock-badge.own{border-color:rgba(108,190,130,.45);background:rgba(24,79,43,.72);color:#c9f5d4}
+  .edit-locked-by-other{outline:1px solid rgba(240,196,105,.38);outline-offset:-1px;background:rgba(117,69,25,.10)}
+  .edit-locked-by-other input,.edit-locked-by-other select,.edit-locked-by-other textarea{cursor:not-allowed!important;opacity:.62}
+</style>
 </head>
 <body class="locked">
 
@@ -718,6 +723,10 @@
   let isAdmin = false;
   let isRefreshing = false;
   let refreshTimer = null;
+  let lockPollTimer = null;
+  let lockExpiryTimer = null;
+  const activeEditLocks = new Map();
+  const myEditLocks = new Map();
 
   const $=id=>document.getElementById(id);
   const money=n=>new Intl.NumberFormat("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(n)||0)+" $";
@@ -729,6 +738,178 @@
   const ingredientResources=()=>state.resources.filter(r=>r.active!==false&&r.kind==="ingredient");
   const SUPPLIER_PLACES=["Wapiti","Colter","Annesburg","Van Horn","Saint-Denis","Rhodes","Valentine","Blackwater","Strawberry","Emerald Ranch"];
   const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
+
+  function editableLockContext(el){
+    if(!el || !el.matches?.("input,select,textarea"))return null;
+    if(el.readOnly || el.type==="file" || el.type==="search" || el.closest("#authGate,#accessGate"))return null;
+    const view=el.closest(".view");
+    if(!view || ["dashboard","history"].includes(view.id))return null;
+
+    let scope,key;
+    const inventoryRow=el.closest("#inventoryBody tr[data-id]");
+    const recipeRow=el.closest("#recipeBody tr[data-recipe]");
+    const supplierRow=el.closest("#suppliersBody tr[data-id]");
+    const userRow=el.closest("#usersBody tr[data-user-id]");
+
+    if(inventoryRow){scope=inventoryRow;key="inventory:"+inventoryRow.dataset.id;}
+    else if(recipeRow){scope=recipeRow;key="recipe:"+recipeRow.dataset.recipe;}
+    else if(supplierRow){scope=supplierRow;key="supplier:"+supplierRow.dataset.id;}
+    else if(userRow){scope=userRow;key="user:"+userRow.dataset.userId;}
+    else if(el.closest("#movementForm")){scope=el.closest("#movementForm");key="form:movement";}
+    else if(el.closest("#cashForm")){scope=el.closest("#cashForm");key="form:cash";}
+    else if(view.id==="craft"){scope=el.closest(".craft-head")||view;key="form:craft";}
+    else if(el.id){scope=el.closest(".field")||el.parentElement;key="field:"+view.id+":"+el.id;}
+    else return null;
+
+    return {key,scope,viewId:view.id};
+  }
+
+  function lockContextsOnPage(){
+    const contexts=new Map();
+    document.querySelectorAll(".view input,.view select,.view textarea").forEach(el=>{
+      const ctx=editableLockContext(el);
+      if(ctx && !contexts.has(ctx.key))contexts.set(ctx.key,ctx);
+    });
+    return contexts;
+  }
+
+  function setScopeLockVisual(ctx,lock){
+    const scope=ctx?.scope;
+    if(!scope)return;
+    scope.querySelectorAll(":scope > .edit-lock-badge, :scope > td:first-child > .edit-lock-badge").forEach(x=>x.remove());
+    scope.classList.remove("edit-locked-by-other");
+    scope.querySelectorAll("[data-lock-disabled='1']").forEach(el=>{
+      el.disabled=false;
+      delete el.dataset.lockDisabled;
+    });
+
+    if(!lock)return;
+    const mine=lock.owner_id===currentUser?.id;
+    const badge=document.createElement("span");
+    badge.className="edit-lock-badge"+(mine?" own":"");
+    badge.textContent=mine?"Vous modifiez":"✎ "+(lock.owner_name||"Un utilisateur")+" modifie actuellement";
+    if(scope.tagName==="TR"){
+      const first=scope.querySelector("td");
+      if(first)first.appendChild(badge);
+    }else{
+      scope.prepend(badge);
+    }
+
+    if(!mine){
+      scope.classList.add("edit-locked-by-other");
+      scope.querySelectorAll("input:not([readonly]),select,textarea,button").forEach(el=>{
+        if(!el.disabled){
+          el.disabled=true;
+          el.dataset.lockDisabled="1";
+        }
+      });
+    }
+  }
+
+  function applyEditLockUI(){
+    const contexts=lockContextsOnPage();
+    contexts.forEach((ctx,key)=>setScopeLockVisual(ctx,activeEditLocks.get(key)||null));
+  }
+
+  async function refreshEditLocks(){
+    if(!currentUser || currentProfile?.access_status!=="approved")return;
+    try{
+      const {data,error}=await db.rpc("list_active_edit_locks");
+      if(error)throw error;
+      activeEditLocks.clear();
+      (data||[]).forEach(l=>activeEditLocks.set(l.lock_key,l));
+      for(const key of [...myEditLocks.keys()]){
+        const lock=activeEditLocks.get(key);
+        if(!lock || lock.owner_id!==currentUser.id)myEditLocks.delete(key);
+      }
+      applyEditLockUI();
+    }catch(e){console.warn("Verrous de saisie:",e);}
+  }
+
+  async function claimEditLock(el){
+    const ctx=editableLockContext(el);
+    if(!ctx || !currentUser)return true;
+    const known=activeEditLocks.get(ctx.key);
+    if(known && known.owner_id!==currentUser.id){
+      toast((known.owner_name||"Un utilisateur")+" modifie déjà cette zone.");
+      setScopeLockVisual(ctx,known);
+      el.blur();
+      return false;
+    }
+    try{
+      const {data,error}=await db.rpc("claim_edit_lock",{p_lock_key:ctx.key});
+      if(error)throw error;
+      const lock=Array.isArray(data)?data[0]:data;
+      if(!lock?.acquired){
+        activeEditLocks.set(ctx.key,{lock_key:ctx.key,owner_id:lock?.owner_id,owner_name:lock?.owner_name,touched_at:lock?.touched_at});
+        setScopeLockVisual(ctx,activeEditLocks.get(ctx.key));
+        toast((lock?.owner_name||"Un utilisateur")+" modifie déjà cette zone.");
+        el.blur();
+        return false;
+      }
+      const now=Date.now();
+      myEditLocks.set(ctx.key,{key:ctx.key,viewId:ctx.viewId,lastActivity:now,lastTouch:now});
+      activeEditLocks.set(ctx.key,{lock_key:ctx.key,owner_id:currentUser.id,owner_name:currentProfile?.display_name||currentUser.email||"Vous",touched_at:new Date().toISOString()});
+      setScopeLockVisual(ctx,activeEditLocks.get(ctx.key));
+      return true;
+    }catch(e){
+      console.warn("Impossible de réserver la zone:",e);
+      return true;
+    }
+  }
+
+  function markEditLockActivity(el){
+    const ctx=editableLockContext(el);
+    if(!ctx)return;
+    const mine=myEditLocks.get(ctx.key);
+    if(!mine)return;
+    const now=Date.now();
+    mine.lastActivity=now;
+    if(now-mine.lastTouch>=8000){
+      mine.lastTouch=now;
+      db.rpc("touch_edit_lock",{p_lock_key:ctx.key}).catch(()=>{});
+    }
+  }
+
+  async function releaseEditLock(key){
+    if(!key || !myEditLocks.has(key))return;
+    myEditLocks.delete(key);
+    activeEditLocks.delete(key);
+    applyEditLockUI();
+    try{await db.rpc("release_edit_lock",{p_lock_key:key});}catch(_){}
+  }
+
+  function releaseLocksOutsideView(viewId){
+    for(const [key,info] of [...myEditLocks.entries()]){
+      if(info.viewId!==viewId)releaseEditLock(key);
+    }
+  }
+
+  function startEditLockSystem(){
+    if(lockPollTimer)return;
+    refreshEditLocks();
+    lockPollTimer=setInterval(refreshEditLocks,3000);
+    lockExpiryTimer=setInterval(()=>{
+      const now=Date.now();
+      for(const [key,info] of [...myEditLocks.entries()]){
+        if(now-info.lastActivity>=60000){
+          const active=document.activeElement;
+          const activeCtx=editableLockContext(active);
+          if(activeCtx?.key===key)active.blur();
+          releaseEditLock(key);
+          toast("Zone libérée après 1 minute sans saisie.");
+        }
+      }
+    },1000);
+  }
+
+  document.addEventListener("focusin",e=>{
+    const ctx=editableLockContext(e.target);
+    if(ctx)claimEditLock(e.target);
+  },true);
+  ["input","change","keydown","pointerdown"].forEach(type=>{
+    document.addEventListener(type,e=>markEditLockActivity(e.target),true);
+  });
 
   function toast(msg){
     $("toast").textContent=msg;
@@ -763,6 +944,7 @@
   }
 
   function setView(id){
+    releaseLocksOutsideView(id);
     document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
     document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
     const btn=document.querySelector(`#nav button[data-view="${id}"]`);
@@ -1213,6 +1395,7 @@
     $("userRole").textContent=isAdmin?"Administrateur":"Personnel médical";
     if(!isAdmin && document.querySelector("#users.view.active"))setView("dashboard");
     loadRemoteState();
+    startEditLockSystem();
   }
 
   async function checkAccess(silent=false){
@@ -1267,6 +1450,9 @@
       },20000);
     }else{
       clearInterval(refreshTimer);refreshTimer=null;
+      clearInterval(lockPollTimer);lockPollTimer=null;
+      clearInterval(lockExpiryTimer);lockExpiryTimer=null;
+      myEditLocks.clear();activeEditLocks.clear();
       $("accessGate").classList.add("hidden");
       $("authGate").classList.remove("hidden");
       document.body.classList.add("locked");
