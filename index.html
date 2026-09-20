@@ -1229,7 +1229,16 @@
     isAdmin=currentProfile?.role==="admin" && currentProfile?.access_status==="approved";
     document.body.classList.toggle("is-admin",isAdmin);
     if(currentProfile?.access_status==="approved"){
-      openApp();
+      if(!silent){
+        openApp();
+      }else{
+        $("accessGate").classList.add("hidden");
+        document.body.classList.remove("locked");
+        document.body.classList.toggle("is-admin",isAdmin);
+        $("userEmail").textContent=currentUser?.email||"";
+        $("userName").textContent=currentProfile?.display_name||currentUser?.email||"Médecin";
+        $("userRole").textContent=isAdmin?"Administrateur":"Personnel médical";
+      }
       return true;
     }
     showAccessGate(currentProfile);
