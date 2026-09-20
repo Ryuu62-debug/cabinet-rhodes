@@ -701,9 +701,7 @@
     auth:{
       persistSession:true,
       autoRefreshToken:true,
-      detectSessionInUrl:true,
-      storage:window.localStorage,
-      storageKey:"sb-zuduxergikwysupesdep-auth-token"
+      detectSessionInUrl:true
     }
   });
   let db = sb;
@@ -1507,38 +1505,66 @@
       setSync("Hors ligne","bad");
     }
   }
-  let restoredSession=null;
-  const {data:{session:storedSession},error:sessionError}=await sb.auth.getSession();
-  if(sessionError)console.warn("Restauration de session Supabase :",sessionError);
-  restoredSession=storedSession;
+  let authBootDone=false;
 
-  if(!restoredSession){
+  async function restoreAuthFromBackup(){
     const backup=readRememberedSession();
-    if(backup){
-      const {data,error}=await sb.auth.setSession({
-        access_token:backup.access_token,
-        refresh_token:backup.refresh_token
-      });
-      if(error){
-        console.warn("Restauration de la connexion :",error);
-        rememberSession(null);
-      }else{
-        restoredSession=data?.session||null;
-        rememberSession(restoredSession);
-      }
+    if(!backup){
+      applySession(null);
+      return;
     }
-  }else{
-    rememberSession(restoredSession);
+    const {data,error}=await sb.auth.setSession({
+      access_token:backup.access_token,
+      refresh_token:backup.refresh_token
+    });
+    if(error){
+      console.warn("Restauration de la connexion :",error);
+      rememberSession(null);
+      applySession(null);
+      return;
+    }
+    const restored=data?.session||null;
+    rememberSession(restored);
+    applySession(restored);
   }
 
-  applySession(restoredSession);
-
   sb.auth.onAuthStateChange((event,nextSession)=>{
-    if(event==="INITIAL_SESSION")return;
-    if(event==="SIGNED_OUT")rememberSession(null);
-    else if(nextSession)rememberSession(nextSession);
-    applySession(nextSession);
+    if(event==="INITIAL_SESSION"){
+      authBootDone=true;
+      if(nextSession){
+        rememberSession(nextSession);
+        applySession(nextSession);
+      }else{
+        setTimeout(()=>restoreAuthFromBackup(),0);
+      }
+      return;
+    }
+    if(event==="SIGNED_OUT"){
+      // Ne pas effacer la sauvegarde pendant l'initialisation d'un F5 :
+      // seul le bouton de déconnexion appelle rememberSession(null).
+      if(authBootDone)applySession(null);
+      return;
+    }
+    if(nextSession){
+      rememberSession(nextSession);
+      applySession(nextSession);
+    }
   });
+
+  // Filet de sécurité si le navigateur ne déclenche pas INITIAL_SESSION.
+  setTimeout(async()=>{
+    if(authBootDone)return;
+    const {data:{session},error}=await sb.auth.getSession();
+    if(error)console.warn("Lecture de session :",error);
+    if(session){
+      authBootDone=true;
+      rememberSession(session);
+      applySession(session);
+    }else{
+      authBootDone=true;
+      await restoreAuthFromBackup();
+    }
+  },1200);
 
   $("todayLabel").textContent=new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"long",year:"numeric"}).format(new Date());
   $("mvDate").value=todayISO();
