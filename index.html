@@ -297,6 +297,17 @@
   .edit-lock-badge.own{border-color:rgba(108,190,130,.45);background:rgba(24,79,43,.72);color:#c9f5d4}
   .edit-locked-by-other{outline:1px solid rgba(240,196,105,.38);outline-offset:-1px;background:rgba(117,69,25,.10)}
   .edit-locked-by-other input,.edit-locked-by-other select,.edit-locked-by-other textarea{cursor:not-allowed!important;opacity:.62}
+  .orders-form{display:grid;grid-template-columns:minmax(180px,1.4fr) minmax(100px,.55fr) minmax(125px,.7fr) minmax(130px,.7fr) auto;gap:10px;align-items:end;margin-bottom:16px}
+  .orders-form .field{min-width:0}
+  .orders-form .btn{height:42px}
+  .orders-table .order-select-cell{text-align:center;width:54px}
+  .orders-table .order-select{width:18px;height:18px;accent-color:#c79c54}
+  .orders-table .order-fee{min-width:110px}
+  .orders-table .order-status{min-width:112px;font-weight:bold;border-width:1px}
+  .orders-table .order-status.status-en-cours{color:#c9f5d4;border-color:rgba(108,190,130,.65);background:rgba(24,79,43,.65)}
+  .orders-table .order-status.status-livre{color:#ffd0c8;border-color:rgba(205,91,75,.72);background:rgba(116,28,20,.72)}
+  .orders-table tr.order-selected{outline:1px solid rgba(226,192,122,.65);outline-offset:-1px;background:rgba(199,156,84,.08)}
+  @media(max-width:980px){.orders-form{grid-template-columns:1fr 1fr}.orders-form .order-add-wrap{grid-column:1/-1}}
 </style>
 </head>
 <body class="locked">
@@ -411,6 +422,56 @@
         <div class="card">
           <h3 class="section-title">Derniers mouvements</h3>
           <div class="card-body" id="recentPanel"></div>
+        </div>
+      </div>
+
+      <div class="card" id="ordersCard" style="margin-top:18px">
+        <h3 class="section-title">Commandes d'ingrédients <small>le stock et la comptabilité ne sont modifiés qu'au passage en « Livré »</small></h3>
+        <div class="card-body">
+          <form id="newOrderForm" class="orders-form">
+            <div class="field">
+              <label>Ingrédient</label>
+              <select id="orderIngredient"></select>
+            </div>
+            <div class="field">
+              <label>Quantité</label>
+              <input id="orderQty" type="number" min="0.01" step="0.01" value="1">
+            </div>
+            <div class="field">
+              <label>Prix total</label>
+              <input id="orderTotal" type="text" readonly value="0,00 $">
+            </div>
+            <div class="field">
+              <label>Frais de livraison ($)</label>
+              <input id="orderDeliveryFee" type="number" min="0" step="0.01" value="0">
+            </div>
+            <div class="order-add-wrap">
+              <button class="btn good" type="submit">Ajouter la commande</button>
+            </div>
+          </form>
+
+          <div class="table-wrap">
+            <table class="orders-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Date</th>
+                  <th>Heure</th>
+                  <th>Ingrédient</th>
+                  <th>Quantité</th>
+                  <th>Prix total</th>
+                  <th>Frais de livraison</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody id="ordersBody"></tbody>
+            </table>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn danger" id="deleteSelectedOrder" type="button">Effacer la commande sélectionnée</button>
+          </div>
+          <p class="hint">Une commande « En cours » ne modifie ni le stock ni la caisse. Quand elle passe à « Livré », la quantité est ajoutée à l'inventaire, le prix de la marchandise et les frais de livraison sont retirés de la caisse, et les deux opérations sont conservées dans l'historique. Effacer ensuite une commande livrée retire uniquement sa ligne de ce tableau : cela n'annule pas la comptabilité ni le stock déjà validés.</p>
         </div>
       </div>
 
@@ -754,7 +815,7 @@
 
   const defaults = {
     settings:{name:"Cabinet Médical de Rhodes",place:"Rhodes · Lemoyne",telegram:"RH1959"},
-    cash:0,resources:[],recipes:[],suppliers:[],history:[]
+    cash:0,resources:[],recipes:[],suppliers:[],orders:[],history:[]
   };
   let state = JSON.parse(JSON.stringify(defaults));
   let currentUser = null;
@@ -782,15 +843,19 @@
     if(!el || !el.matches?.("input,select,textarea"))return null;
     if(el.readOnly || el.type==="file" || el.type==="search" || el.closest("#authGate,#accessGate"))return null;
     const view=el.closest(".view");
-    if(!view || ["dashboard","history"].includes(view.id))return null;
+    if(!view || view.id==="history")return null;
+    if(view.id==="dashboard" && !el.closest("#ordersCard"))return null;
 
     let scope,key;
+    const orderRow=el.closest("#ordersBody tr[data-order-id]");
     const inventoryRow=el.closest("#inventoryBody tr[data-id]");
     const recipeRow=el.closest("#recipeBody tr[data-recipe]");
     const supplierRow=el.closest("#suppliersBody tr[data-id]");
     const userRow=el.closest("#usersBody tr[data-user-id]");
 
-    if(inventoryRow){scope=inventoryRow;key="inventory:"+inventoryRow.dataset.id;}
+    if(orderRow){scope=orderRow;key="order:"+orderRow.dataset.orderId;}
+    else if(el.closest("#newOrderForm")){scope=el.closest("#newOrderForm");key="form:orders:new";}
+    else if(inventoryRow){scope=inventoryRow;key="inventory:"+inventoryRow.dataset.id;}
     else if(recipeRow){scope=recipeRow;key="recipe:"+recipeRow.dataset.recipe;}
     else if(supplierRow){scope=supplierRow;key="supplier:"+supplierRow.dataset.id;}
     else if(userRow){scope=userRow;key="user:"+userRow.dataset.userId;}
@@ -970,7 +1035,8 @@
       ACHAT:"Achat",DEPOT:"Dépôt",SORTIE:"Sortie",VENTE:"Vente",
       CORRECTION_PLUS:"Correction +",CORRECTION_MOINS:"Correction -",
       FABRICATION:"Fabrication",CONSOMMATION_FAB:"Consommation fabrication",
-      CAISSE_ENTREE:"Entrée de caisse",CAISSE_SORTIE:"Dépense de caisse"
+      CAISSE_ENTREE:"Entrée de caisse",CAISSE_SORTIE:"Dépense de caisse",
+      FRAIS_LIVRAISON:"Frais de livraison"
     }[t]||t;
   }
   function dbError(error, fallback="Une erreur est survenue."){
@@ -981,7 +1047,7 @@
   function stockValue(){return activeResources().reduce((a,r)=>a+num(r.stock)*num(r.unitPrice),0);}
   function monthExpenses(){
     const ym=todayISO().slice(0,7);
-    return state.history.filter(h=>String(h.date||"").startsWith(ym) && (h.type==="ACHAT"||h.type==="CAISSE_SORTIE"))
+    return state.history.filter(h=>String(h.date||"").startsWith(ym) && (h.type==="ACHAT"||h.type==="CAISSE_SORTIE"||h.type==="FRAIS_LIVRAISON"))
       .reduce((a,h)=>a+Math.max(0,-num(h.cashDelta)),0);
   }
 
@@ -1002,15 +1068,16 @@
     isRefreshing=true;
     if(!silent)setSync("Synchronisation…","busy");
     try{
-      const [cab,resources,recipes,ingredients,suppliers,movements] = await Promise.all([
+      const [cab,resources,recipes,ingredients,suppliers,orders,movements] = await Promise.all([
         db.from("cabinet_state").select("*").eq("id",1).single(),
         db.from("resources").select("*").order("name"),
         db.from("recipes").select("*").eq("active",true).order("name"),
         db.from("recipe_ingredients").select("*"),
         db.from("suppliers").select("*").eq("active",true),
+        db.rpc("get_orders"),
         db.rpc("get_movement_history")
       ]);
-      for(const r of [cab,resources,recipes,ingredients,suppliers,movements]) if(r.error) throw r.error;
+      for(const r of [cab,resources,recipes,ingredients,suppliers,orders,movements]) if(r.error) throw r.error;
 
       const c=cab.data||{};
       state.settings={name:c.cabinet_name||defaults.settings.name,place:c.place||defaults.settings.place,telegram:c.telegram||""};
@@ -1034,8 +1101,21 @@
           name:s?.supplier_name||"",telegram:s?.telegram||"",place:s?.location||""
         };
       });
+      state.orders=(orders.data||[]).map(o=>({
+        id:o.id,
+        resourceId:o.resource_id,
+        resourceName:o.resource_name||res(o.resource_id)?.name||"Ingrédient",
+        quantity:num(o.quantity),
+        unitPrice:num(o.unit_price),
+        totalPrice:num(o.total_price),
+        deliveryFee:num(o.delivery_fee),
+        status:o.status||"en_cours",
+        createdAt:o.created_at,
+        deliveredAt:o.delivered_at||null
+      }));
       state.history=(movements.data||[]).map(h=>{
         const isCash=["CAISSE_ENTREE","CAISSE_SORTIE"].includes(h.movement_type);
+        const isDeliveryFee=h.movement_type==="FRAIS_LIVRAISON";
         return {
           id:h.id,
           date:h.effective_date||String(h.created_at||"").slice(0,10),
@@ -1043,10 +1123,10 @@
           type:h.movement_type,
           resourceId:h.resource_id,
           resourceName:h.resource_id?res(h.resource_id)?.name||"Ressource":(isCash?"Caisse":"Autre"),
-          qty:(h.resource_id||!isCash)?Math.abs(num(h.quantity_delta)):null,
+          qty:isDeliveryFee?null:(h.resource_id||!isCash)?Math.abs(num(h.quantity_delta)):null,
           unitPrice:h.unit_price==null?null:num(h.unit_price),
           total:h.unit_price==null?null:Math.abs(num(h.quantity_delta))*num(h.unit_price),
-          amount:isCash?Math.abs(num(h.cash_delta)):null,
+          amount:(isCash||isDeliveryFee)?Math.abs(num(h.cash_delta)):null,
           cashDelta:num(h.cash_delta),note:h.note||"",
           actorName:h.actor_name||"Utilisateur inconnu"
         };
@@ -1063,7 +1143,59 @@
     }finally{isRefreshing=false;}
   }
 
+  function orderUnitPrice(resourceId){
+    const supplier=state.suppliers.find(s=>s.resourceId===resourceId);
+    return num(supplier?.unitPrice ?? res(resourceId)?.unitPrice);
+  }
+
+  function fillOrderIngredients(){
+    const select=$("orderIngredient");
+    if(!select)return;
+    const current=select.value;
+    const ingredients=ingredientResources();
+    select.innerHTML=ingredients.length
+      ? ingredients.map(r=>`<option value="${esc(r.id)}">${esc(r.name)}</option>`).join("")
+      : '<option value="">Aucun ingrédient</option>';
+    if(ingredients.some(r=>r.id===current))select.value=current;
+    calcNewOrderTotal();
+  }
+
+  function calcNewOrderTotal(){
+    const select=$("orderIngredient"),qty=$("orderQty"),total=$("orderTotal");
+    if(!select||!qty||!total)return;
+    total.value=money(Math.max(0,num(qty.value))*orderUnitPrice(select.value));
+  }
+
+  function renderOrders(){
+    const body=$("ordersBody");
+    if(!body)return;
+    body.innerHTML=state.orders.length?state.orders.map(o=>{
+      const created=o.createdAt?new Date(o.createdAt):null;
+      const date=created?new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"}).format(created):"—";
+      const time=created?new Intl.DateTimeFormat("fr-FR",{hour:"2-digit",minute:"2-digit",hour12:false}).format(created):"—";
+      const delivered=o.status==="livre";
+      return `<tr data-order-id="${esc(o.id)}" data-order-status="${esc(o.status)}">
+        <td class="order-select-cell"><input class="order-select" type="radio" name="selectedOrder" value="${esc(o.id)}" aria-label="Sélectionner la commande"></td>
+        <td>${esc(date)}</td>
+        <td>${esc(time)}</td>
+        <td class="resource-name">${esc(o.resourceName)}</td>
+        <td><strong>${esc(o.quantity)}</strong></td>
+        <td class="money"><strong>${money(o.totalPrice)}</strong></td>
+        <td><input class="order-fee" type="number" min="0" step="0.01" value="${num(o.deliveryFee).toFixed(2)}" ${delivered?"readonly":""}></td>
+        <td>
+          <select class="order-status ${delivered?"status-livre":"status-en-cours"}" data-current="${esc(o.status)}">
+            <option value="en_cours" ${!delivered?"selected":""}>En cours</option>
+            <option value="livre" ${delivered?"selected":""}>Livré</option>
+          </select>
+        </td>
+      </tr>`;
+    }).join(""):'<tr><td colspan="8" class="empty">Aucune commande enregistrée.</td></tr>';
+    fillOrderIngredients();
+    applyEditLockUI();
+  }
+
   function renderDashboard(){
+    renderOrders();
     $("dashCash").textContent=money(state.cash);
     $("dashStockValue").textContent=money(stockValue());
     $("dashCabinetValue").textContent=money(state.cash+stockValue());
@@ -1183,6 +1315,98 @@
     document.querySelector(".brand p").textContent=state.settings.place;
   }
   function renderAll(){renderDashboard();renderInventory();fillMovementResources();renderCraft();renderRecipes();fillRemoveIngredientSelect();renderSuppliers();renderHistory();renderSettings();}
+
+  $("orderIngredient").addEventListener("change",calcNewOrderTotal);
+  $("orderQty").addEventListener("input",calcNewOrderTotal);
+
+  $("newOrderForm").addEventListener("submit",async e=>{
+    e.preventDefault();
+    const resourceId=$("orderIngredient").value;
+    const quantity=Math.max(0,num($("orderQty").value));
+    const deliveryFee=Math.max(0,num($("orderDeliveryFee").value));
+    if(!resourceId||quantity<=0){toast("Choisis un ingrédient et une quantité valide.");return;}
+    try{
+      const {error}=await db.rpc("create_order",{p_resource_id:resourceId,p_quantity:quantity,p_delivery_fee:deliveryFee});
+      if(error)throw error;
+      $("orderQty").value="1";
+      $("orderDeliveryFee").value="0";
+      await loadRemoteState();
+      toast("Commande ajoutée. Le stock ne changera qu'une fois livrée.");
+    }catch(err){dbError(err);}
+  });
+
+  $("ordersBody").addEventListener("change",async e=>{
+    const tr=e.target.closest("tr[data-order-id]");
+    if(!tr)return;
+    const id=tr.dataset.orderId;
+    const current=tr.dataset.orderStatus;
+
+    if(e.target.matches(".order-select")){
+      document.querySelectorAll("#ordersBody tr").forEach(row=>row.classList.toggle("order-selected",row===tr));
+      return;
+    }
+
+    if(e.target.matches(".order-fee")){
+      if(current==="livre"){e.target.value=num(state.orders.find(o=>o.id===id)?.deliveryFee).toFixed(2);return;}
+      try{
+        const fee=Math.max(0,num(e.target.value));
+        const {error}=await db.rpc("update_order_delivery_fee",{p_order_id:id,p_delivery_fee:fee});
+        if(error)throw error;
+        const order=state.orders.find(o=>o.id===id);if(order)order.deliveryFee=fee;
+        toast("Frais de livraison enregistrés.");
+      }catch(err){dbError(err);await loadRemoteState();}
+      return;
+    }
+
+    if(e.target.matches(".order-status")){
+      const next=e.target.value;
+      if(current==="livre" && next==="en_cours"){
+        e.target.value="livre";
+        toast("Une commande déjà livrée ne peut pas repasser en cours.");
+        return;
+      }
+      if(next==="livre" && current!=="livre"){
+        const order=state.orders.find(o=>o.id===id);
+        const feeInput=tr.querySelector(".order-fee");
+        const fee=Math.max(0,num(feeInput?.value));
+        const ingredient=order?.resourceName||"cet ingrédient";
+        if(!confirm(`Valider la livraison de ${ingredient} ?\n\nLa quantité sera ajoutée au stock et ${money((order?.totalPrice||0)+fee)} seront retirés de la caisse (marchandise + livraison).`)){
+          e.target.value="en_cours";
+          return;
+        }
+        try{
+          e.target.disabled=true;
+          const {error}=await db.rpc("deliver_order",{p_order_id:id,p_delivery_fee:fee});
+          if(error)throw error;
+          await loadRemoteState();
+          toast("Livraison validée : stock et comptabilité mis à jour.");
+        }catch(err){
+          dbError(err);
+          e.target.disabled=false;
+          e.target.value="en_cours";
+        }
+      }
+    }
+  });
+
+  $("deleteSelectedOrder").addEventListener("click",async()=>{
+    const selected=document.querySelector('#ordersBody .order-select:checked');
+    if(!selected){toast("Sélectionne d'abord une commande à effacer.");return;}
+    const tr=selected.closest("tr[data-order-id]");
+    const id=tr.dataset.orderId;
+    const order=state.orders.find(o=>o.id===id);
+    const delivered=order?.status==="livre";
+    const msg=delivered
+      ? `Effacer la ligne de commande « ${order?.resourceName||""} » ?\n\nLe stock, la caisse et l'historique déjà validés resteront inchangés.`
+      : `Effacer la commande en cours « ${order?.resourceName||""} » ?`;
+    if(!confirm(msg))return;
+    try{
+      const {error}=await db.rpc("delete_order",{p_order_id:id});
+      if(error)throw error;
+      await loadRemoteState();
+      toast("Commande effacée du tableau.");
+    }catch(err){dbError(err);}
+  });
 
   $("saveInventory").addEventListener("click",async()=>{
     try{
@@ -1568,7 +1792,7 @@
         const a=document.activeElement;
         const editing=a&&["INPUT","SELECT","TEXTAREA"].includes(a.tagName);
         const activeView=document.querySelector(".view.active")?.id||"";
-        const safeAutoRefresh=["dashboard","history"].includes(activeView);
+        const safeAutoRefresh=["history"].includes(activeView);
         const ok=await checkAccess(true);
         if(ok && !editing && safeAutoRefresh)loadRemoteState(true);
       },20000);
