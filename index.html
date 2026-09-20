@@ -29,7 +29,7 @@
     }
 
     *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
+    html{scroll-behavior:smooth;overflow-y:scroll}
     body{
       margin:0;
       min-height:100vh;
@@ -56,6 +56,7 @@
       box-shadow:12px 0 32px rgba(0,0,0,.28);
       z-index:20;
       overflow:auto;
+      scrollbar-gutter:stable;
     }
     .brand{text-align:center;margin-bottom:24px}
     .seal{
@@ -814,6 +815,9 @@
   function setScopeLockVisual(ctx,lock){
     const scope=ctx?.scope;
     if(!scope)return;
+    const signature=lock?(String(lock.owner_id||"")+"|"+String(lock.owner_name||"")):"";
+    if((scope.dataset.editLockSignature||"")===signature)return;
+    scope.dataset.editLockSignature=signature;
     scope.querySelectorAll(":scope > .edit-lock-badge, :scope > td:first-child > .edit-lock-badge").forEach(x=>x.remove());
     scope.classList.remove("edit-locked-by-other");
     scope.querySelectorAll("[data-lock-disabled='1']").forEach(el=>{
@@ -1532,8 +1536,24 @@
   }
 
   function applySession(session){
+    const nextUser=session?.user||null;
+    const sameApprovedUser=!!(
+      nextUser?.id &&
+      currentUser?.id===nextUser.id &&
+      currentProfile?.access_status==="approved"
+    );
+
     setDataClient(session);
-    currentUser=session?.user||null;
+
+    // Un simple renouvellement du jeton ne doit jamais reconstruire l'interface :
+    // sinon le menu administrateur disparaît/réapparaît et toute la colonne de gauche saute.
+    if(sameApprovedUser){
+      currentUser=nextUser;
+      rememberSession(session);
+      return;
+    }
+
+    currentUser=nextUser;
     currentProfile=null;isAdmin=false;
     $("authGate").classList.toggle("hidden",!!currentUser);
     document.body.classList.remove("is-admin");
@@ -1615,12 +1635,23 @@
       }
       return;
     }
+
+    if(event==="TOKEN_REFRESHED"){
+      if(nextSession){
+        rememberSession(nextSession);
+        setDataClient(nextSession);
+        currentUser=nextSession.user||currentUser;
+      }
+      return;
+    }
+
     if(event==="SIGNED_OUT"){
       // Ne pas effacer la sauvegarde pendant l'initialisation d'un F5 :
       // seul le bouton de déconnexion appelle rememberSession(null).
       if(authBootDone)applySession(null);
       return;
     }
+
     if(nextSession){
       rememberSession(nextSession);
       applySession(nextSession);
