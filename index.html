@@ -297,7 +297,7 @@
   .edit-lock-badge.own{border-color:rgba(108,190,130,.45);background:rgba(24,79,43,.72);color:#c9f5d4}
   .edit-locked-by-other{outline:1px solid rgba(240,196,105,.38);outline-offset:-1px;background:rgba(117,69,25,.10)}
   .edit-locked-by-other input,.edit-locked-by-other select,.edit-locked-by-other textarea{cursor:not-allowed!important;opacity:.62}
-  .orders-form{display:grid;grid-template-columns:minmax(180px,1.4fr) minmax(100px,.55fr) minmax(125px,.7fr) minmax(130px,.7fr) auto;gap:10px;align-items:end;margin-bottom:16px}
+  .orders-form{display:grid;grid-template-columns:minmax(170px,1.35fr) minmax(90px,.5fr) minmax(120px,.65fr) minmax(135px,.75fr) minmax(105px,.55fr) minmax(130px,.7fr) auto;gap:10px;align-items:end;margin-bottom:16px}
   .orders-form .field{min-width:0}
   .orders-form .btn{height:42px}
   .orders-table .order-select-cell{text-align:center;width:54px}
@@ -307,7 +307,7 @@
   .orders-table .order-status.status-en-cours{color:#c9f5d4;border-color:rgba(108,190,130,.65);background:rgba(24,79,43,.65)}
   .orders-table .order-status.status-livre{color:#ffd0c8;border-color:rgba(205,91,75,.72);background:rgba(116,28,20,.72)}
   .orders-table tr.order-selected{outline:1px solid rgba(226,192,122,.65);outline-offset:-1px;background:rgba(199,156,84,.08)}
-  @media(max-width:980px){.orders-form{grid-template-columns:1fr 1fr}.orders-form .order-add-wrap{grid-column:1/-1}}
+  @media(max-width:1200px){.orders-form{grid-template-columns:1fr 1fr}.orders-form .order-add-wrap{grid-column:1/-1}}
 </style>
 </head>
 <body class="locked">
@@ -440,6 +440,14 @@
             <div class="field">
               <label>Prix total</label>
               <input id="orderTotal" type="text" readonly value="0,00 $">
+            </div>
+            <div class="field">
+              <label>Date de livraison</label>
+              <input id="orderDeliveryDate" type="date" required>
+            </div>
+            <div class="field">
+              <label>Heure de livraison</label>
+              <input id="orderDeliveryTime" type="time" required>
             </div>
             <div class="field">
               <label>Frais de livraison ($)</label>
@@ -1111,6 +1119,8 @@
         deliveryFee:num(o.delivery_fee),
         status:o.status||"en_cours",
         createdAt:o.created_at,
+        deliveryDate:o.delivery_date||null,
+        deliveryTime:o.delivery_time||null,
         deliveredAt:o.delivered_at||null
       }));
       state.history=(movements.data||[]).map(h=>{
@@ -1157,6 +1167,7 @@
       ? ingredients.map(r=>`<option value="${esc(r.id)}">${esc(r.name)}</option>`).join("")
       : '<option value="">Aucun ingrédient</option>';
     if(ingredients.some(r=>r.id===current))select.value=current;
+    if($("orderDeliveryDate") && !$("orderDeliveryDate").value)$("orderDeliveryDate").value=todayISO();
     calcNewOrderTotal();
   }
 
@@ -1170,9 +1181,10 @@
     const body=$("ordersBody");
     if(!body)return;
     body.innerHTML=state.orders.length?state.orders.map(o=>{
-      const created=o.createdAt?new Date(o.createdAt):null;
-      const date=created?new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"}).format(created):"—";
-      const time=created?new Intl.DateTimeFormat("fr-FR",{hour:"2-digit",minute:"2-digit",hour12:false}).format(created):"—";
+      const date=o.deliveryDate
+        ? new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"}).format(new Date(o.deliveryDate+"T12:00:00"))
+        : "—";
+      const time=o.deliveryTime?String(o.deliveryTime).slice(0,5):"—";
       const delivered=o.status==="livre";
       return `<tr data-order-id="${esc(o.id)}" data-order-status="${esc(o.status)}">
         <td class="order-select-cell"><input class="order-select" type="radio" name="selectedOrder" value="${esc(o.id)}" aria-label="Sélectionner la commande"></td>
@@ -1324,12 +1336,22 @@
     const resourceId=$("orderIngredient").value;
     const quantity=Math.max(0,num($("orderQty").value));
     const deliveryFee=Math.max(0,num($("orderDeliveryFee").value));
+    const deliveryDate=$("orderDeliveryDate").value;
+    const deliveryTime=$("orderDeliveryTime").value;
     if(!resourceId||quantity<=0){toast("Choisis un ingrédient et une quantité valide.");return;}
+    if(!deliveryDate||!deliveryTime){toast("Choisis la date et l'heure du rendez-vous de livraison.");return;}
     try{
-      const {error}=await db.rpc("create_order",{p_resource_id:resourceId,p_quantity:quantity,p_delivery_fee:deliveryFee});
+      const {error}=await db.rpc("create_order",{
+        p_resource_id:resourceId,
+        p_quantity:quantity,
+        p_delivery_fee:deliveryFee,
+        p_delivery_date:deliveryDate,
+        p_delivery_time:deliveryTime
+      });
       if(error)throw error;
       $("orderQty").value="1";
       $("orderDeliveryFee").value="0";
+      $("orderDeliveryTime").value="";
       await loadRemoteState();
       toast("Commande ajoutée. Le stock ne changera qu'une fois livrée.");
     }catch(err){dbError(err);}
