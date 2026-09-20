@@ -1384,6 +1384,47 @@
     try{const {error}=await db.rpc("reset_cabinet");if(error)throw error;await loadRemoteState();toast("Registre partagé remis à zéro.");}catch(err){dbError(err);}
   });
 
+  async function ensureFreshSession(forceRefresh=false){
+    let session=null;
+    try{
+      const {data,error}=await sb.auth.getSession();
+      if(error)throw error;
+      session=data?.session||null;
+
+      if(!session){
+        const backup=readRememberedSession();
+        if(backup){
+          const restored=await sb.auth.setSession({
+            access_token:backup.access_token,
+            refresh_token:backup.refresh_token
+          });
+          if(restored.error)throw restored.error;
+          session=restored.data?.session||null;
+        }
+      }
+
+      if(!session)return null;
+
+      const expiresAt=Number(session.expires_at||0)*1000;
+      const expiresSoon=!expiresAt || (expiresAt-Date.now())<120000;
+      if(forceRefresh || expiresSoon){
+        const refreshed=await sb.auth.refreshSession();
+        if(refreshed.error)throw refreshed.error;
+        session=refreshed.data?.session||session;
+      }
+
+      if(session){
+        rememberSession(session);
+        setDataClient(session);
+        currentUser=session.user||currentUser;
+      }
+      return session;
+    }catch(error){
+      console.warn("Rafraîchissement de session impossible :",error);
+      return session;
+    }
+  }
+
   async function signIn(){
     const email=$("authEmail").value.trim(),password=$("authPassword").value;if(!email||!password){$("authMessage").textContent="Entre ton e-mail et ton mot de passe.";return;}
     $("authMessage").textContent="Connexion…";
@@ -1447,9 +1488,25 @@
   async function checkAccess(silent=false){
     if(!currentUser)return false;
     if(!silent)$("accessMessage").textContent="Vérification…";
-    const {data,error}=await db.rpc("get_my_profile");
+
+    await ensureFreshSession(false);
+    let result=await db.rpc("get_my_profile");
+
+    if(result.error && /jwt.*expired|expired.*jwt/i.test(result.error.message||"")){
+      const refreshed=await ensureFreshSession(true);
+      if(refreshed)result=await db.rpc("get_my_profile");
+    }
+
+    const {data,error}=result;
     if(error){
       console.error(error);
+      if(/jwt.*expired|expired.*jwt/i.test(error.message||"")){
+        // Une expiration de jeton ne doit jamais faire croire que le compte
+        // est en attente d'autorisation. On garde l'application ouverte et
+        // on retentera automatiquement au prochain passage.
+        setSync("Reconnexion automatique…","busy");
+        return currentProfile?.access_status==="approved";
+      }
       showAccessGate({access_status:"pending"});
       $("accessMessage").textContent="Erreur de vérification : "+(error.message||"inconnue");
       return false;
@@ -1487,6 +1544,7 @@
       clearInterval(refreshTimer);
       refreshTimer=setInterval(async()=>{
         if(!currentUser)return;
+        await ensureFreshSession(false);
         const a=document.activeElement;
         const editing=a&&["INPUT","SELECT","TEXTAREA"].includes(a.tagName);
         const activeView=document.querySelector(".view.active")?.id||"";
@@ -1505,6 +1563,24 @@
       setSync("Hors ligne","bad");
     }
   }
+  async function wakeSession(){
+    if(!currentUser)return;
+    const session=await ensureFreshSession(true);
+    if(session){
+      const ok=await checkAccess(true);
+      if(ok){
+        $("accessGate").classList.add("hidden");
+        document.body.classList.remove("locked");
+        setSync("En ligne · synchronisé","ok");
+      }
+    }
+  }
+
+  window.addEventListener("focus",wakeSession);
+  document.addEventListener("visibilitychange",()=>{
+    if(document.visibilityState==="visible")wakeSession();
+  });
+
   let authBootDone=false;
 
   async function restoreAuthFromBackup(){
