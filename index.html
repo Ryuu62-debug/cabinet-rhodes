@@ -754,8 +754,8 @@
           <p class="muted">Une personne peut créer son compte depuis l'adresse du site, mais elle ne voit aucune donnée tant que tu ne l'as pas autorisée ici.</p>
           <div class="table-wrap">
             <table class="user-table">
-              <thead><tr><th>Nom</th><th>E-mail</th><th>Rôle</th><th>Statut</th><th>Inscription</th><th>Action</th></tr></thead>
-              <tbody id="usersBody"><tr><td colspan="6" class="empty">Chargement…</td></tr></tbody>
+              <thead><tr><th>Nom</th><th>E-mail</th><th>Grade</th><th>Permission</th><th>Statut</th><th>Inscription</th><th>Action</th></tr></thead>
+              <tbody id="usersBody"><tr><td colspan="7" class="empty">Chargement…</td></tr></tbody>
             </table>
           </div>
           <div class="form-actions"><button class="btn secondary" id="refreshUsers">Actualiser les comptes</button></div>
@@ -1087,6 +1087,13 @@
       FRAIS_LIVRAISON:"Frais de livraison"
     }[t]||t;
   }
+  function gradeLabel(g){
+    return {
+      apprenti:"Apprenti",
+      medecin:"Médecin",
+      medecin_adjoint:"Médecin adjoint"
+    }[g]||"Apprenti";
+  }
   function dbError(error, fallback="Une erreur est survenue."){
     console.error(error);
     const msg=error?.message||fallback;
@@ -1194,7 +1201,7 @@
       renderAll();
       const p=currentProfile;
       $("userName").textContent=p?.display_name||currentUser.email||"Médecin";
-      $("userRole").textContent=isAdmin?"Administrateur":"Personnel médical";
+      $("userRole").textContent=gradeLabel(currentProfile?.medical_grade)+(isAdmin?" · Administrateur":"");
       setSync("En ligne · synchronisé","ok");
     }catch(error){
       console.error(error);
@@ -1364,7 +1371,7 @@
   }
   async function loadUsers(){
     if(!isAdmin)return;
-    $("usersBody").innerHTML='<tr><td colspan="6" class="empty">Chargement des comptes…</td></tr>';
+    $("usersBody").innerHTML='<tr><td colspan="7" class="empty">Chargement des comptes…</td></tr>';
     try{
       const {data,error}=await db.rpc("admin_list_profiles");
       if(error)throw error;
@@ -1384,15 +1391,23 @@
             : `<button class="btn good user-access-btn" data-id="${esc(u.id)}" data-status="approved">${status==="revoked"?"Réautoriser":"Autoriser"}</button>`;
         }
         const created=u.created_at?new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"}).format(new Date(u.created_at)):"—";
+        const grade=u.medical_grade||"apprenti";
         return `<tr data-user-id="${esc(u.id)}">
           <td><input class="user-display-name" maxlength="60" value="${esc(u.display_name||"")}" aria-label="Nom affiché de ${esc(u.email||"l'utilisateur")}"></td>
           <td>${esc(u.email||"—")}</td>
-          <td>${u.role==="admin"?'<span class="pill gold">Administrateur</span>':'Médecin'}</td>
+          <td>
+            <select class="user-grade-select" aria-label="Grade de ${esc(u.display_name||u.email||"l'utilisateur")}">
+              <option value="apprenti" ${grade==="apprenti"?"selected":""}>Apprenti</option>
+              <option value="medecin" ${grade==="medecin"?"selected":""}>Médecin</option>
+              <option value="medecin_adjoint" ${grade==="medecin_adjoint"?"selected":""}>Médecin adjoint</option>
+            </select>
+          </td>
+          <td>${u.role==="admin"?'<span class="pill gold">Administrateur</span>':'Personnel médical'}</td>
           <td><span class="pill ${statusClass}">${statusLabel}</span></td>
           <td>${created}</td>
-          <td><div class="user-row-actions"><button class="btn secondary save-user-name-btn" data-id="${esc(u.id)}">Enregistrer le nom</button>${accessAction}</div></td>
+          <td><div class="user-row-actions"><button class="btn secondary save-user-name-btn" data-id="${esc(u.id)}">Enregistrer le nom</button><button class="btn secondary save-user-grade-btn" data-id="${esc(u.id)}">Enregistrer le grade</button>${accessAction}</div></td>
         </tr>`;
-      }).join(""):'<tr><td colspan="6" class="empty">Aucun compte.</td></tr>';
+      }).join(""):'<tr><td colspan="7" class="empty">Aucun compte.</td></tr>';
     }catch(err){dbError(err,"Impossible de charger les comptes.");}
   }
 
@@ -1708,6 +1723,24 @@
       return;
     }
 
+    const gradeBtn=e.target.closest(".save-user-grade-btn");
+    if(gradeBtn){
+      const tr=gradeBtn.closest("tr");
+      const grade=tr?.querySelector(".user-grade-select")?.value||"apprenti";
+      try{
+        gradeBtn.disabled=true;
+        const {error}=await db.rpc("admin_set_medical_grade",{p_user_id:gradeBtn.dataset.id,p_grade:grade});
+        if(error)throw error;
+        if(gradeBtn.dataset.id===currentUser?.id){
+          if(currentProfile)currentProfile.medical_grade=grade;
+          $("userRole").textContent=gradeLabel(grade)+(isAdmin?" · Administrateur":"");
+        }
+        await loadUsers();
+        toast("Grade modifié.");
+      }catch(err){dbError(err);}finally{gradeBtn.disabled=false;}
+      return;
+    }
+
     const btn=e.target.closest(".user-access-btn");
     if(!btn)return;
     const targetStatus=btn.dataset.status;
@@ -1832,7 +1865,7 @@
     document.body.classList.toggle("is-admin",isAdmin);
     $("userEmail").textContent=currentUser?.email||"";
     $("userName").textContent=currentProfile?.display_name||currentUser?.email||"Médecin";
-    $("userRole").textContent=isAdmin?"Administrateur":"Personnel médical";
+    $("userRole").textContent=gradeLabel(currentProfile?.medical_grade)+(isAdmin?" · Administrateur":"");
     if(!isAdmin && document.querySelector("#users.view.active,#settings.view.active"))setView("dashboard");
     loadRemoteState();
     startEditLockSystem();
@@ -1876,7 +1909,7 @@
         document.body.classList.toggle("is-admin",isAdmin);
         $("userEmail").textContent=currentUser?.email||"";
         $("userName").textContent=currentProfile?.display_name||currentUser?.email||"Médecin";
-        $("userRole").textContent=isAdmin?"Administrateur":"Personnel médical";
+        $("userRole").textContent=gradeLabel(currentProfile?.medical_grade)+(isAdmin?" · Administrateur":"");
       }
       return true;
     }
