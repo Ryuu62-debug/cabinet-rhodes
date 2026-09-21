@@ -2387,33 +2387,19 @@
       }))
       .filter(order=>order.quantity>0);
     if(!missingOrders.length){toast("Les commandes en attente couvrent déjà tous les besoins.");return;}
-    const requiringChoice=missingOrders.filter(o=>suppliersForResource(o.resourceId).length>1);
-    if(requiringChoice.length){
-      const first=requiringChoice[0];
-      setView("dashboard");
-      $("orderIngredient").value=first.resourceId;
-      fillOrderSuppliers();
-      $("orderQty").value=String(first.quantity);
-      calcNewOrderTotal();
-      setTimeout(()=>$("ordersCard")?.scrollIntoView({behavior:"smooth",block:"start"}),50);
-      toast("Cet ingrédient existe chez plusieurs fournisseurs : choisis celui à utiliser avant d’ajouter la commande.");
-      return;
-    }
-    const button=$("orderCraftButton");
-    try{
-      button.disabled=true;
-      const {data,error}=await db.rpc("queue_recipe_missing",{p_recipe_id:rc.dbId,p_quantity:qty});
-      if(error)throw error;
-      await loadRemoteState();
-      renderCraft();
-      const added=num(data);
-      toast(added>0
-        ? `${missingOrders.length} ingrédient(s) complété(s) · ${added} unité(s) ajoutée(s) aux commandes.`
-        : "Les commandes en attente couvrent déjà tous les besoins.");
-    }catch(err){
-      dbError(err,"Impossible d'ajouter les ingrédients aux commandes.");
-      renderCraft();
-    }
+
+    const nextOrder=missingOrders[0];
+    setView("dashboard");
+    $("orderIngredient").value=nextOrder.resourceId;
+    fillOrderSuppliers();
+    $("orderQty").value=String(nextOrder.quantity);
+    calcNewOrderTotal();
+    setTimeout(()=>$("ordersCard")?.scrollIntoView({behavior:"smooth",block:"start"}),50);
+
+    const supplierCount=suppliersForResource(nextOrder.resourceId).length;
+    toast(supplierCount>1
+      ? "Choisis le fournisseur pour cet ingrédient, puis ajoute la commande."
+      : "Commande préparée : vérifie les informations puis clique sur « Ajouter la commande ».");
   });
 
   $("craftRecipe").addEventListener("change",renderCraft);$("craftQty").addEventListener("input",renderCraft);
