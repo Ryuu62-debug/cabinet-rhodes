@@ -358,7 +358,9 @@
   .orders-table .order-status.status-en-cours{color:#c9f5d4;border-color:rgba(108,190,130,.65);background:rgba(24,79,43,.65)}
   .orders-table .order-status.status-livre{color:#ffd0c8;border-color:rgba(205,91,75,.72);background:rgba(116,28,20,.72)}
   .orders-table .order-schedule-input{min-width:132px}
-  .craft-order-btn{display:block;margin-top:7px;padding:6px 9px;font-size:10px}
+  .craft-action-stack{display:grid;gap:8px;min-width:150px}
+  .craft-action-stack .btn{width:100%}
+  .craft-order-btn{background:linear-gradient(#5f4637,#443126)}
   .orders-table tr.order-selected{outline:1px solid rgba(226,192,122,.65);outline-offset:-1px;background:rgba(199,156,84,.08)}
   .pricing-table{font-size:12px}
   .pricing-table th,.pricing-table td{padding:10px 8px}
@@ -739,7 +741,10 @@
           <div class="craft-head">
             <div class="field"><label>Recette</label><select id="craftRecipe"></select></div>
             <div class="field"><label>Quantité à fabriquer</label><input type="number" id="craftQty" value="1" min="1" step="1"></div>
-            <button class="btn good big" id="craftButton">Fabriquer</button>
+            <div class="craft-action-stack">
+              <button class="btn good big" id="craftButton">Fabriquer</button>
+              <button class="btn big craft-order-btn" id="orderCraftButton" type="button">Commander</button>
+            </div>
           </div>
           <div class="recipe-note" id="craftDescription">Sélectionne un soin pour afficher les matériaux nécessaires.</div>
           <div class="table-wrap" style="margin-top:16px">
@@ -1517,13 +1522,23 @@
     $("craftRecipe").innerHTML=state.recipes.map(rc=>`<option value="${esc(rc.productId)}">${esc(res(rc.productId)?.name||rc.productId)}</option>`).join("");
     if(state.recipes.some(r=>r.productId===selected))$("craftRecipe").value=selected;
     const rc=recipe($("craftRecipe").value); const qty=Math.max(1,parseInt($("craftQty").value||1,10));
-    if(!rc){$("craftBody").innerHTML=`<tr><td colspan="6" class="empty">Aucune recette.</td></tr>`;$("craftButton").disabled=true;return;}
-    const rows=Object.entries(rc.ingredients).filter(([,q])=>num(q)>0); let allOk=true;
+    if(!rc){
+      $("craftBody").innerHTML=`<tr><td colspan="6" class="empty">Aucune recette.</td></tr>`;
+      $("craftButton").disabled=true;
+      $("orderCraftButton").disabled=true;
+      return;
+    }
+    const rows=Object.entries(rc.ingredients).filter(([,q])=>num(q)>0); let allOk=true,hasMissing=false;
     const STOCK_BAR_MAX=200;
-    $("craftBody").innerHTML=rows.map(([id,per])=>{const r=res(id),need=num(per)*qty,have=num(r?.stock),missing=Math.max(0,need-have),ratio=Math.min(100,(have/STOCK_BAR_MAX)*100);if(missing>0)allOk=false;return `<tr><td class="resource-name">${esc(r?.name||id)}</td><td>${num(per)}</td><td><strong>${need}</strong></td><td>${have}</td><td><div class="progress"><span class="${missing>0?"short":""}" style="width:${ratio}%"></span></div><div class="hint">${missing>0?"Stock insuffisant":"Disponible"} · ${have}/${STOCK_BAR_MAX}</div></td><td class="${missing>0?"bad":"good"}"><strong>${missing}</strong>${missing>0?`<button class="btn secondary craft-order-btn" type="button" data-resource-id="${esc(id)}" data-quantity="${esc(missing)}">Commander</button>`:""}</td></tr>`;}).join("");
+    $("craftBody").innerHTML=rows.map(([id,per])=>{
+      const r=res(id),need=num(per)*qty,have=num(r?.stock),missing=Math.max(0,need-have),ratio=Math.min(100,(have/STOCK_BAR_MAX)*100);
+      if(missing>0){allOk=false;hasMissing=true;}
+      return `<tr><td class="resource-name">${esc(r?.name||id)}</td><td>${num(per)}</td><td><strong>${need}</strong></td><td>${have}</td><td><div class="progress"><span class="${missing>0?"short":""}" style="width:${ratio}%"></span></div><div class="hint">${missing>0?"Stock insuffisant":"Disponible"} · ${have}/${STOCK_BAR_MAX}</div></td><td class="${missing>0?"bad":"good"}"><strong>${missing}</strong></td></tr>`;
+    }).join("");
     const product=res(rc.productId);
     $("craftDescription").innerHTML=`Fabrication de <strong>${qty} ${esc(product?.name||rc.productId)}</strong>. Les matériaux seront retirés et le produit ajouté au stock en une seule opération sécurisée.`;
     $("craftButton").disabled=!allOk||!rows.length;
+    $("orderCraftButton").disabled=!hasMissing||!rows.length;
   }
   function fillRemoveIngredientSelect(){
     const select=$("removeIngredientSelect");
@@ -2135,24 +2150,32 @@
     e.preventDefault();const type=$("cashType").value,amount=num($("cashAmount").value);if(amount<=0)return;const delta=type==="CAISSE_ENTREE"?amount:-amount;
     try{const {error}=await db.rpc("apply_movement",{p_resource_id:null,p_quantity_delta:0,p_unit_price:null,p_cash_delta:delta,p_movement_type:type,p_note:$("cashNote").value.trim()||null,p_effective_date:todayISO()});if(error)throw error;$("cashForm").reset();await loadRemoteState();toast("Mouvement de caisse enregistré.");}catch(err){dbError(err);}
   });
-  $("craftBody").addEventListener("click",async e=>{
-    const btn=e.target.closest(".craft-order-btn");
-    if(!btn)return;
-    const resourceId=btn.dataset.resourceId;
-    const quantity=Math.max(0,num(btn.dataset.quantity));
-    if(!resourceId||quantity<=0){toast("Aucune quantité à commander.");return;}
-    const ingredient=res(resourceId)?.name||"cet ingrédient";
+  $("orderCraftButton").addEventListener("click",async()=>{
+    const rc=recipe($("craftRecipe").value);
+    const qty=Math.max(1,parseInt($("craftQty").value||1,10));
+    if(!rc)return;
+    const missingOrders=Object.entries(rc.ingredients)
+      .map(([resourceId,per])=>({
+        resourceId,
+        quantity:Math.max(0,num(per)*qty-num(res(resourceId)?.stock))
+      }))
+      .filter(order=>order.quantity>0);
+    if(!missingOrders.length){toast("Aucun ingrédient à commander.");return;}
+    const button=$("orderCraftButton");
     try{
-      btn.disabled=true;
-      const {error}=await db.rpc("queue_order",{p_resource_id:resourceId,p_quantity:quantity});
-      if(error)throw error;
+      button.disabled=true;
+      const results=await Promise.all(missingOrders.map(order=>
+        db.rpc("queue_order",{p_resource_id:order.resourceId,p_quantity:order.quantity})
+      ));
+      const failed=results.find(result=>result.error);
+      if(failed)throw failed.error;
       await loadRemoteState();
-      setView("dashboard");
-      setTimeout(()=>$("ordersCard")?.scrollIntoView({behavior:"smooth",block:"start"}),120);
-      toast(`Commande ajoutée : ${quantity} ${ingredient} à commander.`);
+      renderCraft();
+      const total=missingOrders.reduce((sum,order)=>sum+order.quantity,0);
+      toast(`${missingOrders.length} ingrédient(s) ajouté(s) aux commandes · ${total} unité(s) au total.`);
     }catch(err){
-      dbError(err,"Impossible d'ajouter cette commande.");
-      btn.disabled=false;
+      dbError(err,"Impossible d'ajouter les ingrédients aux commandes.");
+      renderCraft();
     }
   });
 
