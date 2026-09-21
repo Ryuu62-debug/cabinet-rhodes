@@ -307,6 +307,11 @@
   .orders-table .order-status.status-en-cours{color:#c9f5d4;border-color:rgba(108,190,130,.65);background:rgba(24,79,43,.65)}
   .orders-table .order-status.status-livre{color:#ffd0c8;border-color:rgba(205,91,75,.72);background:rgba(116,28,20,.72)}
   .orders-table tr.order-selected{outline:1px solid rgba(226,192,122,.65);outline-offset:-1px;background:rgba(199,156,84,.08)}
+  .pricing-table{font-size:12px}
+  .pricing-table th,.pricing-table td{padding:10px 8px}
+  .pricing-table input{min-width:90px;width:100%;text-align:right}
+  .pricing-table .not-sold{display:inline-block;padding:6px 8px;border:1px solid rgba(189,90,77,.55);background:rgba(122,19,13,.28);color:#f0b4a8;font-weight:bold;white-space:nowrap}
+  .pricing-table .pricing-product{min-width:120px}
   @media(max-width:1200px){.orders-form{grid-template-columns:1fr 1fr}.orders-form .order-add-wrap{grid-column:1/-1}}
 </style>
 </head>
@@ -420,8 +425,26 @@
         </div>
 
         <div class="card">
-          <h3 class="section-title">Derniers mouvements</h3>
-          <div class="card-body" id="recentPanel"></div>
+          <h3 class="section-title">Prix de vente des recettes <small>modifiables uniquement par l’administrateur</small></h3>
+          <div class="card-body">
+            <div class="table-wrap">
+              <table class="pricing-table">
+                <thead>
+                  <tr>
+                    <th>Recette</th>
+                    <th>Prix pharmacie</th>
+                    <th>Prix conseillé</th>
+                    <th>À rendre au cabinet</th>
+                  </tr>
+                </thead>
+                <tbody id="recipePricingBody"></tbody>
+              </table>
+            </div>
+            <div class="form-actions admin-only">
+              <button class="btn" id="saveRecipePricing" type="button">Enregistrer les prix</button>
+            </div>
+            <p class="hint">Le « prix conseillé » correspond au tarif de la prestation facturée au patient. « À rendre au cabinet » est le montant à reverser au cabinet pour cette prestation. Kit de soin et Seringue vivifiante restent affichés mais ne sont pas vendus à la pharmacie.</p>
+          </div>
         </div>
       </div>
 
@@ -823,7 +846,7 @@
 
   const defaults = {
     settings:{name:"Cabinet Médical de Rhodes",place:"Rhodes · Lemoyne",telegram:"RH1959"},
-    cash:0,resources:[],recipes:[],suppliers:[],orders:[],history:[]
+    cash:0,resources:[],recipes:[],suppliers:[],orders:[],pricing:[],history:[]
   };
   let state = JSON.parse(JSON.stringify(defaults));
   let currentUser = null;
@@ -1076,16 +1099,17 @@
     isRefreshing=true;
     if(!silent)setSync("Synchronisation…","busy");
     try{
-      const [cab,resources,recipes,ingredients,suppliers,orders,movements] = await Promise.all([
+      const [cab,resources,recipes,ingredients,suppliers,orders,pricing,movements] = await Promise.all([
         db.from("cabinet_state").select("*").eq("id",1).single(),
         db.from("resources").select("*").order("name"),
         db.from("recipes").select("*").eq("active",true).order("name"),
         db.from("recipe_ingredients").select("*"),
         db.from("suppliers").select("*").eq("active",true),
         db.rpc("get_orders"),
+        db.rpc("get_recipe_pricing"),
         db.rpc("get_movement_history")
       ]);
-      for(const r of [cab,resources,recipes,ingredients,suppliers,orders,movements]) if(r.error) throw r.error;
+      for(const r of [cab,resources,recipes,ingredients,suppliers,orders,pricing,movements]) if(r.error) throw r.error;
 
       const c=cab.data||{};
       state.settings={name:c.cabinet_name||defaults.settings.name,place:c.place||defaults.settings.place,telegram:c.telegram||""};
@@ -1122,6 +1146,14 @@
         deliveryDate:o.delivery_date||null,
         deliveryTime:o.delivery_time||null,
         deliveredAt:o.delivered_at||null
+      }));
+      state.pricing=(pricing.data||[]).map(p=>({
+        productId:p.product_resource_id,
+        productName:p.product_name||res(p.product_resource_id)?.name||"Recette",
+        pharmacyPrice:p.pharmacy_price==null?null:num(p.pharmacy_price),
+        recommendedPrice:num(p.recommended_price),
+        cabinetReturn:num(p.cabinet_return),
+        pharmacySellable:p.pharmacy_sellable!==false
       }));
       state.history=(movements.data||[]).map(h=>{
         const isCash=["CAISSE_ENTREE","CAISSE_SORTIE"].includes(h.movement_type);
@@ -1206,8 +1238,33 @@
     applyEditLockUI();
   }
 
+  function renderRecipePricing(){
+    const body=$("recipePricingBody");
+    if(!body)return;
+    body.innerHTML=state.pricing.length?state.pricing.map(p=>{
+      const pharmacyCell=p.pharmacySellable
+        ? (isAdmin
+            ? `<input class="pricing-pharmacy" type="number" min="0" step="0.01" value="${num(p.pharmacyPrice).toFixed(2)}">`
+            : `<strong>${money(p.pharmacyPrice)}</strong>`)
+        : '<span class="not-sold">Non vendu</span>';
+      const recommendedCell=isAdmin
+        ? `<input class="pricing-recommended" type="number" min="0" step="0.01" value="${num(p.recommendedPrice).toFixed(2)}">`
+        : `<strong>${money(p.recommendedPrice)}</strong>`;
+      const cabinetCell=isAdmin
+        ? `<input class="pricing-cabinet" type="number" min="0" step="0.01" value="${num(p.cabinetReturn).toFixed(2)}">`
+        : `<strong>${money(p.cabinetReturn)}</strong>`;
+      return `<tr data-pricing-product="${esc(p.productId)}">
+        <td class="resource-name pricing-product">${esc(p.productName)}</td>
+        <td>${pharmacyCell}</td>
+        <td>${recommendedCell}</td>
+        <td>${cabinetCell}</td>
+      </tr>`;
+    }).join(""):'<tr><td colspan="4" class="empty">Aucune recette.</td></tr>';
+  }
+
   function renderDashboard(){
     renderOrders();
+    renderRecipePricing();
     $("dashCash").textContent=money(state.cash);
     $("dashStockValue").textContent=money(stockValue());
     $("dashCabinetValue").textContent=money(state.cash+stockValue());
@@ -1216,8 +1273,6 @@
     $("dashMonthName").textContent=new Intl.DateTimeFormat("fr-FR",{month:"long",year:"numeric"}).format(new Date());
     const low=[...activeResources()].sort((a,b)=>num(a.stock)-num(b.stock)).slice(0,6);
     $("lowStockPanel").innerHTML=low.length?low.map(r=>`<div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid rgba(199,156,84,.12)"><div><strong style="color:#ecd69e">${esc(r.name)}</strong><div class="hint">${r.kind==="soin"?"Soin fabriqué":"Ingrédient"}</div></div><span class="pill ${num(r.stock)<=5?"red":"gold"}">${num(r.stock)} en stock</span></div>`).join(""):`<div class="empty">Aucune ressource.</div>`;
-    const recent=[...state.history].reverse().slice(0,5);
-    $("recentPanel").innerHTML=recent.length?recent.map(h=>`<div style="padding:9px 0;border-bottom:1px solid rgba(199,156,84,.12)"><div style="display:flex;justify-content:space-between;gap:10px"><strong style="color:#ecd69e">${esc(typeLabel(h.type))}</strong><span class="muted">${esc(h.date)}</span></div><div class="hint">${esc(h.resourceId?res(h.resourceId)?.name||h.resourceName||"Ressource":h.note||"Caisse")}${h.qty?` · ${h.qty}`:""}</div></div>`).join(""):`<div class="empty">Aucun mouvement enregistré.</div>`;
   }
   function renderInventory(){
     $("inventoryBody").innerHTML=activeResources().map(r=>`<tr class="${num(r.stock)<=0?"stock-low":""}" data-id="${esc(r.id)}"><td class="resource-name">${esc(r.name)}</td><td><input class="inv-stock" type="number" min="0" step="0.01" value="${num(r.stock)}"></td><td><input class="inv-price" type="number" min="0" step="0.01" value="${num(r.unitPrice).toFixed(2)}"></td><td class="money">${money(num(r.stock)*num(r.unitPrice))}</td><td>${num(r.stock)<=0?'<span class="pill red">Épuisé</span>':num(r.stock)<=5?'<span class="pill red">Faible</span>':'<span class="pill green">Disponible</span>'}</td></tr>`).join("");
@@ -1327,6 +1382,34 @@
     document.querySelector(".brand p").textContent=state.settings.place;
   }
   function renderAll(){renderDashboard();renderInventory();fillMovementResources();renderCraft();renderRecipes();fillRemoveIngredientSelect();renderSuppliers();renderHistory();renderSettings();}
+
+  $("saveRecipePricing").addEventListener("click",async()=>{
+    if(!isAdmin){toast("Action réservée à l’administrateur.");return;}
+    try{
+      setSync("Enregistrement…","busy");
+      for(const tr of document.querySelectorAll("#recipePricingBody tr[data-pricing-product]")){
+        const productId=tr.dataset.pricingProduct;
+        const item=state.pricing.find(p=>p.productId===productId);
+        const pharmacy=item?.pharmacySellable
+          ? Math.max(0,num(tr.querySelector(".pricing-pharmacy")?.value))
+          : null;
+        const recommended=Math.max(0,num(tr.querySelector(".pricing-recommended")?.value));
+        const cabinetReturn=Math.max(0,num(tr.querySelector(".pricing-cabinet")?.value));
+        const {error}=await db.rpc("admin_set_recipe_pricing",{
+          p_product_resource_id:productId,
+          p_pharmacy_price:pharmacy,
+          p_recommended_price:recommended,
+          p_cabinet_return:cabinetReturn
+        });
+        if(error)throw error;
+      }
+      await loadRemoteState();
+      toast("Prix de vente enregistrés.");
+    }catch(err){
+      dbError(err);
+      setSync("Erreur","bad");
+    }
+  });
 
   $("orderIngredient").addEventListener("change",calcNewOrderTotal);
   $("orderQty").addEventListener("input",calcNewOrderTotal);
