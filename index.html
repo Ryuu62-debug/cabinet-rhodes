@@ -344,7 +344,7 @@
   .currency-input:after{content:"$";position:absolute;right:11px;top:50%;transform:translateY(-50%);color:#e2c07a;font-weight:bold;pointer-events:none}
   @media(max-width:1200px){.orders-form{grid-template-columns:1fr 1fr}.orders-form .order-add-wrap{grid-column:1/-1}}
 
-  .bureau-shell{display:flex;flex-direction:column;height:min(82vh,900px);min-height:620px}
+  .bureau-shell{display:flex;flex-direction:column;height:min(90vh,980px);min-height:700px}
   .bureau-intro{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 16px;border-bottom:1px solid rgba(199,156,84,.22);background:rgba(199,156,84,.05)}
   .bureau-intro strong{color:#ecd69e;letter-spacing:.5px}
   .bureau-intro span{color:#9e8967;font-size:12px}
@@ -1776,10 +1776,9 @@
     const results=$("bureauGifResults");
     results.innerHTML='<div class="bureau-gif-state">Recherche des GIFs…</div>';
     try{
-      const {data,error}=await sb.functions.invoke("bureau-giphy",{
-        body:{q:String(query||"").trim()}
+      const data=await invokeCabinetFunction("bureau-giphy",{
+        q:String(query||"").trim()
       });
-      if(error)throw error;
 
       const items=data?.data||[];
       giphyResults=new Map(items.map(g=>[String(g.id),g]));
@@ -2297,8 +2296,7 @@
       if(!confirm(`Supprimer définitivement le compte de ${name} ?\n\nLa personne ne pourra plus se connecter avec ce compte. Cette action est irréversible.`))return;
       try{
         deleteBtn.disabled=true;
-        const {data,error}=await db.functions.invoke("admin-delete-user",{body:{user_id:deleteBtn.dataset.id}});
-        if(error)throw error;
+        const data=await invokeCabinetFunction("admin-delete-user",{user_id:deleteBtn.dataset.id});
         if(data?.error)throw new Error(data.error);
         await loadUsers();
         toast("Compte supprimé définitivement.");
@@ -2378,6 +2376,28 @@
       console.warn("Rafraîchissement de session impossible :",error);
       return session;
     }
+  }
+
+  async function invokeCabinetFunction(name,body){
+    const session=await ensureFreshSession(true);
+    const token=session?.access_token;
+    if(!token)throw new Error("Ta session a expiré. Reconnecte-toi.");
+
+    const response=await fetch(`${SUPABASE_URL}/functions/v1/${encodeURIComponent(name)}`,{
+      method:"POST",
+      headers:{
+        "Authorization":"Bearer "+token,
+        "apikey":SUPABASE_KEY,
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify(body||{})
+    });
+
+    const payload=await response.json().catch(()=>({}));
+    if(!response.ok){
+      throw new Error(payload?.error||`Erreur du serveur (${response.status})`);
+    }
+    return payload;
   }
 
   async function signIn(){
