@@ -972,7 +972,7 @@
 
   function editableLockContext(el){
     if(!el || !el.matches?.("input,select,textarea"))return null;
-    if(el.readOnly || el.type==="file" || el.type==="search" || el.closest("#authGate,#accessGate"))return null;
+    if(el.id==="bureauText" || el.readOnly || el.type==="file" || el.type==="search" || el.closest("#authGate,#accessGate"))return null;
     const view=el.closest(".view");
     if(!view || view.id==="history")return null;
     if(view.id==="dashboard" && !el.closest("#ordersCard"))return null;
