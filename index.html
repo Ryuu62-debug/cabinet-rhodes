@@ -356,25 +356,11 @@
   .bureau-file-meta{min-width:0}
   .bureau-file-name{display:block;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:420px}
   .bureau-file-size{display:block;color:#8e7a5c;font-size:10px;margin-top:2px}
-  .bureau-composer{position:relative;padding:12px;border-top:1px solid rgba(199,156,84,.25);background:rgba(0,0,0,.18)}
-  .bureau-compose-row{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;gap:8px;align-items:end}
+  .bureau-composer{padding:12px;border-top:1px solid rgba(199,156,84,.25);background:rgba(0,0,0,.18)}
+  .bureau-compose-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:end}
   .bureau-attach-btn{height:42px;min-width:44px;padding:0 12px;font-size:18px}
   #bureauText{resize:none;min-height:42px;max-height:130px;line-height:1.35}
   .bureau-send{height:42px}
-  .bureau-gif-btn{height:42px;min-width:52px;padding:0 10px;font-weight:800;letter-spacing:.5px}
-  .bureau-gif-picker{display:none;position:absolute;left:12px;bottom:82px;width:min(520px,calc(100% - 24px));max-height:490px;z-index:30;border:1px solid rgba(199,156,84,.45);background:#17120f;box-shadow:0 16px 46px rgba(0,0,0,.55);border-radius:7px;overflow:hidden}
-  .bureau-gif-picker.show{display:block}
-  .bureau-gif-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:10px;border-bottom:1px solid rgba(199,156,84,.20)}
-  .bureau-gif-top input{height:38px}
-  .bureau-gif-close{width:38px;height:38px;border:1px solid rgba(199,156,84,.25);background:rgba(255,255,255,.03);color:#cdbb98;cursor:pointer;border-radius:4px;font-size:18px}
-  .bureau-gif-results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:8px;max-height:370px;overflow:auto;background:rgba(0,0,0,.14)}
-  .bureau-gif-item{position:relative;border:0;padding:0;background:#0c0a08;cursor:pointer;min-height:90px;overflow:hidden;border-radius:4px}
-  .bureau-gif-item img{display:block;width:100%;height:120px;object-fit:cover}
-  .bureau-gif-item:hover{outline:2px solid rgba(199,156,84,.75)}
-  .bureau-gif-state{grid-column:1/-1;padding:28px 12px;text-align:center;color:#9e8967;line-height:1.5}
-  .bureau-gif-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-top:1px solid rgba(199,156,84,.20);font-size:10px;color:#8d7a5f}
-  .bureau-giphy-brand{font-weight:900;letter-spacing:.7px;color:#e8d8b8;text-decoration:none}
-  .bureau-giphy-mark{margin-top:5px;font-size:9px;color:#7f705b}
   .bureau-file-preview{display:none;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;padding:8px 10px;border:1px solid rgba(199,156,84,.26);background:rgba(199,156,84,.07);font-size:12px;color:#d8c49c}
   .bureau-file-preview.show{display:flex}
   .bureau-file-preview-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -385,11 +371,8 @@
     .bureau-shell{height:68vh;min-height:480px}
     .bureau-message{grid-template-columns:36px minmax(0,1fr) auto;padding:9px 2px}
     .bureau-avatar{width:36px;height:36px}
-    .bureau-compose-row{grid-template-columns:auto auto minmax(0,1fr)}
+    .bureau-compose-row{grid-template-columns:auto minmax(0,1fr)}
     .bureau-send{grid-column:1/-1;width:100%}
-    .bureau-gif-picker{bottom:126px}
-    .bureau-gif-results{grid-template-columns:repeat(2,minmax(0,1fr))}
-    .bureau-gif-item img{height:110px}
     .bureau-file-name{max-width:240px}
   }
 </style>
@@ -808,22 +791,8 @@
             </div>
             <div class="bureau-compose-row">
               <button class="btn secondary bureau-attach-btn" id="bureauAttachBtn" type="button" title="Joindre un fichier">＋</button>
-              <button class="btn secondary bureau-gif-btn" id="bureauGifBtn" type="button" title="Rechercher un GIF">GIF</button>
               <textarea id="bureauText" maxlength="4000" placeholder="Écrire dans le Bureau…" rows="1"></textarea>
               <button class="btn bureau-send" id="bureauSend" type="button">Envoyer</button>
-            </div>
-            <div class="bureau-gif-picker" id="bureauGifPicker">
-              <div class="bureau-gif-top">
-                <input type="search" id="bureauGifSearch" maxlength="50" placeholder="Rechercher un GIF…">
-                <button class="bureau-gif-close" id="bureauGifClose" type="button" aria-label="Fermer">×</button>
-              </div>
-              <div class="bureau-gif-results" id="bureauGifResults">
-                <div class="bureau-gif-state">Recherche GIF prête.</div>
-              </div>
-              <div class="bureau-gif-footer">
-                <span>Clique sur un GIF pour l'envoyer immédiatement.</span>
-                <a class="bureau-giphy-brand" href="https://giphy.com" target="_blank" rel="noopener">Powered by GIPHY</a>
-              </div>
             </div>
             <input id="bureauFile" type="file" hidden>
             <div class="bureau-hint">Entrée pour envoyer · Maj+Entrée pour aller à la ligne · tu peux aussi glisser-déposer ou coller une image.</div>
@@ -884,11 +853,6 @@
               <div class="field"><label>Télégramme</label><input id="settingTelegram"></div>
             </div>
             <div class="field" style="margin-top:14px"><label>Montant de caisse actuel ($)</label><div class="currency-input"><input type="number" min="0" step="0.01" id="settingCash"></div></div>
-            <div class="field" style="margin-top:14px">
-              <label>Clé API GIPHY <span class="muted">(active la recherche GIF du Bureau)</span></label>
-              <input id="settingGiphyKey" type="password" autocomplete="off" placeholder="Colle ici la clé API GIPHY">
-              <p class="hint">Une seule clé Web suffit pour le cabinet. Elle est utilisée dans le navigateur pour rechercher les GIFs.</p>
-            </div>
             <div class="form-actions"><button class="btn" id="saveSettings">Enregistrer</button></div>
           </div>
         </div>
@@ -977,7 +941,7 @@
   }
 
   const defaults = {
-    settings:{name:"Cabinet Médical de Rhodes",place:"Rhodes · Lemoyne",telegram:"RH1959",giphyApiKey:""},
+    settings:{name:"Cabinet Médical de Rhodes",place:"Rhodes · Lemoyne",telegram:"RH1959"},
     cash:0,resources:[],recipes:[],suppliers:[],orders:[],pricing:[],history:[]
   };
   let state = JSON.parse(JSON.stringify(defaults));
@@ -990,8 +954,6 @@
   let bureauChannel = null;
   let bureauSelectedFile = null;
   let bureauLoading = false;
-  let giphySearchTimer = null;
-  let giphyResults = new Map();
   let lockPollTimer = null;
   let lockExpiryTimer = null;
   const activeEditLocks = new Map();
@@ -1261,7 +1223,7 @@
       for(const r of [cab,resources,recipes,ingredients,suppliers,orders,pricing,movements]) if(r.error) throw r.error;
 
       const c=cab.data||{};
-      state.settings={name:c.cabinet_name||defaults.settings.name,place:c.place||defaults.settings.place,telegram:c.telegram||"",giphyApiKey:c.giphy_api_key||""};
+      state.settings={name:c.cabinet_name||defaults.settings.name,place:c.place||defaults.settings.place,telegram:c.telegram||""};
       state.cash=num(c.cash_balance);
       state.resources=(resources.data||[]).map(r=>({
         id:r.id,name:r.name,stock:num(r.stock),unitPrice:num(r.unit_price),kind:r.category==="ingredient"?"ingredient":"soin",active:r.active!==false
@@ -1646,10 +1608,7 @@
       const mine=m.author_id===currentUser?.id;
       const canDelete=mine||isAdmin;
       let attachment="";
-      if(m.external_url && m.external_provider==="giphy"){
-        const target=m.external_page_url||m.external_url;
-        attachment=`<div class="bureau-attachment"><a class="bureau-image-link" href="${esc(target)}" target="_blank" rel="noopener"><img class="bureau-image" src="${esc(m.external_url)}" alt="GIF GIPHY"></a><div class="bureau-giphy-mark">via GIPHY</div></div>`;
-      }else if(m.attachment_path){
+      if(m.attachment_path){
         if(m.signedUrl && bureauIsImage(m)){
           attachment=`<div class="bureau-attachment"><a class="bureau-image-link" href="${esc(m.signedUrl)}" target="_blank" rel="noopener"><img class="bureau-image" src="${esc(m.signedUrl)}" alt="${esc(m.attachment_name||"Image")}"></a></div>`;
         }else if(m.signedUrl){
@@ -1719,16 +1678,12 @@
         if(uploadError)throw uploadError;
       }
 
-      const {error}=await db.rpc("post_bureau_message_v2",{
+      const {error}=await db.rpc("post_bureau_message",{
         p_body:textValue,
         p_attachment_path:uploadedPath,
         p_attachment_name:file?.name||null,
         p_attachment_type:file?.type||null,
-        p_attachment_size:file?.size||null,
-        p_external_url:null,
-        p_external_page_url:null,
-        p_external_provider:null,
-        p_external_id:null
+        p_attachment_size:file?.size||null
       });
       if(error)throw error;
 
@@ -1743,109 +1698,6 @@
     }finally{
       btn.disabled=false;
       btn.textContent=oldText;
-    }
-  }
-
-  function giphyApiKey(){
-    return String(state.settings.giphyApiKey||"").trim();
-  }
-
-  function giphyCustomerId(){
-    const key="cabinet-rhodes-giphy-customer-v1";
-    try{
-      let id=localStorage.getItem(key);
-      if(!id){
-        id=window.crypto?.randomUUID?.()||("rhodes-"+Math.random().toString(36).slice(2)+Date.now().toString(36));
-        localStorage.setItem(key,id);
-      }
-      return id;
-    }catch(_){
-      return "rhodes-browser";
-    }
-  }
-
-  function giphyPing(url){
-    if(!url)return;
-    try{
-      const u=new URL(url);
-      u.searchParams.set("customer_id",giphyCustomerId());
-      u.searchParams.set("ts",Date.now().toString());
-      fetch(u.toString(),{method:"GET",mode:"no-cors",keepalive:true}).catch(()=>{});
-    }catch(_){}
-  }
-
-  function closeBureauGifPicker(){
-    $("bureauGifPicker").classList.remove("show");
-  }
-
-  async function loadGiphy(query=""){
-    const key=giphyApiKey();
-    const results=$("bureauGifResults");
-    if(!key){
-      results.innerHTML='<div class="bureau-gif-state">La recherche GIF doit d’abord être activée par le Chef de cabinet dans <strong>Paramètres → Clé API GIPHY</strong>.</div>';
-      return;
-    }
-
-    results.innerHTML='<div class="bureau-gif-state">Recherche des GIFs…</div>';
-    try{
-      const q=String(query||"").trim();
-      const endpoint=q?"https://api.giphy.com/v1/gifs/search":"https://api.giphy.com/v1/gifs/trending";
-      const url=new URL(endpoint);
-      url.searchParams.set("api_key",key);
-      url.searchParams.set("limit","24");
-      url.searchParams.set("rating","pg-13");
-      if(q){
-        url.searchParams.set("q",q);
-        url.searchParams.set("lang","fr");
-      }
-      const response=await fetch(url.toString());
-      if(!response.ok)throw new Error("GIPHY "+response.status);
-      const payload=await response.json();
-      const items=payload?.data||[];
-      giphyResults=new Map(items.map(g=>[String(g.id),g]));
-
-      if(!items.length){
-        results.innerHTML='<div class="bureau-gif-state">Aucun GIF trouvé.</div>';
-        return;
-      }
-
-      results.innerHTML=items.map(g=>{
-        const img=g.images?.fixed_width_small?.url||g.images?.fixed_width?.url||g.images?.downsized?.url||g.images?.original?.url||"";
-        return `<button class="bureau-gif-item" type="button" data-giphy-id="${esc(g.id)}" title="${esc(g.title||"GIF")}"><img src="${esc(img)}" alt="${esc(g.title||"GIF")}"></button>`;
-      }).join("");
-
-      items.forEach(g=>giphyPing(g.analytics?.onload?.url));
-    }catch(err){
-      console.error("GIPHY :",err);
-      results.innerHTML='<div class="bureau-gif-state">Impossible de charger GIPHY.<br>Vérifie la clé API dans Paramètres.</div>';
-    }
-  }
-
-  async function sendGiphyGif(gif){
-    if(!gif)return;
-    const full=gif.images?.original?.url||gif.images?.downsized?.url||gif.images?.fixed_width?.url;
-    if(!full){toast("Ce GIF n’est pas disponible.");return;}
-
-    closeBureauGifPicker();
-    giphyPing(gif.analytics?.onclick?.url);
-
-    try{
-      const {error}=await db.rpc("post_bureau_message_v2",{
-        p_body:"",
-        p_attachment_path:null,
-        p_attachment_name:null,
-        p_attachment_type:null,
-        p_attachment_size:null,
-        p_external_url:full,
-        p_external_page_url:gif.url||null,
-        p_external_provider:"giphy",
-        p_external_id:String(gif.id||"")
-      });
-      if(error)throw error;
-      giphyPing(gif.analytics?.onsent?.url);
-      await loadBureauMessages(true);
-    }catch(err){
-      dbError(err,"Impossible d'envoyer le GIF.");
     }
   }
 
@@ -1866,7 +1718,7 @@
   }
 
   function renderSettings(){
-    $("settingName").value=state.settings.name||"";$("settingPlace").value=state.settings.place||"";$("settingTelegram").value=state.settings.telegram||"";$("settingCash").value=num(state.cash).toFixed(2);$("settingGiphyKey").value=state.settings.giphyApiKey||"";$("telegramPlaque").textContent=state.settings.telegram||"—";
+    $("settingName").value=state.settings.name||"";$("settingPlace").value=state.settings.place||"";$("settingTelegram").value=state.settings.telegram||"";$("settingCash").value=num(state.cash).toFixed(2);$("telegramPlaque").textContent=state.settings.telegram||"—";
     document.querySelector(".brand h1").innerHTML=esc(state.settings.name).replace(/\sde\sRhodes/i,"<br>de Rhodes");
     document.querySelector(".brand p").textContent=state.settings.place;
   }
@@ -2155,28 +2007,6 @@
     }catch(err){dbError(err);}
   });
   $("bureauAttachBtn").addEventListener("click",()=>$("bureauFile").click());
-  $("bureauGifBtn").addEventListener("click",()=>{
-    const picker=$("bureauGifPicker");
-    const opening=!picker.classList.contains("show");
-    picker.classList.toggle("show",opening);
-    if(opening){
-      $("bureauGifSearch").focus();
-      loadGiphy($("bureauGifSearch").value);
-    }
-  });
-  $("bureauGifClose").addEventListener("click",closeBureauGifPicker);
-  $("bureauGifSearch").addEventListener("input",e=>{
-    clearTimeout(giphySearchTimer);
-    giphySearchTimer=setTimeout(()=>loadGiphy(e.target.value),280);
-  });
-  $("bureauGifSearch").addEventListener("keydown",e=>{
-    if(e.key==="Escape")closeBureauGifPicker();
-  });
-  $("bureauGifResults").addEventListener("click",e=>{
-    const btn=e.target.closest(".bureau-gif-item");
-    if(!btn)return;
-    sendGiphyGif(giphyResults.get(btn.dataset.giphyId));
-  });
   $("bureauFile").addEventListener("change",e=>setBureauFile(e.target.files?.[0]||null));
   $("bureauClearFile").addEventListener("click",clearBureauFile);
   $("bureauSend").addEventListener("click",sendBureauMessage);
@@ -2202,13 +2032,6 @@
     const file=[...(e.dataTransfer?.files||[])][0];
     if(file)setBureauFile(file);
   });
-  document.addEventListener("pointerdown",e=>{
-    const picker=$("bureauGifPicker");
-    if(!picker?.classList.contains("show"))return;
-    if(e.target.closest("#bureauGifPicker,#bureauGifBtn"))return;
-    closeBureauGifPicker();
-  });
-
   $("bureauMessages").addEventListener("click",async e=>{
     const btn=e.target.closest(".bureau-delete");
     if(!btn)return;
@@ -2295,7 +2118,7 @@
   ["historySearch","historyType","historyMonth"].forEach(id=>$(id).addEventListener(id==="historySearch"?"input":"change",renderHistory));
   $("clearHistoryFilters").addEventListener("click",()=>{$("historySearch").value="";$("historyType").value="";$("historyMonth").value="";renderHistory();});
   $("saveSettings").addEventListener("click",async()=>{
-    const payload={cabinet_name:$("settingName").value.trim()||defaults.settings.name,place:$("settingPlace").value.trim()||defaults.settings.place,telegram:$("settingTelegram").value.trim(),cash_balance:Math.max(0,num($("settingCash").value)),giphy_api_key:$("settingGiphyKey").value.trim()};
+    const payload={cabinet_name:$("settingName").value.trim()||defaults.settings.name,place:$("settingPlace").value.trim()||defaults.settings.place,telegram:$("settingTelegram").value.trim(),cash_balance:Math.max(0,num($("settingCash").value))};
     try{const {error}=await db.from("cabinet_state").update(payload).eq("id",1);if(error)throw error;await loadRemoteState();toast("Paramètres enregistrés en ligne.");}catch(err){dbError(err);}
   });
   $("exportData").addEventListener("click",()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="cabinet-rhodes-sauvegarde-"+todayISO()+".json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);});
