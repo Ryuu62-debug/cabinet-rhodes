@@ -2032,6 +2032,7 @@
   $("bureauClearFile").addEventListener("click",clearBureauFile);
   $("bureauSend").addEventListener("click",sendBureauMessage);
   $("bureauText").addEventListener("keydown",e=>{
+    markBureauTyping();
     if(e.key==="Enter"&&!e.shiftKey){
       e.preventDefault();
       sendBureauMessage();
