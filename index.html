@@ -1760,9 +1760,33 @@
     const results=$("bureauGifResults");
     results.innerHTML='<div class="bureau-gif-state">Recherche des GIFs…</div>';
     try{
-      const {data,error}=await sb.functions.invoke("bureau-giphy",{body:{q:String(query||"").trim()}});
-      if(error)throw error;
-      const items=data?.data||[];
+      const key=String(state.settings.giphyApiKey||"").trim();
+      if(!key)throw new Error("Clé GIPHY absente");
+
+      const q=String(query||"").trim();
+      const endpoint=q?"https://api.giphy.com/v1/gifs/search":"https://api.giphy.com/v1/gifs/trending";
+      const url=new URL(endpoint);
+      url.searchParams.set("api_key",key);
+      url.searchParams.set("limit","24");
+      url.searchParams.set("rating","pg-13");
+      if(q){
+        url.searchParams.set("q",q);
+        url.searchParams.set("lang","fr");
+      }
+
+      const response=await fetch(url.toString());
+      const payload=await response.json().catch(()=>({}));
+      if(!response.ok)throw new Error(payload?.message||payload?.meta?.msg||("Erreur GIPHY "+response.status));
+
+      const items=(payload?.data||[]).map(g=>({
+        id:g.id,
+        title:g.title,
+        url:g.url,
+        images:{
+          preview:g.images?.fixed_width_small?.url||g.images?.fixed_width?.url||g.images?.downsized?.url||g.images?.original?.url||"",
+          original:g.images?.original?.url||g.images?.downsized?.url||g.images?.fixed_width?.url||""
+        }
+      }));
       giphyResults=new Map(items.map(g=>[String(g.id),g]));
       if(!items.length){
         results.innerHTML='<div class="bureau-gif-state">Aucun GIF trouvé.</div>';
@@ -1771,7 +1795,7 @@
       results.innerHTML=items.map(g=>`<button class="bureau-gif-item" type="button" data-giphy-id="${esc(g.id)}" title="${esc(g.title||"GIF")}"><img src="${esc(g.images?.preview||g.images?.original||"")}" alt="${esc(g.title||"GIF")}"></button>`).join("");
     }catch(err){
       console.error("GIPHY :",err);
-      results.innerHTML='<div class="bureau-gif-state">Impossible de charger les GIFs.</div>';
+      results.innerHTML='<div class="bureau-gif-state">Impossible de charger les GIFs. Recharge la page puis réessaie.</div>';
     }
   }
 
