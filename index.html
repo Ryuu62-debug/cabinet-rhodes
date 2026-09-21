@@ -1749,6 +1749,50 @@
     }
   }
 
+  function closeBureauGifPicker(){
+    $("bureauGifPicker").classList.remove("show");
+  }
+
+  async function loadGiphy(query=""){
+    const results=$("bureauGifResults");
+    results.innerHTML='<div class="bureau-gif-state">Recherche des GIFs…</div>';
+    try{
+      const {data,error}=await db.functions.invoke("bureau-giphy",{body:{q:String(query||"").trim()}});
+      if(error)throw error;
+      const items=data?.data||[];
+      giphyResults=new Map(items.map(g=>[String(g.id),g]));
+      if(!items.length){
+        results.innerHTML='<div class="bureau-gif-state">Aucun GIF trouvé.</div>';
+        return;
+      }
+      results.innerHTML=items.map(g=>`<button class="bureau-gif-item" type="button" data-giphy-id="${esc(g.id)}" title="${esc(g.title||"GIF")}"><img src="${esc(g.images?.preview||g.images?.original||"")}" alt="${esc(g.title||"GIF")}"></button>`).join("");
+    }catch(err){
+      console.error("GIPHY :",err);
+      results.innerHTML='<div class="bureau-gif-state">Impossible de charger les GIFs.</div>';
+    }
+  }
+
+  async function sendGiphyGif(gif){
+    if(!gif?.images?.original){toast("Ce GIF n’est pas disponible.");return;}
+    closeBureauGifPicker();
+    try{
+      const {error}=await db.rpc("post_bureau_message_v2",{
+        p_body:"",
+        p_attachment_path:null,
+        p_attachment_name:null,
+        p_attachment_type:null,
+        p_attachment_size:null,
+        p_external_url:gif.images.original,
+        p_external_page_url:gif.url||null,
+        p_external_provider:"giphy",
+        p_external_id:String(gif.id||"")
+      });
+      if(error)throw error;
+      stopBureauTyping();
+      await loadBureauMessages(true);
+    }catch(err){dbError(err,"Impossible d'envoyer le GIF.");}
+  }
+
   async function setBureauTyping(active){
     if(!currentUser || currentProfile?.access_status!=="approved")return;
     try{await db.rpc("set_bureau_typing",{p_is_typing:!!active});}
