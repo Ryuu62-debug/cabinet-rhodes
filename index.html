@@ -955,6 +955,10 @@
   let bureauChannel = null;
   let bureauSelectedFile = null;
   let bureauLoading = false;
+  let bureauTypingTimer = null;
+  let bureauTypingRefreshTimer = null;
+  let bureauLastTypingPing = 0;
+  const bureauPeople = new Map();
   let lockPollTimer = null;
   let lockExpiryTimer = null;
   const activeEditLocks = new Map();
