@@ -1110,6 +1110,7 @@
   let bureauLastTypingPing = 0;
   let giphySearchTimer = null;
   let giphyResults = new Map();
+  const craftSupplierChoices = new Map();
   const bureauPeople = new Map();
   let lockPollTimer = null;
   let lockExpiryTimer = null;
@@ -1747,9 +1748,10 @@
         }else if(suppliers.length===1){
           orderCell+=`<div class="craft-order-provider">${esc(supplierDisplayName(suppliers[0]))}</div>`;
         }else{
+          const savedSupplierId=craftSupplierChoices.get(id)||"";
           orderCell+=`<select class="craft-order-supplier" data-resource-id="${esc(id)}" aria-label="Fournisseur pour ${esc(r?.name||id)}">
             <option value="">Choisir le fournisseur…</option>
-            ${suppliers.map(s=>`<option value="${esc(s.dbId)}">${esc(supplierDisplayName(s))}</option>`).join("")}
+            ${suppliers.map(s=>`<option value="${esc(s.dbId)}"${s.dbId===savedSupplierId?" selected":""}>${esc(supplierDisplayName(s))}</option>`).join("")}
           </select>`;
         }
       }
@@ -2443,7 +2445,7 @@
         supplierChoices[resourceId]=suppliers[0].dbId;
       }else{
         const select=document.querySelector(`.craft-order-supplier[data-resource-id="${resourceId}"]`);
-        const supplierId=select?.value||"";
+        const supplierId=select?.value||craftSupplierChoices.get(resourceId)||"";
         if(!supplierId){
           toast(`Choisis le fournisseur pour « ${ingredientName} ».`);
           select?.focus();
@@ -2464,6 +2466,7 @@
       if(error)throw error;
       await loadRemoteState();
       $("craftQty").value="1";
+      Object.keys(supplierChoices).forEach(resourceId=>craftSupplierChoices.delete(resourceId));
       renderCraft();
       const added=num(data);
       toast(added>0
@@ -2475,6 +2478,15 @@
     }finally{
       button.disabled=false;
     }
+  });
+
+  $("craftBody").addEventListener("change",e=>{
+    const select=e.target.closest(".craft-order-supplier");
+    if(!select)return;
+    const resourceId=select.dataset.resourceId||"";
+    if(!resourceId)return;
+    if(select.value)craftSupplierChoices.set(resourceId,select.value);
+    else craftSupplierChoices.delete(resourceId);
   });
 
   $("craftRecipe").addEventListener("change",renderCraft);$("craftQty").addEventListener("input",renderCraft);
