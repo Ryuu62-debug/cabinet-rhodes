@@ -1693,6 +1693,9 @@
       if(error)throw error;
 
       $("bureauText").value="";
+      clearTimeout(bureauTypingTimer);
+      bureauLastTypingPing=0;
+      setBureauTyping(false);
       clearBureauFile();
       await loadBureauMessages(true);
     }catch(err){
