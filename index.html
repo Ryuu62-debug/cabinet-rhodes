@@ -2080,6 +2080,8 @@
   $("bureauFile").addEventListener("change",e=>setBureauFile(e.target.files?.[0]||null));
   $("bureauClearFile").addEventListener("click",clearBureauFile);
   $("bureauSend").addEventListener("click",sendBureauMessage);
+  $("bureauText").addEventListener("input",markBureauTyping);
+  $("bureauText").addEventListener("blur",stopBureauTyping);
   $("bureauText").addEventListener("keydown",e=>{
     if(e.key==="Enter"&&!e.shiftKey){
       e.preventDefault();
