@@ -90,7 +90,7 @@
       background:#efe1b9;color:#1a110c;border:3px double #9d7740;
       box-shadow:inset 0 0 18px rgba(107,70,30,.16),0 8px 20px rgba(0,0,0,.26);
     }
-    .telegram small{display:block;color:#79160f;font-weight:bold;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+    .telegram small{display:block;color:#79160f;font-weight:bold;text-transform:none;letter-spacing:.8px;margin-bottom:5px}
     .telegram strong{font-size:22px}
 
     main{min-width:0;padding:28px clamp(18px,3vw,44px) 70px}
@@ -547,7 +547,7 @@
     </nav>
 
     <div class="telegram">
-      <small>Mon télégramme</small>
+      <small id="telegramOwnerName">John Myers</small>
       <strong id="telegramPlaque">RH1959</strong>
     </div>
     <div class="user-box">
@@ -1115,6 +1115,7 @@
   let bureauLoading = false;
   let bureauTypingTimer = null;
   let bureauTypingRefreshTimer = null;
+  let bureauUnreadRefreshTimer = null;
   let bureauLastTypingPing = 0;
   let bureauUnreadCount = 0;
   let giphySearchTimer = null;
@@ -2252,6 +2253,12 @@
       .subscribe();
 
     refreshBureauUnread();
+
+    clearInterval(bureauUnreadRefreshTimer);
+    bureauUnreadRefreshTimer=setInterval(()=>{
+      if(!document.querySelector("#bureau.view.active"))refreshBureauUnread();
+    },4000);
+
     clearInterval(bureauTypingRefreshTimer);
     bureauTypingRefreshTimer=setInterval(()=>{
       if(document.querySelector("#bureau.view.active"))refreshBureauTyping();
@@ -2262,6 +2269,8 @@
     stopBureauTyping();
     clearInterval(bureauTypingRefreshTimer);
     bureauTypingRefreshTimer=null;
+    clearInterval(bureauUnreadRefreshTimer);
+    bureauUnreadRefreshTimer=null;
     setBureauUnread(0);
     if(!bureauChannel)return;
     try{sb.removeChannel(bureauChannel);}catch(_){}
@@ -2271,6 +2280,7 @@
 
   function renderSettings(){
     $("settingName").value=state.settings.name||"";$("settingPlace").value=state.settings.place||"";$("settingTelegram").value=state.settings.telegram||"";$("settingCash").value=num(state.cash).toFixed(2);$("telegramPlaque").textContent=state.settings.telegram||"—";
+    if($("telegramOwnerName"))$("telegramOwnerName").textContent=currentProfile?.display_name||"Médecin";
     document.querySelector(".brand h1").innerHTML=esc(state.settings.name).replace(/\sde\sRhodes/i,"<br>de Rhodes");
     document.querySelector(".brand p").textContent=state.settings.place;
   }
