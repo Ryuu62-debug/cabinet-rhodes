@@ -1795,7 +1795,8 @@
       results.innerHTML=items.map(g=>`<button class="bureau-gif-item" type="button" data-giphy-id="${esc(g.id)}" title="${esc(g.title||"GIF")}"><img src="${esc(g.images?.preview||g.images?.original||"")}" alt="${esc(g.title||"GIF")}"></button>`).join("");
     }catch(err){
       console.error("GIPHY :",err);
-      results.innerHTML='<div class="bureau-gif-state">Impossible de charger les GIFs. Recharge la page puis réessaie.</div>';
+      const reason=String(err?.message||"Erreur inconnue").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
+      results.innerHTML='<div class="bureau-gif-state">Impossible de charger les GIFs.<br><small>'+reason+'</small></div>';
     }
   }
 
