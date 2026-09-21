@@ -1760,7 +1760,7 @@
     const results=$("bureauGifResults");
     results.innerHTML='<div class="bureau-gif-state">Recherche des GIFs…</div>';
     try{
-      const {data,error}=await db.functions.invoke("bureau-giphy",{body:{q:String(query||"").trim()}});
+      const {data,error}=await sb.functions.invoke("bureau-giphy",{body:{q:String(query||"").trim()}});
       if(error)throw error;
       const items=data?.data||[];
       giphyResults=new Map(items.map(g=>[String(g.id),g]));
