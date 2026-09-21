@@ -1608,7 +1608,7 @@
         <td>${o.supplierTelegram?`<span class="pill gold">${esc(o.supplierTelegram)}</span>`:'<span class="muted">—</span>'}</td>
         <td><strong>${esc(o.quantity)}</strong></td>
         <td class="money"><strong>${money(o.totalPrice)}</strong></td>
-        <td><div class="currency-input"><input class="order-fee" type="number" min="0" step="0.01" value="${num(o.deliveryFee).toFixed(2)}" ${!inProgress?"readonly":""}></div></td>
+        <td><div class="currency-input"><input class="order-fee" type="number" min="0" step="0.01" value="${num(o.deliveryFee).toFixed(2)}" ${delivered?"readonly":""}></div></td>
         <td>
           <select class="order-status ${statusClass}" data-current="${esc(o.status)}">
             <option value="a_commander" ${pending?"selected":""} ${!pending?"disabled":""}>À commander</option>
@@ -2363,15 +2363,18 @@
     }
 
     if(e.target.matches(".order-fee")){
-      if(current!=="en_cours"){
+      if(current==="livre"){
         e.target.value=num(state.orders.find(o=>o.id===id)?.deliveryFee).toFixed(2);
         return;
       }
       try{
         const fee=Math.max(0,num(e.target.value));
-        const {error}=await db.rpc("update_order_delivery_fee",{p_order_id:id,p_delivery_fee:fee});
+        const {data,error}=await db.rpc("update_order_delivery_fee",{p_order_id:id,p_delivery_fee:fee});
         if(error)throw error;
-        const order=state.orders.find(o=>o.id===id);if(order)order.deliveryFee=fee;
+        if(data!==true)throw new Error("Impossible de modifier les frais de cette commande.");
+        const order=state.orders.find(o=>o.id===id);
+        if(order)order.deliveryFee=fee;
+        renderOrders();
         toast("Frais de livraison enregistrés.");
       }catch(err){dbError(err);await loadRemoteState();}
       return;
