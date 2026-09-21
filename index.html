@@ -1766,13 +1766,25 @@
       .on("postgres_changes",{event:"*",schema:"public",table:"bureau_messages"},()=>{
         if(document.querySelector("#bureau.view.active"))loadBureauMessages(false);
       })
+      .on("postgres_changes",{event:"*",schema:"public",table:"bureau_typing"},()=>{
+        if(document.querySelector("#bureau.view.active"))refreshBureauTyping();
+      })
       .subscribe();
+
+    clearInterval(bureauTypingRefreshTimer);
+    bureauTypingRefreshTimer=setInterval(()=>{
+      if(document.querySelector("#bureau.view.active"))refreshBureauTyping();
+    },1800);
   }
 
   function stopBureauRealtime(){
+    stopBureauTyping();
+    clearInterval(bureauTypingRefreshTimer);
+    bureauTypingRefreshTimer=null;
     if(!bureauChannel)return;
     try{sb.removeChannel(bureauChannel);}catch(_){}
     bureauChannel=null;
+    if($("bureauTyping"))$("bureauTyping").textContent="";
   }
 
   function renderSettings(){
