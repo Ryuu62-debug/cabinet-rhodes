@@ -1712,6 +1712,16 @@
     catch(err){console.warn("Indicateur du Bureau :",err);}
   }
 
+  function markBureauTyping(){
+    clearTimeout(bureauTypingTimer);
+    const now=Date.now();
+    if(now-bureauLastTypingPing>1400){
+      bureauLastTypingPing=now;
+      setBureauTyping(true);
+    }
+    bureauTypingTimer=setTimeout(()=>setBureauTyping(false),2400);
+  }
+
   function startBureauRealtime(){
     if(bureauChannel || !currentUser)return;
     bureauChannel=sb
