@@ -1706,6 +1706,12 @@
     }
   }
 
+  async function setBureauTyping(active){
+    if(!currentUser || currentProfile?.access_status!=="approved")return;
+    try{await db.rpc("set_bureau_typing",{p_is_typing:!!active});}
+    catch(err){console.warn("Indicateur du Bureau :",err);}
+  }
+
   function startBureauRealtime(){
     if(bureauChannel || !currentUser)return;
     bureauChannel=sb
