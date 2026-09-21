@@ -109,6 +109,20 @@
     .topbar p{margin:5px 0 0;color:#c8ae7b;font-size:13px;letter-spacing:1.8px;text-transform:uppercase}
     .date-badge{white-space:nowrap;text-align:right;color:#ead39a;font-size:13px}
     .date-badge strong{display:block;font-size:19px;color:#fff0c3}
+    .topbar-bureau-shortcut{
+      position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;
+      display:inline-flex;align-items:center;gap:9px;padding:11px 20px;
+      border:1px solid #c89a50;border-radius:3px;
+      background:linear-gradient(180deg,#7b1a12,#58100b);
+      color:#fff0c3;font-family:Georgia,"Times New Roman",serif;font-weight:bold;
+      font-size:15px;letter-spacing:.7px;text-transform:uppercase;cursor:pointer;
+      box-shadow:inset 0 0 0 1px rgba(255,225,156,.12),0 5px 14px rgba(0,0,0,.28);
+    }
+    .topbar-bureau-shortcut:hover{filter:brightness(1.1)}
+    @media(max-width:900px){
+      .topbar{flex-wrap:wrap}
+      .topbar-bureau-shortcut{position:static;transform:none;order:3;margin:0 auto}
+    }
 
     .view{display:none;animation:fade .2s ease}
     .view.active{display:block}
@@ -442,12 +456,12 @@
 
     <nav class="nav" id="nav">
       <button class="active" data-view="dashboard"><span class="ico">⌂</span>Tableau de bord</button>
+      <button data-view="bureau"><span class="ico">✉</span>LE BUREAU</button>
       <button data-view="inventory"><span class="ico">▦</span>Inventaire</button>
       <button data-view="movements"><span class="ico">⇄</span>Entrées / sorties</button>
       <button data-view="craft"><span class="ico">⚒</span>Fabrication</button>
       <button data-view="recipes"><span class="ico">✎</span>Recettes</button>
       <button data-view="suppliers"><span class="ico">☏</span>Fournisseurs</button>
-      <button data-view="bureau"><span class="ico">✉</span>LE BUREAU</button>
       <button data-view="history"><span class="ico">≡</span>Historique</button>
       <button class="user-manage-only" id="usersNav" data-view="users"><span class="ico">♟</span>Apprentis</button>
       <button class="admin-only" id="settingsNav" data-view="settings"><span class="ico">⚙</span>Paramètres</button>
@@ -475,6 +489,7 @@
         <h2 id="pageTitle">Tableau de bord</h2>
         <p>Registre du cabinet · gestion du stock et des dépenses</p>
       </div>
+      <button class="topbar-bureau-shortcut" type="button" data-goto="bureau"><span>✉</span> LE BUREAU</button>
       <div class="date-badge">
         Registre ouvert le
         <strong id="todayLabel">—</strong>
