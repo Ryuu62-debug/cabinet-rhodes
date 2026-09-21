@@ -1,6 +1,7 @@
 name: Synchroniser le site du cabinet
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
