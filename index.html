@@ -347,6 +347,14 @@
     .telegram-cell{display:flex;align-items:center;gap:6px;min-width:170px}
     .telegram-cell .sup-telegram{min-width:115px}
     .telegram-cell .copy-telegram-btn{flex:0 0 auto;width:36px;padding:9px 0;font-size:16px;line-height:1}
+  .supplier-directory{margin-bottom:22px}
+  .supplier-directory table{min-width:760px}
+  .supplier-directory .location-name{color:#f2d384;font-weight:800;text-transform:uppercase;min-width:210px}
+  .supplier-directory .contact-lines{display:grid;gap:5px}
+  .supplier-directory .contact-line{min-height:22px;display:flex;align-items:center}
+  .supplier-products{display:flex;gap:6px;flex-wrap:wrap}
+  .supplier-product{display:inline-block;padding:5px 8px;border:1px solid rgba(199,156,84,.45);background:rgba(199,156,84,.09);color:#ecd69e;font-size:11px;font-weight:700}
+  .supplier-edit-title{margin:4px 0 11px;color:#d9c495;font-size:13px;text-transform:uppercase;letter-spacing:.6px}
 
   
   .edit-lock-badge{display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:4px 8px;border:1px solid rgba(240,196,105,.55);border-radius:999px;background:rgba(104,58,20,.88);color:#ffe6a8;font-size:11px;font-weight:700;white-space:nowrap}
@@ -866,6 +874,16 @@
       <div class="card">
         <h3 class="section-title">Fournisseurs d'ingrédients</h3>
         <div class="card-body">
+          <div class="supplier-directory">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Lieu</th><th>Fournisseurs</th><th>Télégrammes</th><th>Produits vendus</th></tr></thead>
+                <tbody id="supplierDirectoryBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="supplier-edit-title">Modifier les informations des fournisseurs</div>
           <div class="table-wrap">
             <table>
               <thead><tr><th>Ingrédient</th><th>Prix unité ($)</th><th>Nom du fournisseur</th><th>Télégramme</th><th>Lieu</th></tr></thead>
@@ -1669,7 +1687,52 @@
     }).join(""):`<tr><td colspan="${ingredients.length+3}" class="empty">Aucune recette enregistrée.</td></tr>`;
   }
   function renderSuppliers(){
-    $("suppliersBody").innerHTML=state.suppliers.map(s=>{
+    const sortedPlaces=[...SUPPLIER_PLACES].sort((a,b)=>a.localeCompare(b,"fr-FR",{sensitivity:"base"}));
+    const suppliersAt=place=>state.suppliers.filter(s=>(s.place||"").trim()===place);
+    const uniqueProducts=list=>[...new Set(list.map(s=>res(s.resourceId)?.name).filter(Boolean))]
+      .sort((a,b)=>a.localeCompare(b,"fr-FR",{sensitivity:"base"}));
+    const farmProducts=uniqueProducts(state.suppliers.filter(s=>(s.place||"").startsWith("Ferme de ")));
+    const ranchProducts=uniqueProducts(state.suppliers.filter(s=>(s.place||"").startsWith("Ranch ")));
+    const greaseName=ingredientResources().find(r=>r.name.trim().toLocaleUpperCase("fr-FR")==="GRAISSE")?.name||"GRAISSE";
+
+    $("supplierDirectoryBody").innerHTML=sortedPlaces.map(place=>{
+      const atPlace=suppliersAt(place);
+      const contactMap=new Map();
+      atPlace.forEach(s=>{
+        const name=(s.name||"").trim();
+        const telegram=(s.telegram||"").trim();
+        if(!name&&!telegram)return;
+        const key=(name+"|"+telegram).toLocaleLowerCase("fr-FR");
+        if(!contactMap.has(key))contactMap.set(key,{name:name||"Non renseigné",telegram:telegram||"—"});
+      });
+      const contacts=[...contactMap.values()].sort((a,b)=>a.name.localeCompare(b.name,"fr-FR",{sensitivity:"base"}));
+      let products=uniqueProducts(atPlace);
+      if(place.startsWith("Ferme de "))products=farmProducts;
+      else if(place.startsWith("Ranch "))products=ranchProducts;
+      else if(place==="Chasse & Pêche de Window Rock")products=[greaseName];
+      const names=contacts.length
+        ? `<div class="contact-lines">${contacts.map(x=>`<div class="contact-line">${esc(x.name)}</div>`).join("")}</div>`
+        : '<span class="muted">À renseigner</span>';
+      const telegrams=contacts.length
+        ? `<div class="contact-lines">${contacts.map(x=>`<div class="contact-line">${x.telegram!=="—"?`<span class="pill gold">${esc(x.telegram)}</span>`:'<span class="muted">—</span>'}</div>`).join("")}</div>`
+        : '<span class="muted">—</span>';
+      const productList=products.length
+        ? `<div class="supplier-products">${products.map(name=>`<span class="supplier-product">${esc(name)}</span>`).join("")}</div>`
+        : '<span class="muted">Aucun ingrédient renseigné</span>';
+      return `<tr>
+        <td class="location-name">${esc(place)}</td>
+        <td>${names}</td>
+        <td>${telegrams}</td>
+        <td>${productList}</td>
+      </tr>`;
+    }).join("");
+
+    const sortedSuppliers=[...state.suppliers].sort((a,b)=>{
+      const placeA=(a.place||"").trim(),placeB=(b.place||"").trim();
+      return placeA.localeCompare(placeB,"fr-FR",{sensitivity:"base"})
+        || String(res(a.resourceId)?.name||"").localeCompare(String(res(b.resourceId)?.name||""),"fr-FR",{sensitivity:"base"});
+    });
+    $("suppliersBody").innerHTML=sortedSuppliers.map(s=>{
       const r=res(s.resourceId);
       const savedPlace=(s.place||"").trim();
       const currentPlace=SUPPLIER_PLACES.includes(savedPlace)?savedPlace:"";
@@ -2396,7 +2459,7 @@
 
   $("saveSuppliers").addEventListener("click",async()=>{
     try{
-      for(const tr of document.querySelectorAll("#suppliersBody tr")){
+      for(const tr of document.querySelectorAll("#suppliersBody tr[data-id]")){
         const resourceId=tr.dataset.id,price=Math.max(0,num(tr.querySelector(".sup-price").value)),name=tr.querySelector(".sup-name").value.trim(),telegram=tr.querySelector(".sup-telegram").value.trim().toUpperCase(),place=tr.querySelector(".sup-place").value.trim();
         let q=await db.from("resources").update({unit_price:price}).eq("id",resourceId);if(q.error)throw q.error;
         const existing=state.suppliers.find(x=>x.resourceId===resourceId);
