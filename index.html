@@ -1392,16 +1392,17 @@
         (ingredients.data||[]).filter(i=>i.recipe_id===rc.id).forEach(i=>map[i.ingredient_resource_id]=num(i.quantity));
         return {dbId:rc.id,productId:rc.product_resource_id,ingredients:map,outputQuantity:num(rc.output_quantity)||1};
       });
-      const suppByResource=new Map();
-      (suppliers.data||[]).forEach(s=>{
-        if(!suppByResource.has(s.resource_id))suppByResource.set(s.resource_id,s);
-      });
-      state.suppliers=ingredientResources().map(r=>{
-        const s=suppByResource.get(r.id);
-        return {
-          dbId:s?.id||null,resourceId:r.id,unitPrice:num(s?.unit_price ?? r.unitPrice),
-          name:s?.supplier_name||"",telegram:s?.telegram||"",place:s?.location||""
-        };
+      state.suppliers=(suppliers.data||[]).map(s=>({
+        dbId:s.id,resourceId:s.resource_id,unitPrice:num(s.unit_price ?? res(s.resource_id)?.unitPrice),
+        name:s.supplier_name||"",telegram:s.telegram||"",place:s.location||""
+      }));
+      ingredientResources().forEach(r=>{
+        if(!state.suppliers.some(s=>s.resourceId===r.id)){
+          state.suppliers.push({
+            dbId:null,resourceId:r.id,unitPrice:num(r.unitPrice),
+            name:"",telegram:"",place:""
+          });
+        }
       });
       state.orders=(orders.data||[]).map(o=>({
         id:o.id,
@@ -1727,7 +1728,7 @@
         const r=res(s.resourceId);
         const savedPlace=(s.place||"").trim();
         const rowPlace=SUPPLIER_PLACES.includes(savedPlace)?savedPlace:"";
-        return `<tr data-id="${esc(s.resourceId)}" data-place="${esc(rowPlace)}">
+        return `<tr data-id="${esc(s.dbId||("new-"+s.resourceId))}" data-db-id="${esc(s.dbId||"")}" data-resource-id="${esc(s.resourceId)}" data-place="${esc(rowPlace)}">
           <td class="resource-name">${esc(r?.name||s.resourceId)}</td>
           <td><div class="currency-input"><input class="sup-price" type="number" min="0" step="0.01" value="${num(s.unitPrice).toFixed(2)}"></div></td>
           <td><input class="sup-name" value="${esc(s.name)}"></td>
@@ -2457,11 +2458,10 @@
   $("saveSuppliers").addEventListener("click",async()=>{
     try{
       for(const tr of document.querySelectorAll("#suppliersBody tr[data-id]")){
-        const resourceId=tr.dataset.id,price=Math.max(0,num(tr.querySelector(".sup-price").value)),name=tr.querySelector(".sup-name").value.trim(),telegram=tr.querySelector(".sup-telegram").value.trim().toUpperCase(),place=(tr.dataset.place||"").trim();
+        const resourceId=tr.dataset.resourceId,supplierId=tr.dataset.dbId||null,price=Math.max(0,num(tr.querySelector(".sup-price").value)),name=tr.querySelector(".sup-name").value.trim(),telegram=tr.querySelector(".sup-telegram").value.trim().toUpperCase(),place=(tr.dataset.place||"").trim();
         let q=await db.from("resources").update({unit_price:price}).eq("id",resourceId);if(q.error)throw q.error;
-        const existing=state.suppliers.find(x=>x.resourceId===resourceId);
         const payload={resource_id:resourceId,unit_price:price,supplier_name:name||null,telegram:telegram||null,location:place||null,active:true};
-        q=existing?.dbId?await db.from("suppliers").update(payload).eq("id",existing.dbId):await db.from("suppliers").insert(payload);if(q.error)throw q.error;
+        q=supplierId?await db.from("suppliers").update(payload).eq("id",supplierId):await db.from("suppliers").insert(payload);if(q.error)throw q.error;
       }
       await loadRemoteState();toast("Fournisseurs enregistrés en ligne.");
     }catch(err){dbError(err);}
