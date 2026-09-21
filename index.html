@@ -375,7 +375,7 @@
       <button data-view="suppliers"><span class="ico">☏</span>Fournisseurs</button>
       <button data-view="history"><span class="ico">≡</span>Historique</button>
       <button class="admin-only" id="usersNav" data-view="users"><span class="ico">♟</span>Utilisateurs</button>
-      <button data-view="settings"><span class="ico">⚙</span>Paramètres</button>
+      <button class="admin-only" id="settingsNav" data-view="settings"><span class="ico">⚙</span>Paramètres</button>
     </nav>
 
     <div class="telegram">
@@ -1100,6 +1100,7 @@
   }
 
   function setView(id){
+    if((id==="users"||id==="settings")&&!isAdmin)id="dashboard";
     releaseLocksOutsideView(id);
     document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
     document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
@@ -1832,7 +1833,7 @@
     $("userEmail").textContent=currentUser?.email||"";
     $("userName").textContent=currentProfile?.display_name||currentUser?.email||"Médecin";
     $("userRole").textContent=isAdmin?"Administrateur":"Personnel médical";
-    if(!isAdmin && document.querySelector("#users.view.active"))setView("dashboard");
+    if(!isAdmin && document.querySelector("#users.view.active,#settings.view.active"))setView("dashboard");
     loadRemoteState();
     startEditLockSystem();
   }
