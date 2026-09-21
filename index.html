@@ -329,6 +329,52 @@
   .currency-input input{padding-right:30px!important;width:100%}
   .currency-input:after{content:"$";position:absolute;right:11px;top:50%;transform:translateY(-50%);color:#e2c07a;font-weight:bold;pointer-events:none}
   @media(max-width:1200px){.orders-form{grid-template-columns:1fr 1fr}.orders-form .order-add-wrap{grid-column:1/-1}}
+
+  .bureau-shell{display:flex;flex-direction:column;height:min(72vh,760px);min-height:540px}
+  .bureau-intro{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 16px;border-bottom:1px solid rgba(199,156,84,.22);background:rgba(199,156,84,.05)}
+  .bureau-intro strong{color:#ecd69e;letter-spacing:.5px}
+  .bureau-intro span{color:#9e8967;font-size:12px}
+  .bureau-messages{flex:1;overflow-y:auto;padding:18px;background:rgba(0,0,0,.10);scroll-behavior:smooth}
+  .bureau-empty{padding:34px 18px;text-align:center;color:#9e8967}
+  .bureau-message{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:11px;padding:10px 8px;border-radius:6px}
+  .bureau-message:hover{background:rgba(255,255,255,.025)}
+  .bureau-avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(199,156,84,.42);background:rgba(199,156,84,.10);color:#ecd69e;font-weight:800;font-family:Georgia,serif}
+  .bureau-message-main{min-width:0}
+  .bureau-message-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:3px}
+  .bureau-author{color:#ecd69e;font-weight:800}
+  .bureau-grade{font-size:10px;color:#bca57a;text-transform:uppercase;letter-spacing:.7px}
+  .bureau-time{font-size:10px;color:#756753}
+  .bureau-body{color:#e6d7bc;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.45}
+  .bureau-delete{opacity:0;border:0;background:transparent;color:#a98b74;cursor:pointer;font-size:17px;padding:4px 7px}
+  .bureau-message:hover .bureau-delete{opacity:1}
+  .bureau-delete:hover{color:#df8172}
+  .bureau-attachment{margin-top:8px}
+  .bureau-image-link{display:inline-block;max-width:min(560px,100%)}
+  .bureau-image{display:block;max-width:100%;max-height:360px;border-radius:7px;border:1px solid rgba(199,156,84,.25);object-fit:contain;background:#0d0b09}
+  .bureau-file-card{display:inline-flex;align-items:center;gap:10px;max-width:100%;padding:10px 12px;border:1px solid rgba(199,156,84,.28);background:rgba(0,0,0,.18);color:#e7d5ad;text-decoration:none;border-radius:5px}
+  .bureau-file-card:hover{border-color:rgba(199,156,84,.65);background:rgba(199,156,84,.08)}
+  .bureau-file-meta{min-width:0}
+  .bureau-file-name{display:block;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:420px}
+  .bureau-file-size{display:block;color:#8e7a5c;font-size:10px;margin-top:2px}
+  .bureau-composer{padding:12px;border-top:1px solid rgba(199,156,84,.25);background:rgba(0,0,0,.18)}
+  .bureau-compose-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:end}
+  .bureau-attach-btn{height:42px;min-width:44px;padding:0 12px;font-size:18px}
+  #bureauText{resize:none;min-height:42px;max-height:130px;line-height:1.35}
+  .bureau-send{height:42px}
+  .bureau-file-preview{display:none;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;padding:8px 10px;border:1px solid rgba(199,156,84,.26);background:rgba(199,156,84,.07);font-size:12px;color:#d8c49c}
+  .bureau-file-preview.show{display:flex}
+  .bureau-file-preview-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .bureau-file-preview button{border:0;background:transparent;color:#df8172;cursor:pointer;font-size:18px}
+  .bureau-drop{outline:2px dashed rgba(199,156,84,.62);outline-offset:-6px}
+  .bureau-hint{margin-top:7px;color:#7f705b;font-size:10px}
+  @media(max-width:700px){
+    .bureau-shell{height:68vh;min-height:480px}
+    .bureau-message{grid-template-columns:36px minmax(0,1fr) auto;padding:9px 2px}
+    .bureau-avatar{width:36px;height:36px}
+    .bureau-compose-row{grid-template-columns:auto minmax(0,1fr)}
+    .bureau-send{grid-column:1/-1;width:100%}
+    .bureau-file-name{max-width:240px}
+  }
 </style>
 </head>
 <body class="locked">
@@ -377,6 +423,7 @@
       <button data-view="craft"><span class="ico">⚒</span>Fabrication</button>
       <button data-view="recipes"><span class="ico">✎</span>Recettes</button>
       <button data-view="suppliers"><span class="ico">☏</span>Fournisseurs</button>
+      <button data-view="bureau"><span class="ico">✉</span>LE BUREAU</button>
       <button data-view="history"><span class="ico">≡</span>Historique</button>
       <button class="user-manage-only" id="usersNav" data-view="users"><span class="ico">♟</span>Apprentis</button>
       <button class="admin-only" id="settingsNav" data-view="settings"><span class="ico">⚙</span>Paramètres</button>
@@ -726,6 +773,34 @@
       </div>
     </section>
 
+    <section id="bureau" class="view">
+      <div class="card">
+        <h3 class="section-title">LE BUREAU <small>salon privé du personnel médical</small></h3>
+        <div class="bureau-shell">
+          <div class="bureau-intro">
+            <strong>Discussion du cabinet</strong>
+            <span>Messages, images, GIFs et fichiers · 20 Mo maximum</span>
+          </div>
+          <div class="bureau-messages" id="bureauMessages">
+            <div class="bureau-empty">Chargement du Bureau…</div>
+          </div>
+          <div class="bureau-composer" id="bureauComposer">
+            <div class="bureau-file-preview" id="bureauFilePreview">
+              <span class="bureau-file-preview-name" id="bureauFilePreviewName"></span>
+              <button type="button" id="bureauClearFile" aria-label="Retirer le fichier">×</button>
+            </div>
+            <div class="bureau-compose-row">
+              <button class="btn secondary bureau-attach-btn" id="bureauAttachBtn" type="button" title="Joindre un fichier">＋</button>
+              <textarea id="bureauText" maxlength="4000" placeholder="Écrire dans le Bureau…" rows="1"></textarea>
+              <button class="btn bureau-send" id="bureauSend" type="button">Envoyer</button>
+            </div>
+            <input id="bureauFile" type="file" hidden>
+            <div class="bureau-hint">Entrée pour envoyer · Maj+Entrée pour aller à la ligne · tu peux aussi glisser-déposer ou coller une image.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="history" class="view">
       <div class="card">
         <h3 class="section-title">Historique du registre</h3>
@@ -876,6 +951,9 @@
   let isAdjoint = false;
   let isRefreshing = false;
   let refreshTimer = null;
+  let bureauChannel = null;
+  let bureauSelectedFile = null;
+  let bureauLoading = false;
   let lockPollTimer = null;
   let lockExpiryTimer = null;
   const activeEditLocks = new Map();
@@ -1121,6 +1199,7 @@
     const btn=document.querySelector(`#nav button[data-view="${id}"]`);
     $("pageTitle").textContent=btn?btn.textContent.trim():"Cabinet Médical";
     if(id==="users" && (isAdmin||isAdjoint)) loadUsers();
+    if(id==="bureau") loadBureauMessages(true);
     window.scrollTo({top:0,behavior:"smooth"});
   }
   document.querySelectorAll("#nav button").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.view)));
@@ -1459,6 +1538,185 @@
     }catch(err){dbError(err,"Impossible de charger les comptes.");}
   }
 
+  function bureauInitials(name){
+    return String(name||"?").trim().split(/\s+/).slice(0,2).map(x=>x[0]||"").join("").toUpperCase()||"?";
+  }
+
+  function bureauFileSize(bytes){
+    const n=Number(bytes)||0;
+    if(n<1024)return n+" o";
+    if(n<1024*1024)return (n/1024).toFixed(n<10240?1:0)+" Ko";
+    return (n/(1024*1024)).toFixed(1)+" Mo";
+  }
+
+  function bureauIsImage(m){
+    const type=String(m.attachment_type||"").toLowerCase();
+    const name=String(m.attachment_name||"").toLowerCase();
+    return type.startsWith("image/") || /\.(png|jpe?g|gif|webp|bmp)$/i.test(name);
+  }
+
+  function bureauDateLabel(value){
+    if(!value)return "";
+    const d=new Date(value);
+    const today=new Date();
+    const same=d.toDateString()===today.toDateString();
+    return new Intl.DateTimeFormat("fr-FR",same?{hour:"2-digit",minute:"2-digit"}:{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}).format(d);
+  }
+
+  async function bureauSignedUrl(path){
+    if(!path)return null;
+    try{
+      const {data,error}=await db.storage.from("bureau-chat").createSignedUrl(path,3600);
+      if(error)throw error;
+      return data?.signedUrl||null;
+    }catch(err){
+      console.warn("Pièce jointe du Bureau :",err);
+      return null;
+    }
+  }
+
+  async function loadBureauMessages(forceBottom=false){
+    if(!currentUser || currentProfile?.access_status!=="approved" || bureauLoading)return;
+    bureauLoading=true;
+    const box=$("bureauMessages");
+    if(box && !box.children.length)box.innerHTML='<div class="bureau-empty">Chargement du Bureau…</div>';
+    try{
+      const {data,error}=await db.rpc("get_bureau_messages",{p_limit:120});
+      if(error)throw error;
+      const rows=[...(data||[])].reverse();
+      await Promise.all(rows.map(async m=>{
+        m.signedUrl=m.attachment_path?await bureauSignedUrl(m.attachment_path):null;
+      }));
+      renderBureauMessages(rows,forceBottom);
+    }catch(err){
+      console.error(err);
+      if(box)box.innerHTML='<div class="bureau-empty">Impossible de charger la discussion.</div>';
+    }finally{
+      bureauLoading=false;
+    }
+  }
+
+  function renderBureauMessages(rows,forceBottom=false){
+    const box=$("bureauMessages");
+    if(!box)return;
+    const wasNearBottom=box.scrollHeight-box.scrollTop-box.clientHeight<90;
+    if(!rows.length){
+      box.innerHTML='<div class="bureau-empty">Le Bureau est calme pour le moment.<br>Écris le premier message.</div>';
+      return;
+    }
+    box.innerHTML=rows.map(m=>{
+      const mine=m.author_id===currentUser?.id;
+      const canDelete=mine||isAdmin;
+      let attachment="";
+      if(m.attachment_path){
+        if(m.signedUrl && bureauIsImage(m)){
+          attachment=`<div class="bureau-attachment"><a class="bureau-image-link" href="${esc(m.signedUrl)}" target="_blank" rel="noopener"><img class="bureau-image" src="${esc(m.signedUrl)}" alt="${esc(m.attachment_name||"Image")}"></a></div>`;
+        }else if(m.signedUrl){
+          attachment=`<div class="bureau-attachment"><a class="bureau-file-card" href="${esc(m.signedUrl)}" target="_blank" rel="noopener"><span style="font-size:24px">📎</span><span class="bureau-file-meta"><span class="bureau-file-name">${esc(m.attachment_name||"Fichier")}</span><span class="bureau-file-size">${esc(bureauFileSize(m.attachment_size))}</span></span></a></div>`;
+        }else{
+          attachment='<div class="bureau-attachment"><span class="muted">Pièce jointe indisponible.</span></div>';
+        }
+      }
+      return `<div class="bureau-message" data-message-id="${esc(m.id)}">
+        <div class="bureau-avatar">${esc(bureauInitials(m.author_name))}</div>
+        <div class="bureau-message-main">
+          <div class="bureau-message-head">
+            <span class="bureau-author">${esc(m.author_name||"Personnel médical")}</span>
+            <span class="bureau-grade">${esc(gradeLabel(m.author_grade))}</span>
+            <span class="bureau-time">${esc(bureauDateLabel(m.created_at))}</span>
+          </div>
+          ${m.body?'<div class="bureau-body">'+esc(m.body)+'</div>':""}
+          ${attachment}
+        </div>
+        ${canDelete?`<button class="bureau-delete" type="button" data-id="${esc(m.id)}" title="Supprimer le message">×</button>`:""}
+      </div>`;
+    }).join("");
+    if(forceBottom||wasNearBottom)box.scrollTop=box.scrollHeight;
+  }
+
+  function setBureauFile(file){
+    if(!file){clearBureauFile();return;}
+    if(file.size>20*1024*1024){toast("Le fichier dépasse 20 Mo.");return;}
+    bureauSelectedFile=file;
+    $("bureauFilePreviewName").textContent=file.name+" · "+bureauFileSize(file.size);
+    $("bureauFilePreview").classList.add("show");
+  }
+
+  function clearBureauFile(){
+    bureauSelectedFile=null;
+    if($("bureauFile"))$("bureauFile").value="";
+    if($("bureauFilePreview"))$("bureauFilePreview").classList.remove("show");
+    if($("bureauFilePreviewName"))$("bureauFilePreviewName").textContent="";
+  }
+
+  function bureauSafeName(name){
+    const clean=String(name||"fichier").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9._-]+/g,"_").replace(/^_+|_+$/g,"");
+    return (clean||"fichier").slice(-120);
+  }
+
+  async function sendBureauMessage(){
+    const textValue=$("bureauText").value.trim();
+    const file=bureauSelectedFile;
+    if(!textValue&&!file){toast("Écris un message ou joins un fichier.");return;}
+    if(file && file.size>20*1024*1024){toast("Le fichier dépasse 20 Mo.");return;}
+
+    const btn=$("bureauSend");
+    btn.disabled=true;
+    const oldText=btn.textContent;
+    btn.textContent=file?"Envoi du fichier…":"Envoi…";
+    let uploadedPath=null;
+
+    try{
+      if(file){
+        const token=window.crypto?.randomUUID?.()||Math.random().toString(36).slice(2);
+        uploadedPath=`${currentUser.id}/${Date.now()}-${token}-${bureauSafeName(file.name)}`;
+        const {error:uploadError}=await db.storage.from("bureau-chat").upload(uploadedPath,file,{
+          cacheControl:"3600",
+          contentType:file.type||"application/octet-stream",
+          upsert:false
+        });
+        if(uploadError)throw uploadError;
+      }
+
+      const {error}=await db.rpc("post_bureau_message",{
+        p_body:textValue,
+        p_attachment_path:uploadedPath,
+        p_attachment_name:file?.name||null,
+        p_attachment_type:file?.type||null,
+        p_attachment_size:file?.size||null
+      });
+      if(error)throw error;
+
+      $("bureauText").value="";
+      clearBureauFile();
+      await loadBureauMessages(true);
+    }catch(err){
+      if(uploadedPath){
+        try{await db.storage.from("bureau-chat").remove([uploadedPath]);}catch(_){}
+      }
+      dbError(err,"Impossible d'envoyer le message.");
+    }finally{
+      btn.disabled=false;
+      btn.textContent=oldText;
+    }
+  }
+
+  function startBureauRealtime(){
+    if(bureauChannel || !currentUser)return;
+    bureauChannel=sb
+      .channel("bureau-messages-live")
+      .on("postgres_changes",{event:"*",schema:"public",table:"bureau_messages"},()=>{
+        if(document.querySelector("#bureau.view.active"))loadBureauMessages(false);
+      })
+      .subscribe();
+  }
+
+  function stopBureauRealtime(){
+    if(!bureauChannel)return;
+    try{sb.removeChannel(bureauChannel);}catch(_){}
+    bureauChannel=null;
+  }
+
   function renderSettings(){
     $("settingName").value=state.settings.name||"";$("settingPlace").value=state.settings.place||"";$("settingTelegram").value=state.settings.telegram||"";$("settingCash").value=num(state.cash).toFixed(2);$("telegramPlaque").textContent=state.settings.telegram||"—";
     document.querySelector(".brand h1").innerHTML=esc(state.settings.name).replace(/\sde\sRhodes/i,"<br>de Rhodes");
@@ -1748,6 +2006,46 @@
       await loadRemoteState();toast("Fournisseurs enregistrés en ligne.");
     }catch(err){dbError(err);}
   });
+  $("bureauAttachBtn").addEventListener("click",()=>$("bureauFile").click());
+  $("bureauFile").addEventListener("change",e=>setBureauFile(e.target.files?.[0]||null));
+  $("bureauClearFile").addEventListener("click",clearBureauFile);
+  $("bureauSend").addEventListener("click",sendBureauMessage);
+  $("bureauText").addEventListener("keydown",e=>{
+    if(e.key==="Enter"&&!e.shiftKey){
+      e.preventDefault();
+      sendBureauMessage();
+    }
+  });
+  $("bureauText").addEventListener("paste",e=>{
+    const file=[...(e.clipboardData?.files||[])][0];
+    if(file)setBureauFile(file);
+  });
+  ["dragenter","dragover"].forEach(type=>$("bureauComposer").addEventListener(type,e=>{
+    e.preventDefault();
+    $("bureauComposer").classList.add("bureau-drop");
+  }));
+  ["dragleave","drop"].forEach(type=>$("bureauComposer").addEventListener(type,e=>{
+    e.preventDefault();
+    $("bureauComposer").classList.remove("bureau-drop");
+  }));
+  $("bureauComposer").addEventListener("drop",e=>{
+    const file=[...(e.dataTransfer?.files||[])][0];
+    if(file)setBureauFile(file);
+  });
+  $("bureauMessages").addEventListener("click",async e=>{
+    const btn=e.target.closest(".bureau-delete");
+    if(!btn)return;
+    if(!confirm("Supprimer ce message du Bureau ?"))return;
+    try{
+      btn.disabled=true;
+      const {data,error}=await db.rpc("delete_bureau_message",{p_message_id:btn.dataset.id});
+      if(error)throw error;
+      const path=Array.isArray(data)?data[0]:data;
+      if(path){try{await db.storage.from("bureau-chat").remove([path]);}catch(_){}}
+      await loadBureauMessages(false);
+    }catch(err){dbError(err,"Impossible de supprimer le message.");}
+  });
+
   $("refreshUsers").addEventListener("click",loadUsers);
   $("usersBody").addEventListener("click",async e=>{
     const promoteBtn=e.target.closest(".adjoint-promote-btn");
@@ -1933,6 +2231,7 @@
     if(!(isAdmin||isAdjoint) && document.querySelector("#users.view.active"))setView("dashboard");
     loadRemoteState();
     startEditLockSystem();
+    startBureauRealtime();
   }
 
   async function checkAccess(silent=false){
@@ -2023,6 +2322,7 @@
       },20000);
     }else{
       clearInterval(refreshTimer);refreshTimer=null;
+      stopBureauRealtime();
       clearInterval(lockPollTimer);lockPollTimer=null;
       clearInterval(lockExpiryTimer);lockExpiryTimer=null;
       myEditLocks.clear();activeEditLocks.clear();
