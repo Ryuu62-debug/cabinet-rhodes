@@ -885,12 +885,12 @@
         <div class="card-body">
           <div class="table-wrap">
             <table class="suppliers-grouped-table">
-              <thead><tr><th>Lieu</th><th>Ingrédient</th><th>Prix unité ($)</th><th>Nom du fournisseur</th><th>Télégramme</th></tr></thead>
+              <thead><tr><th>Ingrédient</th><th>Prix unité ($)</th><th>Nom du fournisseur</th><th>Télégramme</th></tr></thead>
               <tbody id="suppliersBody"></tbody>
             </table>
           </div>
           <div class="form-actions"><button class="btn" id="saveSuppliers">Enregistrer les fournisseurs</button></div>
-          <p class="hint">Les fournisseurs sont regroupés par lieu. Les prix, les noms, les télégrammes et les lieux restent modifiables directement dans ce tableau.</p>
+          <p class="hint">Les fournisseurs sont regroupés par lieu. Les prix, les noms et les télégrammes restent modifiables directement dans ce tableau.</p>
         </div>
       </div>
     </section>
@@ -1720,16 +1720,14 @@
       </tr>`;
 
       if(!atPlace.length){
-        return header+`<tr class="supplier-empty-row"><td colspan="5">Aucune fiche fournisseur rattachée à ce lieu.</td></tr>`;
+        return header+`<tr class="supplier-empty-row"><td colspan="4">Aucune fiche fournisseur rattachée à ce lieu.</td></tr>`;
       }
 
       const rows=atPlace.map(s=>{
         const r=res(s.resourceId);
         const savedPlace=(s.place||"").trim();
-        const currentPlace=SUPPLIER_PLACES.includes(savedPlace)?savedPlace:"";
-        const placeOptions=SUPPLIER_PLACES.map(p=>`<option value="${esc(p)}" ${p===currentPlace?"selected":""}>${esc(p)}</option>`).join("");
-        return `<tr data-id="${esc(s.resourceId)}">
-          <td><select class="sup-place"><option value="">— Choisir —</option>${placeOptions}</select></td>
+        const rowPlace=SUPPLIER_PLACES.includes(savedPlace)?savedPlace:"";
+        return `<tr data-id="${esc(s.resourceId)}" data-place="${esc(rowPlace)}">
           <td class="resource-name">${esc(r?.name||s.resourceId)}</td>
           <td><div class="currency-input"><input class="sup-price" type="number" min="0" step="0.01" value="${num(s.unitPrice).toFixed(2)}"></div></td>
           <td><input class="sup-name" value="${esc(s.name)}"></td>
@@ -2459,7 +2457,7 @@
   $("saveSuppliers").addEventListener("click",async()=>{
     try{
       for(const tr of document.querySelectorAll("#suppliersBody tr[data-id]")){
-        const resourceId=tr.dataset.id,price=Math.max(0,num(tr.querySelector(".sup-price").value)),name=tr.querySelector(".sup-name").value.trim(),telegram=tr.querySelector(".sup-telegram").value.trim().toUpperCase(),place=tr.querySelector(".sup-place").value.trim();
+        const resourceId=tr.dataset.id,price=Math.max(0,num(tr.querySelector(".sup-price").value)),name=tr.querySelector(".sup-name").value.trim(),telegram=tr.querySelector(".sup-telegram").value.trim().toUpperCase(),place=(tr.dataset.place||"").trim();
         let q=await db.from("resources").update({unit_price:price}).eq("id",resourceId);if(q.error)throw q.error;
         const existing=state.suppliers.find(x=>x.resourceId===resourceId);
         const payload={resource_id:resourceId,unit_price:price,supplier_name:name||null,telegram:telegram||null,location:place||null,active:true};
