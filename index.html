@@ -1648,7 +1648,10 @@
       const mine=m.author_id===currentUser?.id;
       const canDelete=mine||isAdmin;
       let attachment="";
-      if(m.attachment_path){
+      if(m.external_url && m.external_provider==="giphy"){
+        const target=m.external_page_url||m.external_url;
+        attachment=`<div class="bureau-attachment"><a class="bureau-image-link" href="${esc(target)}" target="_blank" rel="noopener"><img class="bureau-image" src="${esc(m.external_url)}" alt="GIF GIPHY"></a><div class="bureau-giphy-mark">via GIPHY</div></div>`;
+      }else if(m.attachment_path){
         if(m.signedUrl && bureauIsImage(m)){
           attachment=`<div class="bureau-attachment"><a class="bureau-image-link" href="${esc(m.signedUrl)}" target="_blank" rel="noopener"><img class="bureau-image" src="${esc(m.signedUrl)}" alt="${esc(m.attachment_name||"Image")}"></a></div>`;
         }else if(m.signedUrl){
