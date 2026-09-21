@@ -1579,6 +1579,7 @@
               <option value="medecin_adjoint" ${grade==="medecin_adjoint"?"selected":""}>Médecin adjoint</option>
             </select>`;
         const gradeAction=isChef?"":`<button class="btn secondary save-user-grade-btn" data-id="${esc(u.id)}">Enregistrer le grade</button>`;
+        const deleteAction=self?"":`<button class="btn danger delete-user-btn" data-id="${esc(u.id)}" data-name="${esc(u.display_name||u.email||"ce compte")}">Supprimer le compte</button>`;
 
         return `<tr data-user-id="${esc(u.id)}">
           <td><input class="user-display-name" maxlength="60" value="${esc(u.display_name||"")}" aria-label="Nom affiché de ${esc(u.email||"l'utilisateur")}"></td>
@@ -1587,7 +1588,7 @@
           <td>${u.role==="admin"?'<span class="pill gold">Administrateur</span>':'Personnel médical'}</td>
           <td><span class="pill ${statusClass}">${statusLabel}</span></td>
           <td>${created}</td>
-          <td><div class="user-row-actions"><button class="btn secondary save-user-name-btn" data-id="${esc(u.id)}">Enregistrer le nom</button>${gradeAction}${accessAction}</div></td>
+          <td><div class="user-row-actions"><button class="btn secondary save-user-name-btn" data-id="${esc(u.id)}">Enregistrer le nom</button>${gradeAction}${accessAction}${deleteAction}</div></td>
         </tr>`;
       }).join(""):'<tr><td colspan="7" class="empty">Aucun compte.</td></tr>';
     }catch(err){dbError(err,"Impossible de charger les comptes.");}
@@ -2287,6 +2288,25 @@
         await loadUsers();
         toast("Grade modifié.");
       }catch(err){dbError(err);}finally{gradeBtn.disabled=false;}
+      return;
+    }
+
+    const deleteBtn=e.target.closest(".delete-user-btn");
+    if(deleteBtn){
+      const name=deleteBtn.dataset.name||"ce compte";
+      if(!confirm(`Supprimer définitivement le compte de ${name} ?\n\nLa personne ne pourra plus se connecter avec ce compte. Cette action est irréversible.`))return;
+      try{
+        deleteBtn.disabled=true;
+        const {data,error}=await db.functions.invoke("admin-delete-user",{body:{user_id:deleteBtn.dataset.id}});
+        if(error)throw error;
+        if(data?.error)throw new Error(data.error);
+        await loadUsers();
+        toast("Compte supprimé définitivement.");
+      }catch(err){
+        dbError(err,"Impossible de supprimer ce compte.");
+      }finally{
+        deleteBtn.disabled=false;
+      }
       return;
     }
 
