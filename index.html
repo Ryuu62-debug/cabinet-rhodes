@@ -2154,6 +2154,25 @@
     }catch(err){dbError(err);}
   });
   $("bureauAttachBtn").addEventListener("click",()=>$("bureauFile").click());
+  $("bureauGifBtn").addEventListener("click",()=>{
+    const picker=$("bureauGifPicker");
+    const opening=!picker.classList.contains("show");
+    picker.classList.toggle("show",opening);
+    if(opening){
+      $("bureauGifSearch").focus();
+      loadGiphy($("bureauGifSearch").value);
+    }
+  });
+  $("bureauGifClose").addEventListener("click",closeBureauGifPicker);
+  $("bureauGifSearch").addEventListener("input",e=>{
+    clearTimeout(giphySearchTimer);
+    giphySearchTimer=setTimeout(()=>loadGiphy(e.target.value),280);
+  });
+  $("bureauGifSearch").addEventListener("keydown",e=>{if(e.key==="Escape")closeBureauGifPicker();});
+  $("bureauGifResults").addEventListener("click",e=>{
+    const btn=e.target.closest(".bureau-gif-item");
+    if(btn)sendGiphyGif(giphyResults.get(btn.dataset.giphyId));
+  });
   $("bureauFile").addEventListener("change",e=>setBureauFile(e.target.files?.[0]||null));
   $("bureauClearFile").addEventListener("click",clearBureauFile);
   $("bureauSend").addEventListener("click",sendBureauMessage);
