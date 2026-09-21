@@ -353,9 +353,12 @@
   .orders-table .order-select-cell{text-align:center;width:54px}
   .orders-table .order-select{width:18px;height:18px;accent-color:#c79c54}
   .orders-table .order-fee{min-width:110px}
-  .orders-table .order-status{min-width:112px;font-weight:bold;border-width:1px}
+  .orders-table .order-status{min-width:128px;font-weight:bold;border-width:1px}
+  .orders-table .order-status.status-a-commander{color:#f1d08a;border-color:rgba(199,156,84,.68);background:rgba(92,60,20,.68)}
   .orders-table .order-status.status-en-cours{color:#c9f5d4;border-color:rgba(108,190,130,.65);background:rgba(24,79,43,.65)}
   .orders-table .order-status.status-livre{color:#ffd0c8;border-color:rgba(205,91,75,.72);background:rgba(116,28,20,.72)}
+  .orders-table .order-schedule-input{min-width:132px}
+  .craft-order-btn{display:block;margin-top:7px;padding:6px 9px;font-size:10px}
   .orders-table tr.order-selected{outline:1px solid rgba(226,192,122,.65);outline-offset:-1px;background:rgba(199,156,84,.08)}
   .pricing-table{font-size:12px}
   .pricing-table th,.pricing-table td{padding:10px 8px}
@@ -633,7 +636,7 @@
           <div class="form-actions">
             <button class="btn danger" id="deleteSelectedOrder" type="button">Effacer la commande sélectionnée</button>
           </div>
-          <p class="hint">Une commande « En cours » ne modifie ni le stock ni la caisse. Quand elle passe à « Livré », la quantité est ajoutée à l'inventaire, le prix de la marchandise et les frais de livraison sont retirés de la caisse, et les deux opérations sont conservées dans l'historique. Effacer ensuite une commande livrée retire uniquement sa ligne de ce tableau : cela n'annule pas la comptabilité ni le stock déjà validés.</p>
+          <p class="hint">Une commande « À commander » attend encore sa prise en charge. Pour la passer « En cours », renseigne obligatoirement sa date et son heure de livraison. Le stock et la caisse ne sont modifiés qu'au passage en « Livré ».</p>
         </div>
       </div>
 
@@ -1415,23 +1418,33 @@
     const body=$("ordersBody");
     if(!body)return;
     body.innerHTML=state.orders.length?state.orders.map(o=>{
+      const pending=o.status==="a_commander";
+      const inProgress=o.status==="en_cours";
+      const delivered=o.status==="livre";
       const date=o.deliveryDate
         ? new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"}).format(new Date(o.deliveryDate+"T12:00:00"))
         : "—";
       const time=o.deliveryTime?String(o.deliveryTime).slice(0,5):"—";
-      const delivered=o.status==="livre";
+      const dateCell=pending
+        ? `<input class="order-schedule-input order-start-date" type="date" aria-label="Date de livraison">`
+        : esc(date);
+      const timeCell=pending
+        ? `<input class="order-schedule-input order-start-time" type="time" aria-label="Heure de livraison">`
+        : esc(time);
+      const statusClass=pending?"status-a-commander":(delivered?"status-livre":"status-en-cours");
       return `<tr data-order-id="${esc(o.id)}" data-order-status="${esc(o.status)}">
         <td class="order-select-cell"><input class="order-select" type="radio" name="selectedOrder" value="${esc(o.id)}" aria-label="Sélectionner la commande"></td>
-        <td>${esc(date)}</td>
-        <td>${esc(time)}</td>
+        <td>${dateCell}</td>
+        <td>${timeCell}</td>
         <td class="resource-name">${esc(o.resourceName)}</td>
         <td><strong>${esc(o.quantity)}</strong></td>
         <td class="money"><strong>${money(o.totalPrice)}</strong></td>
-        <td><div class="currency-input"><input class="order-fee" type="number" min="0" step="0.01" value="${num(o.deliveryFee).toFixed(2)}" ${delivered?"readonly":""}></div></td>
+        <td><div class="currency-input"><input class="order-fee" type="number" min="0" step="0.01" value="${num(o.deliveryFee).toFixed(2)}" ${!inProgress?"readonly":""}></div></td>
         <td>
-          <select class="order-status ${delivered?"status-livre":"status-en-cours"}" data-current="${esc(o.status)}">
-            <option value="en_cours" ${!delivered?"selected":""}>En cours</option>
-            <option value="livre" ${delivered?"selected":""}>Livré</option>
+          <select class="order-status ${statusClass}" data-current="${esc(o.status)}">
+            <option value="a_commander" ${pending?"selected":""} ${!pending?"disabled":""}>À commander</option>
+            <option value="en_cours" ${inProgress?"selected":""} ${delivered?"disabled":""}>En cours</option>
+            <option value="livre" ${delivered?"selected":""} ${pending?"disabled":""}>Livré</option>
           </select>
         </td>
       </tr>`;
@@ -1507,7 +1520,7 @@
     if(!rc){$("craftBody").innerHTML=`<tr><td colspan="6" class="empty">Aucune recette.</td></tr>`;$("craftButton").disabled=true;return;}
     const rows=Object.entries(rc.ingredients).filter(([,q])=>num(q)>0); let allOk=true;
     const STOCK_BAR_MAX=200;
-    $("craftBody").innerHTML=rows.map(([id,per])=>{const r=res(id),need=num(per)*qty,have=num(r?.stock),missing=Math.max(0,need-have),ratio=Math.min(100,(have/STOCK_BAR_MAX)*100);if(missing>0)allOk=false;return `<tr><td class="resource-name">${esc(r?.name||id)}</td><td>${num(per)}</td><td><strong>${need}</strong></td><td>${have}</td><td><div class="progress"><span class="${missing>0?"short":""}" style="width:${ratio}%"></span></div><div class="hint">${missing>0?"Stock insuffisant":"Disponible"} · ${have}/${STOCK_BAR_MAX}</div></td><td class="${missing>0?"bad":"good"}"><strong>${missing}</strong></td></tr>`;}).join("");
+    $("craftBody").innerHTML=rows.map(([id,per])=>{const r=res(id),need=num(per)*qty,have=num(r?.stock),missing=Math.max(0,need-have),ratio=Math.min(100,(have/STOCK_BAR_MAX)*100);if(missing>0)allOk=false;return `<tr><td class="resource-name">${esc(r?.name||id)}</td><td>${num(per)}</td><td><strong>${need}</strong></td><td>${have}</td><td><div class="progress"><span class="${missing>0?"short":""}" style="width:${ratio}%"></span></div><div class="hint">${missing>0?"Stock insuffisant":"Disponible"} · ${have}/${STOCK_BAR_MAX}</div></td><td class="${missing>0?"bad":"good"}"><strong>${missing}</strong>${missing>0?`<button class="btn secondary craft-order-btn" type="button" data-resource-id="${esc(id)}" data-quantity="${esc(missing)}">Commander</button>`:""}</td></tr>`;}).join("");
     const product=res(rc.productId);
     $("craftDescription").innerHTML=`Fabrication de <strong>${qty} ${esc(product?.name||rc.productId)}</strong>. Les matériaux seront retirés et le produit ajouté au stock en une seule opération sécurisée.`;
     $("craftButton").disabled=!allOk||!rows.length;
@@ -1998,7 +2011,10 @@
     }
 
     if(e.target.matches(".order-fee")){
-      if(current==="livre"){e.target.value=num(state.orders.find(o=>o.id===id)?.deliveryFee).toFixed(2);return;}
+      if(current!=="en_cours"){
+        e.target.value=num(state.orders.find(o=>o.id===id)?.deliveryFee).toFixed(2);
+        return;
+      }
       try{
         const fee=Math.max(0,num(e.target.value));
         const {error}=await db.rpc("update_order_delivery_fee",{p_order_id:id,p_delivery_fee:fee});
@@ -2011,12 +2027,33 @@
 
     if(e.target.matches(".order-status")){
       const next=e.target.value;
-      if(current==="livre" && next==="en_cours"){
-        e.target.value="livre";
-        toast("Une commande déjà livrée ne peut pas repasser en cours.");
+
+      if(current==="a_commander" && next==="en_cours"){
+        const deliveryDate=tr.querySelector(".order-start-date")?.value||"";
+        const deliveryTime=tr.querySelector(".order-start-time")?.value||"";
+        if(!deliveryDate||!deliveryTime){
+          e.target.value="a_commander";
+          toast("Renseigne la date et l'heure de livraison avant de passer la commande en cours.");
+          return;
+        }
+        try{
+          e.target.disabled=true;
+          const {error}=await db.rpc("start_order",{
+            p_order_id:id,
+            p_delivery_date:deliveryDate,
+            p_delivery_time:deliveryTime
+          });
+          if(error)throw error;
+          await loadRemoteState();
+          toast("Commande passée en cours.");
+        }catch(err){
+          dbError(err);
+          await loadRemoteState();
+        }
         return;
       }
-      if(next==="livre" && current!=="livre"){
+
+      if(next==="livre" && current==="en_cours"){
         const order=state.orders.find(o=>o.id===id);
         const feeInput=tr.querySelector(".order-fee");
         const fee=Math.max(0,num(feeInput?.value));
@@ -2033,10 +2070,14 @@
           toast("Livraison validée : stock et comptabilité mis à jour.");
         }catch(err){
           dbError(err);
-          e.target.disabled=false;
-          e.target.value="en_cours";
+          await loadRemoteState();
         }
+        return;
       }
+
+      e.target.value=current;
+      if(current==="livre")toast("Une commande livrée ne peut plus changer de statut.");
+      else if(current==="a_commander")toast("Passe d'abord la commande en cours.");
     }
   });
 
@@ -2094,6 +2135,27 @@
     e.preventDefault();const type=$("cashType").value,amount=num($("cashAmount").value);if(amount<=0)return;const delta=type==="CAISSE_ENTREE"?amount:-amount;
     try{const {error}=await db.rpc("apply_movement",{p_resource_id:null,p_quantity_delta:0,p_unit_price:null,p_cash_delta:delta,p_movement_type:type,p_note:$("cashNote").value.trim()||null,p_effective_date:todayISO()});if(error)throw error;$("cashForm").reset();await loadRemoteState();toast("Mouvement de caisse enregistré.");}catch(err){dbError(err);}
   });
+  $("craftBody").addEventListener("click",async e=>{
+    const btn=e.target.closest(".craft-order-btn");
+    if(!btn)return;
+    const resourceId=btn.dataset.resourceId;
+    const quantity=Math.max(0,num(btn.dataset.quantity));
+    if(!resourceId||quantity<=0){toast("Aucune quantité à commander.");return;}
+    const ingredient=res(resourceId)?.name||"cet ingrédient";
+    try{
+      btn.disabled=true;
+      const {error}=await db.rpc("queue_order",{p_resource_id:resourceId,p_quantity:quantity});
+      if(error)throw error;
+      await loadRemoteState();
+      setView("dashboard");
+      setTimeout(()=>$("ordersCard")?.scrollIntoView({behavior:"smooth",block:"start"}),120);
+      toast(`Commande ajoutée : ${quantity} ${ingredient} à commander.`);
+    }catch(err){
+      dbError(err,"Impossible d'ajouter cette commande.");
+      btn.disabled=false;
+    }
+  });
+
   $("craftRecipe").addEventListener("change",renderCraft);$("craftQty").addEventListener("input",renderCraft);
   $("resetCraft").addEventListener("click",()=>{if(state.recipes[0])$("craftRecipe").value=state.recipes[0].productId;$("craftQty").value=1;renderCraft();toast("Zone de fabrication réinitialisée.");});
   $("craftButton").addEventListener("click",async()=>{
