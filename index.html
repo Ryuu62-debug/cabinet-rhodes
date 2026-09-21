@@ -370,7 +370,16 @@
   }
   .supplier-group-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
   .supplier-group-heading strong{font-size:14px;text-transform:uppercase;letter-spacing:.7px}
-  .supplier-group-meta{display:flex;align-items:center;gap:9px;color:#d8c394;font-size:11px}
+  .supplier-group-meta{display:flex;align-items:center;gap:9px;color:#d8c394;font-size:11px;flex-wrap:wrap}
+  .supplier-group-total{padding:5px 9px;border:1px solid rgba(226,192,122,.55);background:rgba(0,0,0,.22);color:#ffe2a0;font-weight:bold;font-size:12px;white-space:nowrap}
+  .orders-payment-summary{
+    display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;
+    margin:0 0 14px;padding:14px 16px;border:1px solid rgba(199,156,84,.55);
+    background:linear-gradient(90deg,rgba(111,26,18,.45),rgba(65,45,32,.55))
+  }
+  .orders-payment-summary span{display:block;color:#cdb88a;font-size:11px;text-transform:uppercase;letter-spacing:.7px}
+  .orders-payment-summary small{display:block;margin-top:4px;color:#9f8a69}
+  .orders-payment-summary strong{color:#ffe09a;font-size:25px;white-space:nowrap}
   .craft-action-stack{display:grid;gap:8px;min-width:150px}
   .craft-action-stack .btn{width:100%}
   .craft-order-btn{background:linear-gradient(#5f4637,#443126)}
@@ -629,6 +638,14 @@
               <button class="btn good" type="submit">Ajouter la commande</button>
             </div>
           </form>
+
+          <div class="orders-payment-summary">
+            <div>
+              <span>Total des commandes restant à payer</span>
+              <small>Commandes « À commander » et « En cours » uniquement</small>
+            </div>
+            <strong id="ordersOutstandingTotal">0,00 $</strong>
+          </div>
 
           <div class="table-wrap">
             <table class="orders-table">
@@ -1440,6 +1457,12 @@
   function renderOrders(){
     const body=$("ordersBody");
     if(!body)return;
+    const isOutstanding=o=>o.status==="a_commander"||o.status==="en_cours";
+    const amountToPay=o=>num(o.totalPrice)+num(o.deliveryFee);
+    const outstandingTotal=state.orders
+      .filter(isOutstanding)
+      .reduce((total,o)=>total+amountToPay(o),0);
+    $("ordersOutstandingTotal").textContent=money(outstandingTotal);
     if(!state.orders.length){
       body.innerHTML='<tr><td colspan="10" class="empty">Aucune commande enregistrée.</td></tr>';
       fillOrderIngredients();
@@ -1502,6 +1525,9 @@
           || String(a.createdAt||"").localeCompare(String(b.createdAt||""))
         );
         const countLabel=group.orders.length>1?`${group.orders.length} commandes`:"1 commande";
+        const supplierOutstanding=group.orders
+          .filter(isOutstanding)
+          .reduce((total,o)=>total+amountToPay(o),0);
         return `<tr class="supplier-group-row">
           <td colspan="10">
             <div class="supplier-group-heading">
@@ -1509,6 +1535,7 @@
               <span class="supplier-group-meta">
                 ${group.telegram?`<span class="pill gold">Telegram : ${esc(group.telegram)}</span>`:""}
                 <span>${countLabel}</span>
+                <span class="supplier-group-total">Reste à payer : ${money(supplierOutstanding)}</span>
               </span>
             </div>
           </td>
