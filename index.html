@@ -117,6 +117,12 @@
     .grid{display:grid;gap:18px}
     .grid.cards{grid-template-columns:repeat(4,minmax(160px,1fr))}
     .grid.two{grid-template-columns:1.1fr .9fr}
+    .dashboard-three{display:grid;grid-template-columns:minmax(240px,.75fr) minmax(260px,.9fr) minmax(430px,1.45fr);gap:18px;margin-top:18px;align-items:start}
+    .dashboard-three .card{min-width:0}
+    .dashboard-three #lowStockPanel{padding:14px}
+    .dashboard-three #lowStockPanel > div{padding:7px 0!important}
+    @media(max-width:1350px){.dashboard-three{grid-template-columns:1fr 1fr}.dashboard-three .pricing-card{grid-column:1/-1}}
+    @media(max-width:850px){.dashboard-three{grid-template-columns:1fr}.dashboard-three .pricing-card{grid-column:auto}}
     .card{
       background:linear-gradient(180deg,rgba(63,45,35,.98),rgba(41,30,24,.98));
       border:1px solid rgba(207,164,88,.48);
@@ -421,13 +427,18 @@
         </div>
       </div>
 
-      <div class="grid two" style="margin-top:18px">
-        <div class="card">
+      <div class="dashboard-three">
+        <div class="card stock-card">
           <h3 class="section-title">État rapide du stock <small>ressources les plus basses</small></h3>
           <div class="card-body" id="lowStockPanel"></div>
         </div>
 
-        <div class="card">
+        <div class="card movements-card">
+          <h3 class="section-title">Derniers mouvements</h3>
+          <div class="card-body" id="recentPanel"></div>
+        </div>
+
+        <div class="card pricing-card">
           <h3 class="section-title">Prix de vente des recettes <small>modifiables uniquement par l’administrateur</small></h3>
           <div class="card-body">
             <div class="table-wrap">
@@ -1276,6 +1287,8 @@
     $("dashMonthName").textContent=new Intl.DateTimeFormat("fr-FR",{month:"long",year:"numeric"}).format(new Date());
     const low=[...activeResources()].sort((a,b)=>num(a.stock)-num(b.stock)).slice(0,6);
     $("lowStockPanel").innerHTML=low.length?low.map(r=>`<div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid rgba(199,156,84,.12)"><div><strong style="color:#ecd69e">${esc(r.name)}</strong><div class="hint">${r.kind==="soin"?"Soin fabriqué":"Ingrédient"}</div></div><span class="pill ${num(r.stock)<=5?"red":"gold"}">${num(r.stock)} en stock</span></div>`).join(""):`<div class="empty">Aucune ressource.</div>`;
+    const recent=[...state.history].reverse().slice(0,5);
+    $("recentPanel").innerHTML=recent.length?recent.map(h=>`<div style="padding:9px 0;border-bottom:1px solid rgba(199,156,84,.12)"><div style="display:flex;justify-content:space-between;gap:10px"><strong style="color:#ecd69e">${esc(typeLabel(h.type))}</strong><span class="muted">${esc(h.date)}</span></div><div class="hint">${esc(h.resourceId?res(h.resourceId)?.name||h.resourceName||"Ressource":h.note||"Caisse")}${h.qty?` · ${h.qty}`:""}</div></div>`).join(""):`<div class="empty">Aucun mouvement enregistré.</div>`;
   }
   function renderInventory(){
     $("inventoryBody").innerHTML=activeResources().map(r=>`<tr class="${num(r.stock)<=0?"stock-low":""}" data-id="${esc(r.id)}"><td class="resource-name">${esc(r.name)}</td><td><input class="inv-stock" type="number" min="0" step="0.01" value="${num(r.stock)}"></td><td><div class="currency-input"><input class="inv-price" type="number" min="0" step="0.01" value="${num(r.unitPrice).toFixed(2)}"></div></td><td class="money">${money(num(r.stock)*num(r.unitPrice))}</td><td>${num(r.stock)<=0?'<span class="pill red">Épuisé</span>':num(r.stock)<=5?'<span class="pill red">Faible</span>':'<span class="pill green">Disponible</span>'}</td></tr>`).join("");
