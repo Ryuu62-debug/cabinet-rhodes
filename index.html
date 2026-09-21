@@ -1706,7 +1706,7 @@
   function projectedIngredientNeed(resourceId,currentRecipeId,currentQty){
     return state.recipes.reduce((total,rc)=>{
       const saved=plannedRecipeQty(rc.dbId);
-      const planned=rc.dbId===currentRecipeId ? Math.max(saved,num(currentQty)) : saved;
+      const planned=rc.dbId===currentRecipeId ? saved+num(currentQty) : saved;
       return total + num(rc.ingredients?.[resourceId]) * planned;
     },0);
   }
@@ -1735,9 +1735,9 @@
       const ratio=Math.min(100,(have/STOCK_BAR_MAX)*100);
       if(stockMissing>0)allOk=false;
 
-      const availability=missing>0
-        ? `Besoin cumulé ${totalPlanned} · ${ordered} commandé(s) · ${missing} restant(s)`
-        : (totalPlanned>0 ? `Besoin cumulé ${totalPlanned} couvert` : "Disponible");
+      const availability=stockMissing<=0
+        ? "Disponible"
+        : (missing<=0 ? `${ordered} déjà commandé(s)` : `${ordered} commandé(s) · ${missing} restant(s)`);
 
       let orderCell=`<strong>${missing}</strong>`;
       if(missing>0){
@@ -1754,10 +1754,9 @@
         }
       }
 
-      return `<tr><td class="resource-name">${esc(r?.name||id)}</td><td>${num(per)}</td><td><strong>${need}</strong></td><td>${have}</td><td><div class="progress"><span class="${stockMissing>0?"short":""}" style="width:${ratio}%"></span></div><div class="hint">${esc(availability)} · stock ${have}/${STOCK_BAR_MAX}</div></td><td class="craft-order-cell ${missing>0?"bad":"good"}">${orderCell}</td></tr>`;
+      return `<tr><td class="resource-name">${esc(r?.name||id)}</td><td>${num(per)}</td><td><strong>${need}</strong></td><td>${have}</td><td><div class="progress"><span class="${stockMissing>0?"short":""}" style="width:${ratio}%"></span></div><div class="hint">${esc(availability)} · ${have}/${STOCK_BAR_MAX}</div></td><td class="craft-order-cell ${missing>0?"bad":"good"}">${orderCell}</td></tr>`;
     }).join("");
-    const alreadyPlanned=plannedRecipeQty(rc.dbId);
-    $("craftDescription").innerHTML=`Fabrication de <strong>${qty} ${esc(product?.name||rc.productId)}</strong>.${alreadyPlanned>0?` Fabrication déjà prévue : <strong>${alreadyPlanned}</strong>.`:""} Les besoins sont cumulés avec les autres recettes déjà prévues avant de déduire le stock et les commandes en cours.`;
+    $("craftDescription").innerHTML=`Fabrication de <strong>${qty} ${esc(product?.name||rc.productId)}</strong>. Les commandes « À commander » et « En cours » sont prises en compte automatiquement.`;
     $("craftButton").disabled=!allOk||!rows.length;
     $("orderCraftButton").disabled=!rows.length;
   }
@@ -2464,11 +2463,12 @@
       });
       if(error)throw error;
       await loadRemoteState();
+      $("craftQty").value="1";
       renderCraft();
       const added=num(data);
       toast(added>0
-        ? `Fabrication prévue enregistrée · ${added} unité(s) ajoutée(s) aux commandes.`
-        : "Fabrication prévue enregistrée · aucune commande supplémentaire nécessaire.");
+        ? `Commande lancée · ${added} unité(s) ajoutée(s) aux commandes.`
+        : "Besoin enregistré · le stock et les commandes existantes couvrent déjà cette fabrication.");
     }catch(err){
       dbError(err,"Impossible de calculer les besoins cumulés.");
       renderCraft();
