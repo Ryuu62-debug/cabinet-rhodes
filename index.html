@@ -361,6 +361,20 @@
   .bureau-attach-btn{height:42px;min-width:44px;padding:0 12px;font-size:18px}
   #bureauText{resize:none;min-height:42px;max-height:130px;line-height:1.35}
   .bureau-send{height:42px}
+  .bureau-gif-btn{height:42px;min-width:52px;padding:0 10px;font-weight:800;letter-spacing:.5px}
+  .bureau-gif-picker{display:none;position:absolute;left:12px;bottom:82px;width:min(520px,calc(100% - 24px));max-height:490px;z-index:30;border:1px solid rgba(199,156,84,.45);background:#17120f;box-shadow:0 16px 46px rgba(0,0,0,.55);border-radius:7px;overflow:hidden}
+  .bureau-gif-picker.show{display:block}
+  .bureau-gif-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:10px;border-bottom:1px solid rgba(199,156,84,.20)}
+  .bureau-gif-top input{height:38px}
+  .bureau-gif-close{width:38px;height:38px;border:1px solid rgba(199,156,84,.25);background:rgba(255,255,255,.03);color:#cdbb98;cursor:pointer;border-radius:4px;font-size:18px}
+  .bureau-gif-results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:8px;max-height:370px;overflow:auto;background:rgba(0,0,0,.14)}
+  .bureau-gif-item{position:relative;border:0;padding:0;background:#0c0a08;cursor:pointer;min-height:90px;overflow:hidden;border-radius:4px}
+  .bureau-gif-item img{display:block;width:100%;height:120px;object-fit:cover}
+  .bureau-gif-item:hover{outline:2px solid rgba(199,156,84,.75)}
+  .bureau-gif-state{grid-column:1/-1;padding:28px 12px;text-align:center;color:#9e8967;line-height:1.5}
+  .bureau-gif-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-top:1px solid rgba(199,156,84,.20);font-size:10px;color:#8d7a5f}
+  .bureau-giphy-brand{font-weight:900;letter-spacing:.7px;color:#e8d8b8;text-decoration:none}
+  .bureau-giphy-mark{margin-top:5px;font-size:9px;color:#7f705b}
   .bureau-file-preview{display:none;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;padding:8px 10px;border:1px solid rgba(199,156,84,.26);background:rgba(199,156,84,.07);font-size:12px;color:#d8c49c}
   .bureau-file-preview.show{display:flex}
   .bureau-file-preview-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
