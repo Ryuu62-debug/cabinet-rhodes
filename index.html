@@ -1596,6 +1596,9 @@
       const {data,error}=await db.rpc("get_bureau_messages",{p_limit:120});
       if(error)throw error;
       const rows=[...(data||[])].reverse();
+      rows.forEach(m=>{
+        if(m.author_id)bureauPeople.set(m.author_id,{name:m.author_name||"Personnel médical",grade:m.author_grade||"medecin"});
+      });
       await Promise.all(rows.map(async m=>{
         m.signedUrl=m.attachment_path?await bureauSignedUrl(m.attachment_path):null;
       }));
