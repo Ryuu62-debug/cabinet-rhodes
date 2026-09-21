@@ -1721,12 +1721,16 @@
         if(uploadError)throw uploadError;
       }
 
-      const {error}=await db.rpc("post_bureau_message",{
+      const {error}=await db.rpc("post_bureau_message_v2",{
         p_body:textValue,
         p_attachment_path:uploadedPath,
         p_attachment_name:file?.name||null,
         p_attachment_type:file?.type||null,
-        p_attachment_size:file?.size||null
+        p_attachment_size:file?.size||null,
+        p_external_url:null,
+        p_external_page_url:null,
+        p_external_provider:null,
+        p_external_id:null
       });
       if(error)throw error;
 
