@@ -400,6 +400,9 @@
   .craft-action-stack{display:grid;gap:8px;min-width:150px}
   .craft-action-stack .btn{width:100%}
   .craft-order-btn{background:linear-gradient(#5f4637,#443126)}
+  .craft-order-cell{min-width:215px}
+  .craft-order-supplier{margin-top:7px;min-width:190px;padding:7px 8px;font-size:12px}
+  .craft-order-provider{margin-top:6px;color:#cdb88a;font-size:11px;line-height:1.35}
   .orders-table tr.order-selected{outline:1px solid rgba(226,192,122,.65);outline-offset:-1px;background:rgba(199,156,84,.08)}
   .pricing-table{font-size:12px}
   .pricing-table th,.pricing-table td{padding:10px 8px}
@@ -1476,6 +1479,13 @@
       .sort((a,b)=>String(a.place||a.name||"").localeCompare(String(b.place||b.name||""),"fr-FR",{sensitivity:"base"}));
   }
 
+  function supplierDisplayName(s){
+    return [s?.place,s?.name]
+      .filter(Boolean)
+      .filter((v,i,a)=>a.indexOf(v)===i)
+      .join(" — ") || "Fournisseur";
+  }
+
   function fillOrderSuppliers(){
     const select=$("orderSupplier");
     if(!select)return;
@@ -1488,14 +1498,14 @@
       select.disabled=true;
     }else if(suppliers.length===1){
       const s=suppliers[0];
-      const label=[s.place,s.name].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(" — ")||"Fournisseur";
+      const label=supplierDisplayName(s);
       select.innerHTML=`<option value="${esc(s.dbId)}">${esc(label)}</option>`;
       select.value=s.dbId;
       select.disabled=false;
     }else{
       select.disabled=false;
       select.innerHTML='<option value="">Choisir un fournisseur…</option>'+suppliers.map(s=>{
-        const label=[s.place,s.name].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(" — ")||"Fournisseur";
+        const label=supplierDisplayName(s);
         return `<option value="${esc(s.dbId)}">${esc(label)}</option>`;
       }).join("");
       if(suppliers.some(s=>s.dbId===current))select.value=current;
@@ -1710,9 +1720,25 @@
       const availability=stockMissing<=0
         ? "Disponible"
         : (missing<=0 ? `${ordered} déjà commandé(s)` : `${ordered} commandé(s) · ${missing} restant(s)`);
-      return `<tr><td class="resource-name">${esc(r?.name||id)}</td><td>${num(per)}</td><td><strong>${need}</strong></td><td>${have}</td><td><div class="progress"><span class="${stockMissing>0?"short":""}" style="width:${ratio}%"></span></div><div class="hint">${esc(availability)} · ${have}/${STOCK_BAR_MAX}</div></td><td class="${missing>0?"bad":"good"}"><strong>${missing}</strong></td></tr>`;
+
+      let orderCell=`<strong>${missing}</strong>`;
+      if(missing>0){
+        const suppliers=suppliersForResource(id);
+        if(!suppliers.length){
+          orderCell+=`<div class="craft-order-provider bad">Aucun fournisseur renseigné</div>`;
+        }else if(suppliers.length===1){
+          orderCell+=`<div class="craft-order-provider">${esc(supplierDisplayName(suppliers[0]))}</div>`;
+        }else{
+          orderCell+=`<select class="craft-order-supplier" data-resource-id="${esc(id)}" aria-label="Fournisseur pour ${esc(r?.name||id)}">
+            <option value="">Choisir le fournisseur…</option>
+            ${suppliers.map(s=>`<option value="${esc(s.dbId)}">${esc(supplierDisplayName(s))}</option>`).join("")}
+          </select>`;
+        }
+      }
+
+      return `<tr><td class="resource-name">${esc(r?.name||id)}</td><td>${num(per)}</td><td><strong>${need}</strong></td><td>${have}</td><td><div class="progress"><span class="${stockMissing>0?"short":""}" style="width:${ratio}%"></span></div><div class="hint">${esc(availability)} · ${have}/${STOCK_BAR_MAX}</div></td><td class="craft-order-cell ${missing>0?"bad":"good"}">${orderCell}</td></tr>`;
     }).join("");
-    $("craftDescription").innerHTML=`Fabrication de <strong>${qty} ${esc(product?.name||rc.productId)}</strong>. Les commandes « À commander » et « En cours » sont déduites automatiquement du besoin.`;
+    $("craftDescription").innerHTML=`Fabrication de <strong>${qty} ${esc(product?.name||rc.productId)}</strong>. Pour un ingrédient vendu par plusieurs fournisseurs, choisis le fournisseur directement dans la colonne « À commander ».`;
     $("craftButton").disabled=!allOk||!rows.length;
     $("orderCraftButton").disabled=!hasMissing||!rows.length;
   }
@@ -2380,26 +2406,62 @@
     const rc=recipe($("craftRecipe").value);
     const qty=Math.max(1,parseInt($("craftQty").value||1,10));
     if(!rc)return;
+
     const missingOrders=Object.entries(rc.ingredients)
       .map(([resourceId,per])=>({
         resourceId,
         quantity:Math.max(0,num(per)*qty-num(res(resourceId)?.stock)-outstandingOrderQty(resourceId))
       }))
       .filter(order=>order.quantity>0);
-    if(!missingOrders.length){toast("Les commandes en attente couvrent déjà tous les besoins.");return;}
 
-    const nextOrder=missingOrders[0];
-    setView("dashboard");
-    $("orderIngredient").value=nextOrder.resourceId;
-    fillOrderSuppliers();
-    $("orderQty").value=String(nextOrder.quantity);
-    calcNewOrderTotal();
-    setTimeout(()=>$("ordersCard")?.scrollIntoView({behavior:"smooth",block:"start"}),50);
+    if(!missingOrders.length){
+      toast("Les commandes en attente couvrent déjà tous les besoins.");
+      return;
+    }
 
-    const supplierCount=suppliersForResource(nextOrder.resourceId).length;
-    toast(supplierCount>1
-      ? "Choisis le fournisseur pour cet ingrédient, puis ajoute la commande."
-      : "Commande préparée : vérifie les informations puis clique sur « Ajouter la commande ».");
+    const prepared=[];
+    for(const order of missingOrders){
+      const suppliers=suppliersForResource(order.resourceId);
+      const ingredientName=res(order.resourceId)?.name||"cet ingrédient";
+      if(!suppliers.length){
+        toast(`Aucun fournisseur n’est renseigné pour « ${ingredientName} ».`);
+        return;
+      }
+
+      let supplierId=suppliers[0].dbId;
+      if(suppliers.length>1){
+        const select=document.querySelector(`.craft-order-supplier[data-resource-id="${order.resourceId}"]`);
+        supplierId=select?.value||"";
+        if(!supplierId){
+          toast(`Choisis le fournisseur pour « ${ingredientName} ».`);
+          select?.focus();
+          return;
+        }
+      }
+      prepared.push({...order,supplierId});
+    }
+
+    const button=$("orderCraftButton");
+    try{
+      button.disabled=true;
+      for(const order of prepared){
+        const {error}=await db.rpc("queue_order_v2",{
+          p_resource_id:order.resourceId,
+          p_quantity:order.quantity,
+          p_supplier_id:order.supplierId
+        });
+        if(error)throw error;
+      }
+      await loadRemoteState();
+      renderCraft();
+      const total=prepared.reduce((sum,o)=>sum+num(o.quantity),0);
+      toast(`${prepared.length} ingrédient(s) ajouté(s) aux commandes · ${total} unité(s).`);
+    }catch(err){
+      dbError(err,"Impossible d'ajouter les ingrédients aux commandes.");
+      renderCraft();
+    }finally{
+      button.disabled=false;
+    }
   });
 
   $("craftRecipe").addEventListener("change",renderCraft);$("craftQty").addEventListener("input",renderCraft);
