@@ -364,6 +364,13 @@
   .orders-table .order-status.status-en-cours{color:#c9f5d4;border-color:rgba(108,190,130,.65);background:rgba(24,79,43,.65)}
   .orders-table .order-status.status-livre{color:#ffd0c8;border-color:rgba(205,91,75,.72);background:rgba(116,28,20,.72)}
   .orders-table .order-schedule-input{min-width:132px}
+  .orders-table .supplier-group-row td{
+    padding:10px 13px;background:linear-gradient(90deg,rgba(111,26,18,.94),rgba(75,42,30,.94));
+    border-style:solid;border-color:rgba(199,156,84,.55);color:#f5db9c
+  }
+  .supplier-group-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .supplier-group-heading strong{font-size:14px;text-transform:uppercase;letter-spacing:.7px}
+  .supplier-group-meta{display:flex;align-items:center;gap:9px;color:#d8c394;font-size:11px}
   .craft-action-stack{display:grid;gap:8px;min-width:150px}
   .craft-action-stack .btn{width:100%}
   .craft-order-btn{background:linear-gradient(#5f4637,#443126)}
@@ -1433,7 +1440,25 @@
   function renderOrders(){
     const body=$("ordersBody");
     if(!body)return;
-    body.innerHTML=state.orders.length?state.orders.map(o=>{
+    if(!state.orders.length){
+      body.innerHTML='<tr><td colspan="10" class="empty">Aucune commande enregistrée.</td></tr>';
+      fillOrderIngredients();
+      applyEditLockUI();
+      return;
+    }
+
+    const groups=new Map();
+    state.orders.forEach(order=>{
+      const supplierName=(order.supplierName||"").trim()||"Fournisseur non renseigné";
+      const key=supplierName.toLocaleLowerCase("fr-FR");
+      if(!groups.has(key))groups.set(key,{name:supplierName,telegram:order.supplierTelegram||"",orders:[]});
+      const group=groups.get(key);
+      if(!group.telegram && order.supplierTelegram)group.telegram=order.supplierTelegram;
+      group.orders.push(order);
+    });
+
+    const statusRank={a_commander:0,en_cours:1,livre:2};
+    const renderOrderRow=o=>{
       const pending=o.status==="a_commander";
       const inProgress=o.status==="en_cours";
       const delivered=o.status==="livre";
@@ -1466,7 +1491,29 @@
           </select>
         </td>
       </tr>`;
-    }).join(""):'<tr><td colspan="10" class="empty">Aucune commande enregistrée.</td></tr>';
+    };
+
+    body.innerHTML=[...groups.values()]
+      .sort((a,b)=>a.name.localeCompare(b.name,"fr-FR",{sensitivity:"base"}))
+      .map(group=>{
+        group.orders.sort((a,b)=>
+          (statusRank[a.status]??9)-(statusRank[b.status]??9)
+          || String(a.deliveryDate||"").localeCompare(String(b.deliveryDate||""))
+          || String(a.createdAt||"").localeCompare(String(b.createdAt||""))
+        );
+        const countLabel=group.orders.length>1?`${group.orders.length} commandes`:"1 commande";
+        return `<tr class="supplier-group-row">
+          <td colspan="10">
+            <div class="supplier-group-heading">
+              <strong>Fournisseur · ${esc(group.name)}</strong>
+              <span class="supplier-group-meta">
+                ${group.telegram?`<span class="pill gold">Telegram : ${esc(group.telegram)}</span>`:""}
+                <span>${countLabel}</span>
+              </span>
+            </div>
+          </td>
+        </tr>${group.orders.map(renderOrderRow).join("")}`;
+      }).join("");
     fillOrderIngredients();
     applyEditLockUI();
   }
