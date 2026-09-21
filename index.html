@@ -293,6 +293,10 @@
     body.is-admin .admin-only{display:block}
     .nav .admin-only{display:none}
     body.is-admin .nav .admin-only{display:block}
+    .user-manage-only{display:none}
+    .nav .user-manage-only{display:none}
+    body.is-admin .nav .user-manage-only,
+    body.is-adjoint .nav .user-manage-only{display:block}
     .user-table .btn{padding:7px 9px;font-size:10px}
     .user-table td{vertical-align:middle}
     .user-table .user-display-name{min-width:160px}
@@ -374,7 +378,7 @@
       <button data-view="recipes"><span class="ico">✎</span>Recettes</button>
       <button data-view="suppliers"><span class="ico">☏</span>Fournisseurs</button>
       <button data-view="history"><span class="ico">≡</span>Historique</button>
-      <button class="admin-only" id="usersNav" data-view="users"><span class="ico">♟</span>Utilisateurs</button>
+      <button class="user-manage-only" id="usersNav" data-view="users"><span class="ico">♟</span>Utilisateurs</button>
       <button class="admin-only" id="settingsNav" data-view="settings"><span class="ico">⚙</span>Paramètres</button>
     </nav>
 
@@ -744,17 +748,17 @@
 
     <section id="users" class="view">
       <div class="card">
-        <h3 class="section-title">Gestion des accès <small>administrateur uniquement</small></h3>
+        <h3 class="section-title" id="usersSectionTitle">Gestion des accès <small>Chef de cabinet uniquement</small></h3>
         <div class="card-body">
-          <div class="inventory-summary">
+          <div class="inventory-summary" id="usersSummary">
             <span class="pill gold" id="usersPendingCount">0 en attente</span>
             <span class="pill green" id="usersApprovedCount">0 autorisés</span>
             <span class="pill red" id="usersRevokedCount">0 accès retirés</span>
           </div>
-          <p class="muted">Une personne peut créer son compte depuis l'adresse du site, mais elle ne voit aucune donnée tant que tu ne l'as pas autorisée ici.</p>
+          <p class="muted" id="usersHelp">Une personne peut créer son compte depuis l'adresse du site, mais elle ne voit aucune donnée tant que tu ne l'as pas autorisée ici.</p>
           <div class="table-wrap">
             <table class="user-table">
-              <thead><tr><th>Nom</th><th>E-mail</th><th>Grade</th><th>Permission</th><th>Statut</th><th>Inscription</th><th>Action</th></tr></thead>
+              <thead id="usersHead"><tr><th>Nom</th><th>E-mail</th><th>Grade</th><th>Permission</th><th>Statut</th><th>Inscription</th><th>Action</th></tr></thead>
               <tbody id="usersBody"><tr><td colspan="7" class="empty">Chargement…</td></tr></tbody>
             </table>
           </div>
@@ -869,6 +873,7 @@
   let currentUser = null;
   let currentProfile = null;
   let isAdmin = false;
+  let isAdjoint = false;
   let isRefreshing = false;
   let refreshTimer = null;
   let lockPollTimer = null;
@@ -1091,7 +1096,8 @@
     return {
       apprenti:"Apprenti",
       medecin:"Médecin",
-      medecin_adjoint:"Médecin adjoint"
+      medecin_adjoint:"Médecin adjoint",
+      chef_de_cabinet:"Chef de cabinet"
     }[g]||"Apprenti";
   }
   function dbError(error, fallback="Une erreur est survenue."){
@@ -1107,13 +1113,14 @@
   }
 
   function setView(id){
-    if((id==="users"||id==="settings")&&!isAdmin)id="dashboard";
+    if(id==="settings"&&!isAdmin)id="dashboard";
+    if(id==="users"&&!(isAdmin||isAdjoint))id="dashboard";
     releaseLocksOutsideView(id);
     document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
     document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
     const btn=document.querySelector(`#nav button[data-view="${id}"]`);
     $("pageTitle").textContent=btn?btn.textContent.trim():"Cabinet Médical";
-    if(id==="users" && isAdmin) loadUsers();
+    if(id==="users" && (isAdmin||isAdjoint)) loadUsers();
     window.scrollTo({top:0,behavior:"smooth"});
   }
   document.querySelectorAll("#nav button").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.view)));
@@ -1370,8 +1377,45 @@
     $("historyBody").innerHTML=filtered.length?filtered.map(h=>`<tr><td>${esc(h.date||"")}</td><td>${esc(h.time||"—")}</td><td><span class="pill ${["ACHAT","CAISSE_SORTIE"].includes(h.type)?"red":["VENTE","CAISSE_ENTREE"].includes(h.type)?"green":"gold"}">${esc(typeLabel(h.type))}</span></td><td>${esc(h.resourceId?res(h.resourceId)?.name||h.resourceName||"—":h.resourceName||"—")}</td><td>${h.qty!=null?esc(h.qty):"—"}</td><td class="money">${h.unitPrice!=null?money(h.total!=null?h.total:num(h.qty)*num(h.unitPrice)):h.amount!=null?money(h.amount):"—"}</td><td class="${num(h.cashDelta)<0?"bad":num(h.cashDelta)>0?"good":"muted"}">${num(h.cashDelta)===0?"—":(num(h.cashDelta)>0?"+":"")+money(h.cashDelta)}</td><td><strong style="color:#ecd69e">${esc(h.actorName||"Utilisateur inconnu")}</strong></td><td>${esc(h.note||"")}</td></tr>`).join(""):`<tr><td colspan="9" class="empty">Aucun mouvement ne correspond aux filtres.</td></tr>`;
   }
   async function loadUsers(){
-    if(!isAdmin)return;
+    if(!(isAdmin||isAdjoint))return;
+
+    const head=$("usersHead");
+    const summary=$("usersSummary");
+    const help=$("usersHelp");
+    const refreshWrap=$("refreshUsers")?.closest(".form-actions");
+
+    if(isAdjoint && !isAdmin){
+      $("usersSectionTitle").innerHTML='Promotion des apprentis <small>Médecin adjoint</small>';
+      if(summary)summary.style.display="none";
+      if(help)help.style.display="none";
+      if(refreshWrap)refreshWrap.style.display="none";
+      if(head)head.innerHTML="<tr><th>Apprenti</th><th>Action</th></tr>";
+      $("usersBody").innerHTML='<tr><td colspan="2" class="empty">Chargement des apprentis…</td></tr>';
+
+      try{
+        const {data,error}=await db.rpc("adjoint_list_apprentices");
+        if(error)throw error;
+        const rows=data||[];
+        $("usersBody").innerHTML=rows.length?rows.map(u=>`
+          <tr data-user-id="${esc(u.id)}">
+            <td><strong style="color:#ecd69e">${esc(u.display_name||"Apprenti")}</strong></td>
+            <td><button class="btn good adjoint-promote-btn" data-id="${esc(u.id)}" data-name="${esc(u.display_name||"cet apprenti")}">Promouvoir en médecin</button></td>
+          </tr>
+        `).join(""):'<tr><td colspan="2" class="empty">Aucun apprenti à promouvoir.</td></tr>';
+      }catch(err){
+        dbError(err,"Impossible de charger les apprentis.");
+        $("usersBody").innerHTML='<tr><td colspan="2" class="empty">Impossible de charger la liste.</td></tr>';
+      }
+      return;
+    }
+
+    $("usersSectionTitle").innerHTML='Gestion des accès <small>Chef de cabinet uniquement</small>';
+    if(summary)summary.style.display="";
+    if(help)help.style.display="";
+    if(refreshWrap)refreshWrap.style.display="";
+    if(head)head.innerHTML="<tr><th>Nom</th><th>E-mail</th><th>Grade</th><th>Permission</th><th>Statut</th><th>Inscription</th><th>Action</th></tr>";
     $("usersBody").innerHTML='<tr><td colspan="7" class="empty">Chargement des comptes…</td></tr>';
+
     try{
       const {data,error}=await db.rpc("admin_list_profiles");
       if(error)throw error;
@@ -1392,20 +1436,24 @@
         }
         const created=u.created_at?new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"}).format(new Date(u.created_at)):"—";
         const grade=u.medical_grade||"apprenti";
-        return `<tr data-user-id="${esc(u.id)}">
-          <td><input class="user-display-name" maxlength="60" value="${esc(u.display_name||"")}" aria-label="Nom affiché de ${esc(u.email||"l'utilisateur")}"></td>
-          <td>${esc(u.email||"—")}</td>
-          <td>
-            <select class="user-grade-select" aria-label="Grade de ${esc(u.display_name||u.email||"l'utilisateur")}">
+        const isChef=self && grade==="chef_de_cabinet";
+        const gradeControl=isChef
+          ? '<span class="pill gold">Chef de cabinet</span>'
+          : `<select class="user-grade-select" aria-label="Grade de ${esc(u.display_name||u.email||"l'utilisateur")}">
               <option value="apprenti" ${grade==="apprenti"?"selected":""}>Apprenti</option>
               <option value="medecin" ${grade==="medecin"?"selected":""}>Médecin</option>
               <option value="medecin_adjoint" ${grade==="medecin_adjoint"?"selected":""}>Médecin adjoint</option>
-            </select>
-          </td>
+            </select>`;
+        const gradeAction=isChef?"":`<button class="btn secondary save-user-grade-btn" data-id="${esc(u.id)}">Enregistrer le grade</button>`;
+
+        return `<tr data-user-id="${esc(u.id)}">
+          <td><input class="user-display-name" maxlength="60" value="${esc(u.display_name||"")}" aria-label="Nom affiché de ${esc(u.email||"l'utilisateur")}"></td>
+          <td>${esc(u.email||"—")}</td>
+          <td>${gradeControl}</td>
           <td>${u.role==="admin"?'<span class="pill gold">Administrateur</span>':'Personnel médical'}</td>
           <td><span class="pill ${statusClass}">${statusLabel}</span></td>
           <td>${created}</td>
-          <td><div class="user-row-actions"><button class="btn secondary save-user-name-btn" data-id="${esc(u.id)}">Enregistrer le nom</button><button class="btn secondary save-user-grade-btn" data-id="${esc(u.id)}">Enregistrer le grade</button>${accessAction}</div></td>
+          <td><div class="user-row-actions"><button class="btn secondary save-user-name-btn" data-id="${esc(u.id)}">Enregistrer le nom</button>${gradeAction}${accessAction}</div></td>
         </tr>`;
       }).join(""):'<tr><td colspan="7" class="empty">Aucun compte.</td></tr>';
     }catch(err){dbError(err,"Impossible de charger les comptes.");}
@@ -1702,6 +1750,20 @@
   });
   $("refreshUsers").addEventListener("click",loadUsers);
   $("usersBody").addEventListener("click",async e=>{
+    const promoteBtn=e.target.closest(".adjoint-promote-btn");
+    if(promoteBtn && isAdjoint && !isAdmin){
+      const name=promoteBtn.dataset.name||"cet apprenti";
+      if(!confirm(`Promouvoir ${name} au grade de Médecin ?`))return;
+      try{
+        promoteBtn.disabled=true;
+        const {error}=await db.rpc("adjoint_promote_apprentice",{p_user_id:promoteBtn.dataset.id});
+        if(error)throw error;
+        await loadUsers();
+        toast(name+" est désormais Médecin.");
+      }catch(err){dbError(err);}finally{promoteBtn.disabled=false;}
+      return;
+    }
+
     if(!isAdmin)return;
 
     const nameBtn=e.target.closest(".save-user-name-btn");
@@ -1863,10 +1925,12 @@
     $("accessGate").classList.add("hidden");
     document.body.classList.remove("locked");
     document.body.classList.toggle("is-admin",isAdmin);
+    document.body.classList.toggle("is-adjoint",isAdjoint);
     $("userEmail").textContent=currentUser?.email||"";
     $("userName").textContent=currentProfile?.display_name||currentUser?.email||"Médecin";
     $("userRole").textContent=gradeLabel(currentProfile?.medical_grade)+(isAdmin?" · Administrateur":"");
-    if(!isAdmin && document.querySelector("#users.view.active,#settings.view.active"))setView("dashboard");
+    if(!isAdmin && document.querySelector("#settings.view.active"))setView("dashboard");
+    if(!(isAdmin||isAdjoint) && document.querySelector("#users.view.active"))setView("dashboard");
     loadRemoteState();
     startEditLockSystem();
   }
@@ -1899,7 +1963,9 @@
     }
     currentProfile=Array.isArray(data)?(data[0]||null):(data||null);
     isAdmin=currentProfile?.role==="admin" && currentProfile?.access_status==="approved";
+    isAdjoint=!isAdmin && currentProfile?.medical_grade==="medecin_adjoint" && currentProfile?.access_status==="approved";
     document.body.classList.toggle("is-admin",isAdmin);
+    document.body.classList.toggle("is-adjoint",isAdjoint);
     if(currentProfile?.access_status==="approved"){
       if(!silent){
         openApp();
@@ -1907,6 +1973,7 @@
         $("accessGate").classList.add("hidden");
         document.body.classList.remove("locked");
         document.body.classList.toggle("is-admin",isAdmin);
+        document.body.classList.toggle("is-adjoint",isAdjoint);
         $("userEmail").textContent=currentUser?.email||"";
         $("userName").textContent=currentProfile?.display_name||currentUser?.email||"Médecin";
         $("userRole").textContent=gradeLabel(currentProfile?.medical_grade)+(isAdmin?" · Administrateur":"");
@@ -1936,9 +2003,9 @@
     }
 
     currentUser=nextUser;
-    currentProfile=null;isAdmin=false;
+    currentProfile=null;isAdmin=false;isAdjoint=false;
     $("authGate").classList.toggle("hidden",!!currentUser);
-    document.body.classList.remove("is-admin");
+    document.body.classList.remove("is-admin","is-adjoint");
     if(currentUser){
       $("authGate").classList.add("hidden");
       document.body.classList.add("locked");
