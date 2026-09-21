@@ -2668,15 +2668,58 @@
     if(!isAdmin){toast("Action réservée à l’administrateur.");return;}
     try{
       setSync("Enregistrement des recettes…","busy");
+      let changedCount=0;
       for(const tr of document.querySelectorAll("#recipeBody tr[data-product]")){
-        const rc=recipe(tr.dataset.product);if(!rc)continue;const name=tr.querySelector(".recipe-name")?.value.trim()||res(rc.productId)?.name;
-        let q=await db.from("resources").update({name}).eq("id",rc.productId);if(q.error)throw q.error;
-        q=await db.from("recipes").update({name}).eq("id",rc.dbId);if(q.error)throw q.error;
-        q=await db.from("recipe_ingredients").delete().eq("recipe_id",rc.dbId);if(q.error)throw q.error;
-        const rows=[];tr.querySelectorAll("input[data-ing]").forEach(inp=>{const n=Math.max(0,num(inp.value));if(n>0)rows.push({recipe_id:rc.dbId,ingredient_resource_id:inp.dataset.ing,quantity:n});});
-        if(rows.length){q=await db.from("recipe_ingredients").insert(rows);if(q.error)throw q.error;}
+        const rc=recipe(tr.dataset.product);
+        if(!rc)continue;
+
+        const currentName=res(rc.productId)?.name||"";
+        const name=tr.querySelector(".recipe-name")?.value.trim()||currentName;
+        const rows=[];
+        const nextIngredients={};
+
+        tr.querySelectorAll("input[data-ing]").forEach(inp=>{
+          const n=Math.max(0,num(inp.value));
+          nextIngredients[inp.dataset.ing]=n;
+          if(n>0)rows.push({
+            recipe_id:rc.dbId,
+            ingredient_resource_id:inp.dataset.ing,
+            quantity:n
+          });
+        });
+
+        const nameChanged=name!==currentName;
+        const ingredientsChanged=Object.keys(nextIngredients).some(id=>
+          num(nextIngredients[id])!==num(rc.ingredients?.[id])
+        );
+
+        if(!nameChanged && !ingredientsChanged)continue;
+
+        let q;
+        if(nameChanged){
+          q=await db.from("resources").update({name}).eq("id",rc.productId);
+          if(q.error)throw q.error;
+          q=await db.from("recipes").update({name}).eq("id",rc.dbId);
+          if(q.error)throw q.error;
+        }
+
+        if(ingredientsChanged){
+          q=await db.from("recipe_ingredients").delete().eq("recipe_id",rc.dbId);
+          if(q.error)throw q.error;
+          if(rows.length){
+            q=await db.from("recipe_ingredients").insert(rows);
+            if(q.error)throw q.error;
+          }
+          q=await db.rpc("reset_fabrication_plan",{p_recipe_id:rc.dbId});
+          if(q.error)throw q.error;
+        }
+
+        changedCount++;
       }
-      await loadRemoteState();toast("Recettes enregistrées en ligne.");
+      await loadRemoteState();
+      toast(changedCount
+        ? "Recettes enregistrées. Les anciens besoins des recettes modifiées ont été remis à zéro."
+        : "Aucune modification à enregistrer.");
     }catch(err){dbError(err);setSync("Erreur","bad");}
   });
   $("suppliersBody").addEventListener("click",async e=>{
