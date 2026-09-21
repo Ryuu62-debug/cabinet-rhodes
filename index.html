@@ -355,6 +355,15 @@
   .supplier-products{display:flex;gap:6px;flex-wrap:wrap}
   .supplier-product{display:inline-block;padding:5px 8px;border:1px solid rgba(199,156,84,.45);background:rgba(199,156,84,.09);color:#ecd69e;font-size:11px;font-weight:700}
   .supplier-edit-title{margin:4px 0 11px;color:#d9c495;font-size:13px;text-transform:uppercase;letter-spacing:.6px}
+  .supplier-place-row td{
+    padding:11px 13px;background:linear-gradient(90deg,rgba(111,26,18,.94),rgba(75,42,30,.94));
+    border-style:solid;border-color:rgba(199,156,84,.55);color:#f5db9c
+  }
+  .supplier-place-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .supplier-place-heading strong{font-size:14px;text-transform:uppercase;letter-spacing:.7px}
+  .supplier-place-products{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+  .supplier-place-products small{color:#cdb88a;margin-right:3px}
+  .supplier-empty-row td{text-align:center;color:#8f7d60;font-style:italic;background:rgba(0,0,0,.13)}
 
   
   .edit-lock-badge{display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:4px 8px;border:1px solid rgba(240,196,105,.55);border-radius:999px;background:rgba(104,58,20,.88);color:#ffe6a8;font-size:11px;font-weight:700;white-space:nowrap}
@@ -874,23 +883,14 @@
       <div class="card">
         <h3 class="section-title">Fournisseurs d'ingrédients</h3>
         <div class="card-body">
-          <div class="supplier-directory">
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Lieu</th><th>Fournisseurs</th><th>Télégrammes</th><th>Produits vendus</th></tr></thead>
-                <tbody id="supplierDirectoryBody"></tbody>
-              </table>
-            </div>
-          </div>
-
-          <div class="supplier-edit-title">Modifier les informations des fournisseurs</div>
           <div class="table-wrap">
-            <table>
-              <thead><tr><th>Ingrédient</th><th>Prix unité ($)</th><th>Nom du fournisseur</th><th>Télégramme</th><th>Lieu</th></tr></thead>
+            <table class="suppliers-grouped-table">
+              <thead><tr><th>Lieu</th><th>Ingrédient</th><th>Prix unité ($)</th><th>Nom du fournisseur</th><th>Télégramme</th></tr></thead>
               <tbody id="suppliersBody"></tbody>
             </table>
           </div>
           <div class="form-actions"><button class="btn" id="saveSuppliers">Enregistrer les fournisseurs</button></div>
+          <p class="hint">Les fournisseurs sont regroupés par lieu. Les prix, les noms, les télégrammes et les lieux restent modifiables directement dans ce tableau.</p>
         </div>
       </div>
     </section>
@@ -1687,57 +1687,56 @@
     }).join(""):`<tr><td colspan="${ingredients.length+3}" class="empty">Aucune recette enregistrée.</td></tr>`;
   }
   function renderSuppliers(){
-    const sortedPlaces=[...SUPPLIER_PLACES].sort((a,b)=>a.localeCompare(b,"fr-FR",{sensitivity:"base"}));
-    const suppliersAt=place=>state.suppliers.filter(s=>(s.place||"").trim()===place);
     const uniqueProducts=list=>[...new Set(list.map(s=>res(s.resourceId)?.name).filter(Boolean))]
       .sort((a,b)=>a.localeCompare(b,"fr-FR",{sensitivity:"base"}));
     const farmProducts=uniqueProducts(state.suppliers.filter(s=>(s.place||"").startsWith("Ferme de ")));
     const ranchProducts=uniqueProducts(state.suppliers.filter(s=>(s.place||"").startsWith("Ranch ")));
     const greaseName=ingredientResources().find(r=>r.name.trim().toLocaleUpperCase("fr-FR")==="GRAISSE")?.name||"GRAISSE";
+    const fixedPlaces=[...SUPPLIER_PLACES].sort((a,b)=>a.localeCompare(b,"fr-FR",{sensitivity:"base"}));
+    const hasUnassigned=state.suppliers.some(s=>!SUPPLIER_PLACES.includes((s.place||"").trim()));
+    const places=hasUnassigned?[...fixedPlaces,"Lieu non renseigné"]:fixedPlaces;
 
-    $("supplierDirectoryBody").innerHTML=sortedPlaces.map(place=>{
-      const atPlace=suppliersAt(place);
-      const contactMap=new Map();
-      atPlace.forEach(s=>{
-        const name=(s.name||"").trim();
-        const telegram=(s.telegram||"").trim();
-        if(!name&&!telegram)return;
-        const key=(name+"|"+telegram).toLocaleLowerCase("fr-FR");
-        if(!contactMap.has(key))contactMap.set(key,{name:name||"Non renseigné",telegram:telegram||"—"});
-      });
-      const contacts=[...contactMap.values()].sort((a,b)=>a.name.localeCompare(b.name,"fr-FR",{sensitivity:"base"}));
+    $("suppliersBody").innerHTML=places.map(place=>{
+      const atPlace=state.suppliers
+        .filter(s=>place==="Lieu non renseigné"
+          ? !SUPPLIER_PLACES.includes((s.place||"").trim())
+          : (s.place||"").trim()===place)
+        .sort((a,b)=>String(res(a.resourceId)?.name||"").localeCompare(String(res(b.resourceId)?.name||""),"fr-FR",{sensitivity:"base"}));
       let products=uniqueProducts(atPlace);
       if(place.startsWith("Ferme de "))products=farmProducts;
       else if(place.startsWith("Ranch "))products=ranchProducts;
       else if(place==="Chasse & Pêche de Window Rock")products=[greaseName];
-      const names=contacts.length
-        ? `<div class="contact-lines">${contacts.map(x=>`<div class="contact-line">${esc(x.name)}</div>`).join("")}</div>`
-        : '<span class="muted">À renseigner</span>';
-      const telegrams=contacts.length
-        ? `<div class="contact-lines">${contacts.map(x=>`<div class="contact-line">${x.telegram!=="—"?`<span class="pill gold">${esc(x.telegram)}</span>`:'<span class="muted">—</span>'}</div>`).join("")}</div>`
-        : '<span class="muted">—</span>';
-      const productList=products.length
-        ? `<div class="supplier-products">${products.map(name=>`<span class="supplier-product">${esc(name)}</span>`).join("")}</div>`
-        : '<span class="muted">Aucun ingrédient renseigné</span>';
-      return `<tr>
-        <td class="location-name">${esc(place)}</td>
-        <td>${names}</td>
-        <td>${telegrams}</td>
-        <td>${productList}</td>
-      </tr>`;
-    }).join("");
 
-    const sortedSuppliers=[...state.suppliers].sort((a,b)=>{
-      const placeA=(a.place||"").trim(),placeB=(b.place||"").trim();
-      return placeA.localeCompare(placeB,"fr-FR",{sensitivity:"base"})
-        || String(res(a.resourceId)?.name||"").localeCompare(String(res(b.resourceId)?.name||""),"fr-FR",{sensitivity:"base"});
-    });
-    $("suppliersBody").innerHTML=sortedSuppliers.map(s=>{
-      const r=res(s.resourceId);
-      const savedPlace=(s.place||"").trim();
-      const currentPlace=SUPPLIER_PLACES.includes(savedPlace)?savedPlace:"";
-      const placeOptions=SUPPLIER_PLACES.map(p=>`<option value="${esc(p)}" ${p===currentPlace?"selected":""}>${esc(p)}</option>`).join("");
-      return `<tr data-id="${esc(s.resourceId)}"><td class="resource-name">${esc(r?.name||s.resourceId)}</td><td><div class="currency-input"><input class="sup-price" type="number" min="0" step="0.01" value="${num(s.unitPrice).toFixed(2)}"></div></td><td><input class="sup-name" value="${esc(s.name)}"></td><td><div class="telegram-cell"><input class="sup-telegram" value="${esc(s.telegram)}" placeholder="Ex. RH6536"><button class="btn ghost copy-telegram-btn" type="button" title="Copier le télégramme" aria-label="Copier le télégramme">⧉</button></div></td><td><select class="sup-place"><option value="">— Choisir —</option>${placeOptions}</select></td></tr>`;
+      const productSummary=products.length
+        ? products.map(name=>`<span class="supplier-product">${esc(name)}</span>`).join("")
+        : '<span class="muted">Aucun ingrédient renseigné</span>';
+      const header=`<tr class="supplier-place-row">
+        <td colspan="5">
+          <div class="supplier-place-heading">
+            <strong>${esc(place)}</strong>
+            <div class="supplier-place-products"><small>Produits vendus :</small>${productSummary}</div>
+          </div>
+        </td>
+      </tr>`;
+
+      if(!atPlace.length){
+        return header+`<tr class="supplier-empty-row"><td colspan="5">Aucune fiche fournisseur rattachée à ce lieu.</td></tr>`;
+      }
+
+      const rows=atPlace.map(s=>{
+        const r=res(s.resourceId);
+        const savedPlace=(s.place||"").trim();
+        const currentPlace=SUPPLIER_PLACES.includes(savedPlace)?savedPlace:"";
+        const placeOptions=SUPPLIER_PLACES.map(p=>`<option value="${esc(p)}" ${p===currentPlace?"selected":""}>${esc(p)}</option>`).join("");
+        return `<tr data-id="${esc(s.resourceId)}">
+          <td><select class="sup-place"><option value="">— Choisir —</option>${placeOptions}</select></td>
+          <td class="resource-name">${esc(r?.name||s.resourceId)}</td>
+          <td><div class="currency-input"><input class="sup-price" type="number" min="0" step="0.01" value="${num(s.unitPrice).toFixed(2)}"></div></td>
+          <td><input class="sup-name" value="${esc(s.name)}"></td>
+          <td><div class="telegram-cell"><input class="sup-telegram" value="${esc(s.telegram)}" placeholder="Ex. RH6536"><button class="btn ghost copy-telegram-btn" type="button" title="Copier le télégramme" aria-label="Copier le télégramme">⧉</button></div></td>
+        </tr>`;
+      }).join("");
+      return header+rows;
     }).join("");
   }
   function renderHistory(){
