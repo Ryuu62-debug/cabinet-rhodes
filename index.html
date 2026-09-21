@@ -312,6 +312,9 @@
   .pricing-table input{min-width:90px;width:100%;text-align:right}
   .pricing-table .not-sold{display:inline-block;padding:6px 8px;border:1px solid rgba(189,90,77,.55);background:rgba(122,19,13,.28);color:#f0b4a8;font-weight:bold;white-space:nowrap}
   .pricing-table .pricing-product{min-width:120px}
+  .currency-input{position:relative;display:block;min-width:0}
+  .currency-input input{padding-right:30px!important;width:100%}
+  .currency-input:after{content:"$";position:absolute;right:11px;top:50%;transform:translateY(-50%);color:#e2c07a;font-weight:bold;pointer-events:none}
   @media(max-width:1200px){.orders-form{grid-template-columns:1fr 1fr}.orders-form .order-add-wrap{grid-column:1/-1}}
 </style>
 </head>
@@ -432,9 +435,9 @@
                 <thead>
                   <tr>
                     <th>Recette</th>
-                    <th>Prix pharmacie</th>
-                    <th>Prix conseillé</th>
-                    <th>À rendre au cabinet</th>
+                    <th>Prix pharmacie ($)</th>
+                    <th>Prix conseillé ($)</th>
+                    <th>À rendre au cabinet ($)</th>
                   </tr>
                 </thead>
                 <tbody id="recipePricingBody"></tbody>
@@ -474,7 +477,7 @@
             </div>
             <div class="field">
               <label>Frais de livraison ($)</label>
-              <input id="orderDeliveryFee" type="number" min="0" step="0.01" value="0">
+              <div class="currency-input"><input id="orderDeliveryFee" type="number" min="0" step="0.01" value="0"></div>
             </div>
             <div class="order-add-wrap">
               <button class="btn good" type="submit">Ajouter la commande</button>
@@ -490,8 +493,8 @@
                   <th>Heure</th>
                   <th>Ingrédient</th>
                   <th>Quantité</th>
-                  <th>Prix total</th>
-                  <th>Frais de livraison</th>
+                  <th>Prix total ($)</th>
+                  <th>Frais de livraison ($)</th>
                   <th>Statut</th>
                 </tr>
               </thead>
@@ -530,7 +533,7 @@
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Ressource</th><th>Stock</th><th>Prix unitaire</th><th>Valeur du stock</th><th>État</th></tr></thead>
+              <thead><tr><th>Ressource</th><th>Stock</th><th>Prix unitaire ($)</th><th>Valeur du stock</th><th>État</th></tr></thead>
               <tbody id="inventoryBody"></tbody>
             </table>
           </div>
@@ -561,7 +564,7 @@
                   </select>
                 </div>
                 <div class="field"><label>Quantité</label><input type="number" id="mvQty" min="0.01" step="0.01" required></div>
-                <div class="field"><label>Prix unitaire ($)</label><input type="number" id="mvPrice" min="0" step="0.01"></div>
+                <div class="field"><label>Prix unitaire ($)</label><div class="currency-input"><input type="number" id="mvPrice" min="0" step="0.01"></div></div>
                 <div class="field"><label>Total</label><input type="text" id="mvTotal" readonly value="0,00 $"></div>
               </div>
               <div class="field" style="margin-top:14px">
@@ -588,7 +591,7 @@
                   <label>Opération</label>
                   <select id="cashType"><option value="CAISSE_ENTREE">Entrée d'argent</option><option value="CAISSE_SORTIE">Dépense / retrait</option></select>
                 </div>
-                <div class="field"><label>Montant ($)</label><input type="number" id="cashAmount" min="0.01" step="0.01" required></div>
+                <div class="field"><label>Montant ($)</label><div class="currency-input"><input type="number" id="cashAmount" min="0.01" step="0.01" required></div></div>
               </div>
               <div class="field" style="margin-top:14px"><label>Motif</label><input id="cashNote" placeholder="Ex. versement, loyer, achat divers…"></div>
               <div class="form-actions"><button class="btn" type="submit">Valider le mouvement</button></div>
@@ -633,7 +636,7 @@
               </div>
               <div class="field">
                 <label>Prix unitaire du soin ($)</label>
-                <input id="newRecipePrice" type="number" min="0" step="0.01" value="0">
+                <div class="currency-input"><input id="newRecipePrice" type="number" min="0" step="0.01" value="0"></div>
               </div>
             </div>
             <div class="form-actions">
@@ -653,7 +656,7 @@
               </div>
               <div class="field">
                 <label>Prix unitaire ($)</label>
-                <input id="newIngredientPrice" type="number" min="0" step="0.01" value="0">
+                <div class="currency-input"><input id="newIngredientPrice" type="number" min="0" step="0.01" value="0"></div>
               </div>
             </div>
             <div class="form-actions">
@@ -696,7 +699,7 @@
         <div class="card-body">
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Ingrédient</th><th>Prix unité</th><th>Nom du fournisseur</th><th>Télégramme</th><th>Lieu</th></tr></thead>
+              <thead><tr><th>Ingrédient</th><th>Prix unité ($)</th><th>Nom du fournisseur</th><th>Télégramme</th><th>Lieu</th></tr></thead>
               <tbody id="suppliersBody"></tbody>
             </table>
           </div>
@@ -756,7 +759,7 @@
               <div class="field"><label>Ville / région</label><input id="settingPlace"></div>
               <div class="field"><label>Télégramme</label><input id="settingTelegram"></div>
             </div>
-            <div class="field" style="margin-top:14px"><label>Montant de caisse actuel ($)</label><input type="number" min="0" step="0.01" id="settingCash"></div>
+            <div class="field" style="margin-top:14px"><label>Montant de caisse actuel ($)</label><div class="currency-input"><input type="number" min="0" step="0.01" id="settingCash"></div></div>
             <div class="form-actions"><button class="btn" id="saveSettings">Enregistrer</button></div>
           </div>
         </div>
@@ -1225,7 +1228,7 @@
         <td class="resource-name">${esc(o.resourceName)}</td>
         <td><strong>${esc(o.quantity)}</strong></td>
         <td class="money"><strong>${money(o.totalPrice)}</strong></td>
-        <td><input class="order-fee" type="number" min="0" step="0.01" value="${num(o.deliveryFee).toFixed(2)}" ${delivered?"readonly":""}></td>
+        <td><div class="currency-input"><input class="order-fee" type="number" min="0" step="0.01" value="${num(o.deliveryFee).toFixed(2)}" ${delivered?"readonly":""}></div></td>
         <td>
           <select class="order-status ${delivered?"status-livre":"status-en-cours"}" data-current="${esc(o.status)}">
             <option value="en_cours" ${!delivered?"selected":""}>En cours</option>
@@ -1244,14 +1247,14 @@
     body.innerHTML=state.pricing.length?state.pricing.map(p=>{
       const pharmacyCell=p.pharmacySellable
         ? (isAdmin
-            ? `<input class="pricing-pharmacy" type="number" min="0" step="0.01" value="${num(p.pharmacyPrice).toFixed(2)}">`
+            ? `<div class="currency-input"><input class="pricing-pharmacy" type="number" min="0" step="0.01" value="${num(p.pharmacyPrice).toFixed(2)}"></div>`
             : `<strong>${money(p.pharmacyPrice)}</strong>`)
         : '<span class="not-sold">Non vendu</span>';
       const recommendedCell=isAdmin
-        ? `<input class="pricing-recommended" type="number" min="0" step="0.01" value="${num(p.recommendedPrice).toFixed(2)}">`
+        ? `<div class="currency-input"><input class="pricing-recommended" type="number" min="0" step="0.01" value="${num(p.recommendedPrice).toFixed(2)}"></div>`
         : `<strong>${money(p.recommendedPrice)}</strong>`;
       const cabinetCell=isAdmin
-        ? `<input class="pricing-cabinet" type="number" min="0" step="0.01" value="${num(p.cabinetReturn).toFixed(2)}">`
+        ? `<div class="currency-input"><input class="pricing-cabinet" type="number" min="0" step="0.01" value="${num(p.cabinetReturn).toFixed(2)}"></div>`
         : `<strong>${money(p.cabinetReturn)}</strong>`;
       return `<tr data-pricing-product="${esc(p.productId)}">
         <td class="resource-name pricing-product">${esc(p.productName)}</td>
@@ -1275,7 +1278,7 @@
     $("lowStockPanel").innerHTML=low.length?low.map(r=>`<div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid rgba(199,156,84,.12)"><div><strong style="color:#ecd69e">${esc(r.name)}</strong><div class="hint">${r.kind==="soin"?"Soin fabriqué":"Ingrédient"}</div></div><span class="pill ${num(r.stock)<=5?"red":"gold"}">${num(r.stock)} en stock</span></div>`).join(""):`<div class="empty">Aucune ressource.</div>`;
   }
   function renderInventory(){
-    $("inventoryBody").innerHTML=activeResources().map(r=>`<tr class="${num(r.stock)<=0?"stock-low":""}" data-id="${esc(r.id)}"><td class="resource-name">${esc(r.name)}</td><td><input class="inv-stock" type="number" min="0" step="0.01" value="${num(r.stock)}"></td><td><input class="inv-price" type="number" min="0" step="0.01" value="${num(r.unitPrice).toFixed(2)}"></td><td class="money">${money(num(r.stock)*num(r.unitPrice))}</td><td>${num(r.stock)<=0?'<span class="pill red">Épuisé</span>':num(r.stock)<=5?'<span class="pill red">Faible</span>':'<span class="pill green">Disponible</span>'}</td></tr>`).join("");
+    $("inventoryBody").innerHTML=activeResources().map(r=>`<tr class="${num(r.stock)<=0?"stock-low":""}" data-id="${esc(r.id)}"><td class="resource-name">${esc(r.name)}</td><td><input class="inv-stock" type="number" min="0" step="0.01" value="${num(r.stock)}"></td><td><div class="currency-input"><input class="inv-price" type="number" min="0" step="0.01" value="${num(r.unitPrice).toFixed(2)}"></div></td><td class="money">${money(num(r.stock)*num(r.unitPrice))}</td><td>${num(r.stock)<=0?'<span class="pill red">Épuisé</span>':num(r.stock)<=5?'<span class="pill red">Faible</span>':'<span class="pill green">Disponible</span>'}</td></tr>`).join("");
     $("inventoryCount").textContent=activeResources().length+" ressources";
     $("inventoryValue").textContent="Valeur : "+money(stockValue());
   }
@@ -1331,7 +1334,7 @@
       const currentPlace=(s.place||"").trim();
       const places=currentPlace && !SUPPLIER_PLACES.includes(currentPlace)?[...SUPPLIER_PLACES,currentPlace]:SUPPLIER_PLACES;
       const placeOptions=places.map(p=>`<option value="${esc(p)}" ${p===currentPlace?"selected":""}>${esc(p)}</option>`).join("");
-      return `<tr data-id="${esc(s.resourceId)}"><td class="resource-name">${esc(r?.name||s.resourceId)}</td><td><input class="sup-price" type="number" min="0" step="0.01" value="${num(s.unitPrice).toFixed(2)}"></td><td><input class="sup-name" value="${esc(s.name)}"></td><td><div class="telegram-cell"><input class="sup-telegram" value="${esc(s.telegram)}" placeholder="Ex. RH6536"><button class="btn ghost copy-telegram-btn" type="button" title="Copier le télégramme" aria-label="Copier le télégramme">⧉</button></div></td><td><select class="sup-place"><option value="">— Choisir —</option>${placeOptions}</select></td></tr>`;
+      return `<tr data-id="${esc(s.resourceId)}"><td class="resource-name">${esc(r?.name||s.resourceId)}</td><td><div class="currency-input"><input class="sup-price" type="number" min="0" step="0.01" value="${num(s.unitPrice).toFixed(2)}"></div></td><td><input class="sup-name" value="${esc(s.name)}"></td><td><div class="telegram-cell"><input class="sup-telegram" value="${esc(s.telegram)}" placeholder="Ex. RH6536"><button class="btn ghost copy-telegram-btn" type="button" title="Copier le télégramme" aria-label="Copier le télégramme">⧉</button></div></td><td><select class="sup-place"><option value="">— Choisir —</option>${placeOptions}</select></td></tr>`;
     }).join("");
   }
   function renderHistory(){
