@@ -1263,7 +1263,7 @@
       for(const r of [cab,resources,recipes,ingredients,suppliers,orders,pricing,movements]) if(r.error) throw r.error;
 
       const c=cab.data||{};
-      state.settings={name:c.cabinet_name||defaults.settings.name,place:c.place||defaults.settings.place,telegram:c.telegram||""};
+      state.settings={name:c.cabinet_name||defaults.settings.name,place:c.place||defaults.settings.place,telegram:c.telegram||"",giphyApiKey:c.giphy_api_key||""};
       state.cash=num(c.cash_balance);
       state.resources=(resources.data||[]).map(r=>({
         id:r.id,name:r.name,stock:num(r.stock),unitPrice:num(r.unit_price),kind:r.category==="ingredient"?"ingredient":"soin",active:r.active!==false
