@@ -370,7 +370,7 @@
   .edit-lock-badge.own{border-color:rgba(108,190,130,.45);background:rgba(24,79,43,.72);color:#c9f5d4}
   .edit-locked-by-other{outline:1px solid rgba(240,196,105,.38);outline-offset:-1px;background:rgba(117,69,25,.10)}
   .edit-locked-by-other input,.edit-locked-by-other select,.edit-locked-by-other textarea{cursor:not-allowed!important;opacity:.62}
-  .orders-form{display:grid;grid-template-columns:minmax(170px,1.35fr) minmax(90px,.5fr) minmax(120px,.65fr) minmax(135px,.75fr) minmax(105px,.55fr) minmax(130px,.7fr) auto;gap:10px;align-items:end;margin-bottom:16px}
+  .orders-form{display:grid;grid-template-columns:minmax(155px,1.2fr) minmax(190px,1.35fr) minmax(80px,.45fr) minmax(110px,.6fr) minmax(130px,.72fr) minmax(105px,.55fr) minmax(125px,.68fr) auto;gap:10px;align-items:end;margin-bottom:16px}
   .orders-form .field{min-width:0}
   .orders-form .btn{height:42px}
   .orders-table .order-select-cell{text-align:center;width:54px}
@@ -528,7 +528,7 @@
       <button data-view="inventory"><span class="ico">▦</span>Inventaire</button>
       <button data-view="movements"><span class="ico">⇄</span>Entrées / sorties</button>
       <button data-view="craft"><span class="ico">⚒</span>Fabrication</button>
-      <button data-view="recipes"><span class="ico">✎</span>Recettes</button>
+      <button class="admin-only" data-view="recipes"><span class="ico">✎</span>Recettes</button>
       <button data-view="suppliers"><span class="ico">☏</span>Fournisseurs</button>
       <button data-view="history"><span class="ico">≡</span>Historique</button>
       <button class="user-manage-only" id="usersNav" data-view="users"><span class="ico">♟</span>Apprentis</button>
@@ -630,6 +630,10 @@
             <div class="field">
               <label>Ingrédient</label>
               <select id="orderIngredient"></select>
+            </div>
+            <div class="field">
+              <label>Fournisseur</label>
+              <select id="orderSupplier" required></select>
             </div>
             <div class="field">
               <label>Quantité</label>
@@ -1350,6 +1354,10 @@
   }
 
   function setView(id){
+    if(id==="recipes" && !isAdmin){
+      toast("La catégorie Recettes est réservée à l’administrateur.");
+      id="dashboard";
+    }
     if(id==="settings"&&!isAdmin)id="dashboard";
     if(id==="users"&&!(isAdmin||isAdjoint))id="dashboard";
     releaseLocksOutsideView(id);
@@ -1375,7 +1383,7 @@
         db.from("recipes").select("*").eq("active",true).order("name"),
         db.from("recipe_ingredients").select("*"),
         db.from("suppliers").select("*").eq("active",true),
-        db.rpc("get_orders"),
+        db.rpc("get_orders_v2"),
         db.rpc("get_recipe_pricing"),
         db.rpc("get_movement_history")
       ]);
@@ -1408,8 +1416,12 @@
         id:o.id,
         resourceId:o.resource_id,
         resourceName:o.resource_name||res(o.resource_id)?.name||"Ingrédient",
-        supplierName:state.suppliers.find(s=>s.resourceId===o.resource_id)?.name||"",
-        supplierTelegram:state.suppliers.find(s=>s.resourceId===o.resource_id)?.telegram||"",
+        supplierId:o.supplier_id||null,
+        supplierName:[
+          o.supplier_location||state.suppliers.find(s=>s.dbId===o.supplier_id)?.place||"",
+          o.supplier_name||state.suppliers.find(s=>s.dbId===o.supplier_id)?.name||""
+        ].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(" — "),
+        supplierTelegram:o.supplier_telegram||state.suppliers.find(s=>s.dbId===o.supplier_id)?.telegram||"",
         quantity:num(o.quantity),
         unitPrice:num(o.unit_price),
         totalPrice:num(o.total_price),
@@ -1458,8 +1470,42 @@
     }finally{isRefreshing=false;}
   }
 
-  function orderUnitPrice(resourceId){
-    const supplier=state.suppliers.find(s=>s.resourceId===resourceId);
+  function suppliersForResource(resourceId){
+    return state.suppliers
+      .filter(s=>s.resourceId===resourceId && s.dbId)
+      .sort((a,b)=>String(a.place||a.name||"").localeCompare(String(b.place||b.name||""),"fr-FR",{sensitivity:"base"}));
+  }
+
+  function fillOrderSuppliers(){
+    const select=$("orderSupplier");
+    if(!select)return;
+    const resourceId=$("orderIngredient")?.value||"";
+    const suppliers=suppliersForResource(resourceId);
+    const current=select.value;
+    if(!suppliers.length){
+      select.innerHTML='<option value="">Aucun fournisseur renseigné</option>';
+      select.value="";
+      select.disabled=true;
+    }else if(suppliers.length===1){
+      const s=suppliers[0];
+      const label=[s.place,s.name].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(" — ")||"Fournisseur";
+      select.innerHTML=`<option value="${esc(s.dbId)}">${esc(label)}</option>`;
+      select.value=s.dbId;
+      select.disabled=false;
+    }else{
+      select.disabled=false;
+      select.innerHTML='<option value="">Choisir un fournisseur…</option>'+suppliers.map(s=>{
+        const label=[s.place,s.name].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(" — ")||"Fournisseur";
+        return `<option value="${esc(s.dbId)}">${esc(label)}</option>`;
+      }).join("");
+      if(suppliers.some(s=>s.dbId===current))select.value=current;
+      else select.value="";
+    }
+    calcNewOrderTotal();
+  }
+
+  function orderUnitPrice(resourceId,supplierId){
+    const supplier=state.suppliers.find(s=>s.dbId===supplierId && s.resourceId===resourceId);
     return num(supplier?.unitPrice ?? res(resourceId)?.unitPrice);
   }
 
@@ -1473,13 +1519,13 @@
       : '<option value="">Aucun ingrédient</option>';
     if(ingredients.some(r=>r.id===current))select.value=current;
     if($("orderDeliveryDate") && !$("orderDeliveryDate").value)$("orderDeliveryDate").value=todayISO();
-    calcNewOrderTotal();
+    fillOrderSuppliers();
   }
 
   function calcNewOrderTotal(){
-    const select=$("orderIngredient"),qty=$("orderQty"),total=$("orderTotal");
-    if(!select||!qty||!total)return;
-    total.value=money(Math.max(0,num(qty.value))*orderUnitPrice(select.value));
+    const ingredient=$("orderIngredient"),supplier=$("orderSupplier"),qty=$("orderQty"),total=$("orderTotal");
+    if(!ingredient||!supplier||!qty||!total)return;
+    total.value=money(Math.max(0,num(qty.value))*orderUnitPrice(ingredient.value,supplier.value));
   }
 
   function renderOrders(){
@@ -2157,22 +2203,30 @@
     }
   });
 
-  $("orderIngredient").addEventListener("change",calcNewOrderTotal);
+  $("orderIngredient").addEventListener("change",fillOrderSuppliers);
+  $("orderSupplier").addEventListener("change",calcNewOrderTotal);
   $("orderQty").addEventListener("input",calcNewOrderTotal);
 
   $("newOrderForm").addEventListener("submit",async e=>{
     e.preventDefault();
     const resourceId=$("orderIngredient").value;
+    const supplierId=$("orderSupplier").value;
     const quantity=Math.max(0,num($("orderQty").value));
     const deliveryFee=Math.max(0,num($("orderDeliveryFee").value));
     const deliveryDate=$("orderDeliveryDate").value;
     const deliveryTime=$("orderDeliveryTime").value;
     if(!resourceId||quantity<=0){toast("Choisis un ingrédient et une quantité valide.");return;}
+    if(!supplierId){
+      const count=suppliersForResource(resourceId).length;
+      toast(count>1?"Choisis le fournisseur pour cette commande.":"Aucun fournisseur valide n’est renseigné pour cet ingrédient.");
+      return;
+    }
     if(!deliveryDate||!deliveryTime){toast("Choisis la date et l'heure du rendez-vous de livraison.");return;}
     try{
-      const {error}=await db.rpc("create_order",{
+      const {error}=await db.rpc("create_order_v2",{
         p_resource_id:resourceId,
         p_quantity:quantity,
+        p_supplier_id:supplierId,
         p_delivery_fee:deliveryFee,
         p_delivery_date:deliveryDate,
         p_delivery_time:deliveryTime
@@ -2333,6 +2387,18 @@
       }))
       .filter(order=>order.quantity>0);
     if(!missingOrders.length){toast("Les commandes en attente couvrent déjà tous les besoins.");return;}
+    const requiringChoice=missingOrders.filter(o=>suppliersForResource(o.resourceId).length>1);
+    if(requiringChoice.length){
+      const first=requiringChoice[0];
+      setView("dashboard");
+      $("orderIngredient").value=first.resourceId;
+      fillOrderSuppliers();
+      $("orderQty").value=String(first.quantity);
+      calcNewOrderTotal();
+      setTimeout(()=>$("ordersCard")?.scrollIntoView({behavior:"smooth",block:"start"}),50);
+      toast("Cet ingrédient existe chez plusieurs fournisseurs : choisis celui à utiliser avant d’ajouter la commande.");
+      return;
+    }
     const button=$("orderCraftButton");
     try{
       button.disabled=true;
@@ -2357,6 +2423,7 @@
     try{const {error}=await db.rpc("craft_recipe",{p_recipe_id:rc.dbId,p_quantity:qty});if(error)throw error;await loadRemoteState();renderCraft();toast(`${qty} ${res(rc.productId)?.name||"produit"} fabriqué(s).`);}catch(err){dbError(err);}
   });
   $("addNewRecipe").addEventListener("click",async()=>{
+    if(!isAdmin){toast("Action réservée à l’administrateur.");return;}
     const name=$("newRecipeName").value.trim(),price=Math.max(0,num($("newRecipePrice").value));if(!name){toast("Indique le nom de la nouvelle recette.");return;}
     try{
       let product=state.resources.find(r=>r.name.trim().toLowerCase()===name.toLowerCase());
@@ -2368,6 +2435,7 @@
     }catch(err){dbError(err);}
   });
   $("addNewIngredient").addEventListener("click",async()=>{
+    if(!isAdmin){toast("Action réservée à l’administrateur.");return;}
     const name=$("newIngredientName").value.trim(),price=Math.max(0,num($("newIngredientPrice").value));
     if(!name){toast("Indique le nom du nouvel ingrédient.");return;}
     const existing=state.resources.find(r=>r.name.trim().toLowerCase()===name.toLowerCase());
@@ -2386,6 +2454,7 @@
     }catch(err){dbError(err);}
   });
   $("removeIngredient").addEventListener("click",async()=>{
+    if(!isAdmin){toast("Action réservée à l’administrateur.");return;}
     const id=$("removeIngredientSelect").value;
     const ingredient=res(id);
     if(!ingredient)return;
@@ -2420,10 +2489,12 @@
   });
 
   $("recipeBody").addEventListener("click",async e=>{
+    if(!isAdmin){toast("Action réservée à l’administrateur.");return;}
     const btn=e.target.closest(".delete-recipe");if(!btn)return;const rc=recipe(btn.dataset.product);if(!rc)return;const product=res(rc.productId);if(!confirm(`Retirer la recette « ${product?.name||""} » de la fabrication ? Le produit restera dans l'inventaire.`))return;
     try{const {error}=await db.from("recipes").update({active:false}).eq("id",rc.dbId);if(error)throw error;await loadRemoteState();toast("Recette retirée de la fabrication.");}catch(err){dbError(err);}
   });
   $("saveRecipes").addEventListener("click",async()=>{
+    if(!isAdmin){toast("Action réservée à l’administrateur.");return;}
     try{
       setSync("Enregistrement des recettes…","busy");
       for(const tr of document.querySelectorAll("#recipeBody tr[data-product]")){
@@ -2748,7 +2819,7 @@
     $("userEmail").textContent=currentUser?.email||"";
     $("userName").textContent=currentProfile?.display_name||currentUser?.email||"Médecin";
     $("userRole").textContent=gradeLabel(currentProfile?.medical_grade)+(isAdmin?" · Administrateur":"");
-    if(!isAdmin && document.querySelector("#settings.view.active"))setView("dashboard");
+    if(!isAdmin && (document.querySelector("#settings.view.active")||document.querySelector("#recipes.view.active")))setView("dashboard");
     if(!(isAdmin||isAdjoint) && document.querySelector("#users.view.active"))setView("dashboard");
     loadRemoteState();
     startEditLockSystem();
