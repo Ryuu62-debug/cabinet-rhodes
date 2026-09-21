@@ -1093,7 +1093,7 @@
 
   const defaults = {
     settings:{name:"Cabinet Médical de Rhodes",place:"Rhodes · Lemoyne",telegram:"RH1959",giphyApiKey:""},
-    cash:0,resources:[],recipes:[],suppliers:[],orders:[],pricing:[],history:[]
+    cash:0,resources:[],recipes:[],fabricationPlans:[],suppliers:[],orders:[],pricing:[],history:[]
   };
   let state = JSON.parse(JSON.stringify(defaults));
   let currentUser = null;
@@ -1380,17 +1380,18 @@
     isRefreshing=true;
     if(!silent)setSync("Synchronisation…","busy");
     try{
-      const [cab,resources,recipes,ingredients,suppliers,orders,pricing,movements] = await Promise.all([
+      const [cab,resources,recipes,ingredients,fabricationPlans,suppliers,orders,pricing,movements] = await Promise.all([
         db.from("cabinet_state").select("*").eq("id",1).single(),
         db.from("resources").select("*").order("name"),
         db.from("recipes").select("*").eq("active",true).order("name"),
         db.from("recipe_ingredients").select("*"),
+        db.rpc("get_fabrication_plans"),
         db.from("suppliers").select("*").eq("active",true),
         db.rpc("get_orders_v2"),
         db.rpc("get_recipe_pricing"),
         db.rpc("get_movement_history")
       ]);
-      for(const r of [cab,resources,recipes,ingredients,suppliers,orders,pricing,movements]) if(r.error) throw r.error;
+      for(const r of [cab,resources,recipes,ingredients,fabricationPlans,suppliers,orders,pricing,movements]) if(r.error) throw r.error;
 
       const c=cab.data||{};
       state.settings={name:c.cabinet_name||defaults.settings.name,place:c.place||defaults.settings.place,telegram:c.telegram||"",giphyApiKey:c.giphy_api_key||""};
@@ -1403,6 +1404,10 @@
         (ingredients.data||[]).filter(i=>i.recipe_id===rc.id).forEach(i=>map[i.ingredient_resource_id]=num(i.quantity));
         return {dbId:rc.id,productId:rc.product_resource_id,ingredients:map,outputQuantity:num(rc.output_quantity)||1};
       });
+      state.fabricationPlans=(fabricationPlans.data||[]).map(p=>({
+        recipeId:p.recipe_id,
+        quantity:num(p.quantity)
+      }));
       state.suppliers=(suppliers.data||[]).map(s=>({
         dbId:s.id,resourceId:s.resource_id,unitPrice:num(s.unit_price ?? res(s.resource_id)?.unitPrice),
         name:s.supplier_name||"",telegram:s.telegram||"",place:s.location||""
@@ -1694,6 +1699,18 @@
       .reduce((total,o)=>total+num(o.quantity),0);
   }
 
+  function plannedRecipeQty(recipeId){
+    return num(state.fabricationPlans?.find(p=>p.recipeId===recipeId)?.quantity);
+  }
+
+  function projectedIngredientNeed(resourceId,currentRecipeId,currentQty){
+    return state.recipes.reduce((total,rc)=>{
+      const saved=plannedRecipeQty(rc.dbId);
+      const planned=rc.dbId===currentRecipeId ? Math.max(saved,num(currentQty)) : saved;
+      return total + num(rc.ingredients?.[resourceId]) * planned;
+    },0);
+  }
+
   function renderCraft(){
     const selected=$("craftRecipe").value || state.recipes[0]?.productId || "";
     $("craftRecipe").innerHTML=state.recipes.map(rc=>`<option value="${esc(rc.productId)}">${esc(res(rc.productId)?.name||rc.productId)}</option>`).join("");
@@ -1708,18 +1725,19 @@
     }
     const product=res(rc.productId);
     $("craftProductStock").textContent=num(product?.stock);
-    const rows=Object.entries(rc.ingredients).filter(([,q])=>num(q)>0); let allOk=true,hasMissing=false;
+    const rows=Object.entries(rc.ingredients).filter(([,q])=>num(q)>0); let allOk=true;
     const STOCK_BAR_MAX=200;
     $("craftBody").innerHTML=rows.map(([id,per])=>{
       const r=res(id),need=num(per)*qty,have=num(r?.stock),ordered=outstandingOrderQty(id);
+      const totalPlanned=projectedIngredientNeed(id,rc.dbId,qty);
       const stockMissing=Math.max(0,need-have);
-      const missing=Math.max(0,need-have-ordered);
+      const missing=Math.max(0,totalPlanned-have-ordered);
       const ratio=Math.min(100,(have/STOCK_BAR_MAX)*100);
       if(stockMissing>0)allOk=false;
-      if(missing>0)hasMissing=true;
-      const availability=stockMissing<=0
-        ? "Disponible"
-        : (missing<=0 ? `${ordered} déjà commandé(s)` : `${ordered} commandé(s) · ${missing} restant(s)`);
+
+      const availability=missing>0
+        ? `Besoin cumulé ${totalPlanned} · ${ordered} commandé(s) · ${missing} restant(s)`
+        : (totalPlanned>0 ? `Besoin cumulé ${totalPlanned} couvert` : "Disponible");
 
       let orderCell=`<strong>${missing}</strong>`;
       if(missing>0){
@@ -1736,11 +1754,12 @@
         }
       }
 
-      return `<tr><td class="resource-name">${esc(r?.name||id)}</td><td>${num(per)}</td><td><strong>${need}</strong></td><td>${have}</td><td><div class="progress"><span class="${stockMissing>0?"short":""}" style="width:${ratio}%"></span></div><div class="hint">${esc(availability)} · ${have}/${STOCK_BAR_MAX}</div></td><td class="craft-order-cell ${missing>0?"bad":"good"}">${orderCell}</td></tr>`;
+      return `<tr><td class="resource-name">${esc(r?.name||id)}</td><td>${num(per)}</td><td><strong>${need}</strong></td><td>${have}</td><td><div class="progress"><span class="${stockMissing>0?"short":""}" style="width:${ratio}%"></span></div><div class="hint">${esc(availability)} · stock ${have}/${STOCK_BAR_MAX}</div></td><td class="craft-order-cell ${missing>0?"bad":"good"}">${orderCell}</td></tr>`;
     }).join("");
-    $("craftDescription").innerHTML=`Fabrication de <strong>${qty} ${esc(product?.name||rc.productId)}</strong>. Pour un ingrédient vendu par plusieurs fournisseurs, choisis le fournisseur directement dans la colonne « À commander ».`;
+    const alreadyPlanned=plannedRecipeQty(rc.dbId);
+    $("craftDescription").innerHTML=`Fabrication de <strong>${qty} ${esc(product?.name||rc.productId)}</strong>.${alreadyPlanned>0?` Fabrication déjà prévue : <strong>${alreadyPlanned}</strong>.`:""} Les besoins sont cumulés avec les autres recettes déjà prévues avant de déduire le stock et les commandes en cours.`;
     $("craftButton").disabled=!allOk||!rows.length;
-    $("orderCraftButton").disabled=!hasMissing||!rows.length;
+    $("orderCraftButton").disabled=!rows.length;
   }
   function fillRemoveIngredientSelect(){
     const select=$("removeIngredientSelect");
@@ -2407,57 +2426,51 @@
     const qty=Math.max(1,parseInt($("craftQty").value||1,10));
     if(!rc)return;
 
-    const missingOrders=Object.entries(rc.ingredients)
-      .map(([resourceId,per])=>({
-        resourceId,
-        quantity:Math.max(0,num(per)*qty-num(res(resourceId)?.stock)-outstandingOrderQty(resourceId))
-      }))
-      .filter(order=>order.quantity>0);
+    const supplierChoices={};
+    for(const [resourceId,per] of Object.entries(rc.ingredients)){
+      if(num(per)<=0)continue;
+      const totalPlanned=projectedIngredientNeed(resourceId,rc.dbId,qty);
+      const missing=Math.max(0,totalPlanned-num(res(resourceId)?.stock)-outstandingOrderQty(resourceId));
+      if(missing<=0)continue;
 
-    if(!missingOrders.length){
-      toast("Les commandes en attente couvrent déjà tous les besoins.");
-      return;
-    }
-
-    const prepared=[];
-    for(const order of missingOrders){
-      const suppliers=suppliersForResource(order.resourceId);
-      const ingredientName=res(order.resourceId)?.name||"cet ingrédient";
+      const suppliers=suppliersForResource(resourceId);
+      const ingredientName=res(resourceId)?.name||"cet ingrédient";
       if(!suppliers.length){
         toast(`Aucun fournisseur n’est renseigné pour « ${ingredientName} ».`);
         return;
       }
 
-      let supplierId=suppliers[0].dbId;
-      if(suppliers.length>1){
-        const select=document.querySelector(`.craft-order-supplier[data-resource-id="${order.resourceId}"]`);
-        supplierId=select?.value||"";
+      if(suppliers.length===1){
+        supplierChoices[resourceId]=suppliers[0].dbId;
+      }else{
+        const select=document.querySelector(`.craft-order-supplier[data-resource-id="${resourceId}"]`);
+        const supplierId=select?.value||"";
         if(!supplierId){
           toast(`Choisis le fournisseur pour « ${ingredientName} ».`);
           select?.focus();
           return;
         }
+        supplierChoices[resourceId]=supplierId;
       }
-      prepared.push({...order,supplierId});
     }
 
     const button=$("orderCraftButton");
     try{
       button.disabled=true;
-      for(const order of prepared){
-        const {error}=await db.rpc("queue_order_v2",{
-          p_resource_id:order.resourceId,
-          p_quantity:order.quantity,
-          p_supplier_id:order.supplierId
-        });
-        if(error)throw error;
-      }
+      const {data,error}=await db.rpc("queue_recipe_missing_with_suppliers",{
+        p_recipe_id:rc.dbId,
+        p_quantity:qty,
+        p_supplier_choices:supplierChoices
+      });
+      if(error)throw error;
       await loadRemoteState();
       renderCraft();
-      const total=prepared.reduce((sum,o)=>sum+num(o.quantity),0);
-      toast(`${prepared.length} ingrédient(s) ajouté(s) aux commandes · ${total} unité(s).`);
+      const added=num(data);
+      toast(added>0
+        ? `Fabrication prévue enregistrée · ${added} unité(s) ajoutée(s) aux commandes.`
+        : "Fabrication prévue enregistrée · aucune commande supplémentaire nécessaire.");
     }catch(err){
-      dbError(err,"Impossible d'ajouter les ingrédients aux commandes.");
+      dbError(err,"Impossible de calculer les besoins cumulés.");
       renderCraft();
     }finally{
       button.disabled=false;
