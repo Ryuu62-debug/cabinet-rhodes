@@ -214,7 +214,13 @@
     .inventory-summary .pill{font-size:12px;padding:7px 10px}
     .stock-low{background:rgba(112,26,17,.35)!important}
 
-    .craft-head{display:grid;grid-template-columns:1.25fr .55fr auto;gap:12px;align-items:end}
+    .craft-head{display:grid;grid-template-columns:1.25fr .55fr minmax(140px,.5fr) auto;gap:12px;align-items:end}
+    .craft-stock-box{
+      min-height:66px;padding:9px 12px;border:1px solid rgba(199,156,84,.45);
+      background:rgba(199,156,84,.08);display:flex;flex-direction:column;justify-content:center
+    }
+    .craft-stock-box span{font-size:10px;color:#bfa87a;text-transform:uppercase;letter-spacing:.7px}
+    .craft-stock-box strong{margin-top:4px;color:#f4d990;font-size:22px}
     .recipe-note{
       margin-top:14px;padding:13px 14px;border-left:3px solid var(--gold);
       background:rgba(199,156,84,.08);color:#cbb790;font-size:13px
@@ -625,6 +631,8 @@
                   <th>Date</th>
                   <th>Heure</th>
                   <th>Ingrédient</th>
+                  <th>Fournisseur</th>
+                  <th>Telegram</th>
                   <th>Quantité</th>
                   <th>Prix total ($)</th>
                   <th>Frais de livraison ($)</th>
@@ -741,6 +749,7 @@
           <div class="craft-head">
             <div class="field"><label>Recette</label><select id="craftRecipe"></select></div>
             <div class="field"><label>Quantité à fabriquer</label><input type="number" id="craftQty" value="1" min="1" step="1"></div>
+            <div class="craft-stock-box"><span>Stock du soin sélectionné</span><strong id="craftProductStock">0</strong></div>
             <div class="craft-action-stack">
               <button class="btn good big" id="craftButton">Fabriquer</button>
               <button class="btn big craft-order-btn" id="orderCraftButton" type="button">Commander</button>
@@ -1347,6 +1356,8 @@
         id:o.id,
         resourceId:o.resource_id,
         resourceName:o.resource_name||res(o.resource_id)?.name||"Ingrédient",
+        supplierName:state.suppliers.find(s=>s.resourceId===o.resource_id)?.name||"",
+        supplierTelegram:state.suppliers.find(s=>s.resourceId===o.resource_id)?.telegram||"",
         quantity:num(o.quantity),
         unitPrice:num(o.unit_price),
         totalPrice:num(o.total_price),
@@ -1442,6 +1453,8 @@
         <td>${dateCell}</td>
         <td>${timeCell}</td>
         <td class="resource-name">${esc(o.resourceName)}</td>
+        <td>${o.supplierName?esc(o.supplierName):'<span class="muted">—</span>'}</td>
+        <td>${o.supplierTelegram?`<span class="pill gold">${esc(o.supplierTelegram)}</span>`:'<span class="muted">—</span>'}</td>
         <td><strong>${esc(o.quantity)}</strong></td>
         <td class="money"><strong>${money(o.totalPrice)}</strong></td>
         <td><div class="currency-input"><input class="order-fee" type="number" min="0" step="0.01" value="${num(o.deliveryFee).toFixed(2)}" ${!inProgress?"readonly":""}></div></td>
@@ -1453,7 +1466,7 @@
           </select>
         </td>
       </tr>`;
-    }).join(""):'<tr><td colspan="8" class="empty">Aucune commande enregistrée.</td></tr>';
+    }).join(""):'<tr><td colspan="10" class="empty">Aucune commande enregistrée.</td></tr>';
     fillOrderIngredients();
     applyEditLockUI();
   }
@@ -1517,6 +1530,12 @@
     calcMovementTotal();
   }
   function calcMovementTotal(){ $("mvTotal").value=money(num($("mvQty").value)*num($("mvPrice").value)); }
+  function outstandingOrderQty(resourceId){
+    return state.orders
+      .filter(o=>o.resourceId===resourceId && (o.status==="a_commander"||o.status==="en_cours"))
+      .reduce((total,o)=>total+num(o.quantity),0);
+  }
+
   function renderCraft(){
     const selected=$("craftRecipe").value || state.recipes[0]?.productId || "";
     $("craftRecipe").innerHTML=state.recipes.map(rc=>`<option value="${esc(rc.productId)}">${esc(res(rc.productId)?.name||rc.productId)}</option>`).join("");
@@ -1524,19 +1543,28 @@
     const rc=recipe($("craftRecipe").value); const qty=Math.max(1,parseInt($("craftQty").value||1,10));
     if(!rc){
       $("craftBody").innerHTML=`<tr><td colspan="6" class="empty">Aucune recette.</td></tr>`;
+      $("craftProductStock").textContent="0";
       $("craftButton").disabled=true;
       $("orderCraftButton").disabled=true;
       return;
     }
+    const product=res(rc.productId);
+    $("craftProductStock").textContent=num(product?.stock);
     const rows=Object.entries(rc.ingredients).filter(([,q])=>num(q)>0); let allOk=true,hasMissing=false;
     const STOCK_BAR_MAX=200;
     $("craftBody").innerHTML=rows.map(([id,per])=>{
-      const r=res(id),need=num(per)*qty,have=num(r?.stock),missing=Math.max(0,need-have),ratio=Math.min(100,(have/STOCK_BAR_MAX)*100);
-      if(missing>0){allOk=false;hasMissing=true;}
-      return `<tr><td class="resource-name">${esc(r?.name||id)}</td><td>${num(per)}</td><td><strong>${need}</strong></td><td>${have}</td><td><div class="progress"><span class="${missing>0?"short":""}" style="width:${ratio}%"></span></div><div class="hint">${missing>0?"Stock insuffisant":"Disponible"} · ${have}/${STOCK_BAR_MAX}</div></td><td class="${missing>0?"bad":"good"}"><strong>${missing}</strong></td></tr>`;
+      const r=res(id),need=num(per)*qty,have=num(r?.stock),ordered=outstandingOrderQty(id);
+      const stockMissing=Math.max(0,need-have);
+      const missing=Math.max(0,need-have-ordered);
+      const ratio=Math.min(100,(have/STOCK_BAR_MAX)*100);
+      if(stockMissing>0)allOk=false;
+      if(missing>0)hasMissing=true;
+      const availability=stockMissing<=0
+        ? "Disponible"
+        : (missing<=0 ? `${ordered} déjà commandé(s)` : `${ordered} commandé(s) · ${missing} restant(s)`);
+      return `<tr><td class="resource-name">${esc(r?.name||id)}</td><td>${num(per)}</td><td><strong>${need}</strong></td><td>${have}</td><td><div class="progress"><span class="${stockMissing>0?"short":""}" style="width:${ratio}%"></span></div><div class="hint">${esc(availability)} · ${have}/${STOCK_BAR_MAX}</div></td><td class="${missing>0?"bad":"good"}"><strong>${missing}</strong></td></tr>`;
     }).join("");
-    const product=res(rc.productId);
-    $("craftDescription").innerHTML=`Fabrication de <strong>${qty} ${esc(product?.name||rc.productId)}</strong>. Les matériaux seront retirés et le produit ajouté au stock en une seule opération sécurisée.`;
+    $("craftDescription").innerHTML=`Fabrication de <strong>${qty} ${esc(product?.name||rc.productId)}</strong>. Les commandes « À commander » et « En cours » sont déduites automatiquement du besoin.`;
     $("craftButton").disabled=!allOk||!rows.length;
     $("orderCraftButton").disabled=!hasMissing||!rows.length;
   }
@@ -2157,22 +2185,21 @@
     const missingOrders=Object.entries(rc.ingredients)
       .map(([resourceId,per])=>({
         resourceId,
-        quantity:Math.max(0,num(per)*qty-num(res(resourceId)?.stock))
+        quantity:Math.max(0,num(per)*qty-num(res(resourceId)?.stock)-outstandingOrderQty(resourceId))
       }))
       .filter(order=>order.quantity>0);
-    if(!missingOrders.length){toast("Aucun ingrédient à commander.");return;}
+    if(!missingOrders.length){toast("Les commandes en attente couvrent déjà tous les besoins.");return;}
     const button=$("orderCraftButton");
     try{
       button.disabled=true;
-      const results=await Promise.all(missingOrders.map(order=>
-        db.rpc("queue_order",{p_resource_id:order.resourceId,p_quantity:order.quantity})
-      ));
-      const failed=results.find(result=>result.error);
-      if(failed)throw failed.error;
+      const {data,error}=await db.rpc("queue_recipe_missing",{p_recipe_id:rc.dbId,p_quantity:qty});
+      if(error)throw error;
       await loadRemoteState();
       renderCraft();
-      const total=missingOrders.reduce((sum,order)=>sum+order.quantity,0);
-      toast(`${missingOrders.length} ingrédient(s) ajouté(s) aux commandes · ${total} unité(s) au total.`);
+      const added=num(data);
+      toast(added>0
+        ? `${missingOrders.length} ingrédient(s) complété(s) · ${added} unité(s) ajoutée(s) aux commandes.`
+        : "Les commandes en attente couvrent déjà tous les besoins.");
     }catch(err){
       dbError(err,"Impossible d'ajouter les ingrédients aux commandes.");
       renderCraft();
