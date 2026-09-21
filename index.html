@@ -813,8 +813,17 @@
             </div>
             <div class="bureau-compose-row">
               <button class="btn secondary bureau-attach-btn" id="bureauAttachBtn" type="button" title="Joindre un fichier">＋</button>
+              <button class="btn secondary bureau-gif-btn" id="bureauGifBtn" type="button" title="Rechercher un GIF">GIF</button>
               <textarea id="bureauText" maxlength="4000" placeholder="Écrire dans le Bureau…" rows="1"></textarea>
               <button class="btn bureau-send" id="bureauSend" type="button">Envoyer</button>
+            </div>
+            <div class="bureau-gif-picker" id="bureauGifPicker">
+              <div class="bureau-gif-top">
+                <input type="search" id="bureauGifSearch" maxlength="50" placeholder="Rechercher un GIF…">
+                <button class="bureau-gif-close" id="bureauGifClose" type="button" aria-label="Fermer">×</button>
+              </div>
+              <div class="bureau-gif-results" id="bureauGifResults"><div class="bureau-gif-state">GIFs populaires</div></div>
+              <div class="bureau-gif-footer"><span>Clique sur un GIF pour l'envoyer.</span><a class="bureau-giphy-brand" href="https://giphy.com" target="_blank" rel="noopener">Powered by GIPHY</a></div>
             </div>
             <input id="bureauFile" type="file" hidden>
             <div class="bureau-hint">Entrée pour envoyer · Maj+Entrée pour aller à la ligne · tu peux aussi glisser-déposer ou coller une image.</div>
