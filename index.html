@@ -1622,7 +1622,7 @@
           attachment='<div class="bureau-attachment"><span class="muted">Pièce jointe indisponible.</span></div>';
         }
       }
-      return `<div class="bureau-message" data-message-id="${esc(m.id)}">
+      return `<div class="bureau-message" data-message-id="${esc(m.id)}" data-author-id="${esc(m.author_id||\"\")}">
         <div class="bureau-avatar">${esc(bureauInitials(m.author_name))}</div>
         <div class="bureau-message-main">
           <div class="bureau-message-head">
