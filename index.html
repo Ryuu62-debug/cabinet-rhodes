@@ -249,6 +249,30 @@
       padding:12px 14px;color:#dfae9c;margin-top:14px;font-size:13px
     }
 
+    .westlegacy-panel{
+      min-height:420px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:14px;text-align:center;background:
+        radial-gradient(circle at center,rgba(199,156,84,.10),transparent 56%),
+        rgba(0,0,0,.08)
+    }
+    .westlegacy-emblem{
+      width:92px;height:92px;border:2px solid #c79c54;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      color:#f1dfb4;background:#241812;box-shadow:0 0 0 7px rgba(199,156,84,.08);
+      font:800 31px Georgia,serif;letter-spacing:2px
+    }
+    .westlegacy-panel h3{margin:8px 0 0;color:#ecd69e;font:700 25px Georgia,serif}
+    .westlegacy-panel p{max-width:650px;margin:0;color:#a99470;line-height:1.6}
+    .westlegacy-open{
+      margin-top:8px;display:inline-flex;align-items:center;justify-content:center;gap:10px;
+      min-width:310px;padding:14px 24px;text-decoration:none;font-size:14px
+    }
+    .westlegacy-open span{font-size:18px}
+    @media(max-width:620px){
+      .westlegacy-panel{min-height:340px;padding:26px 16px}
+      .westlegacy-open{min-width:0;width:100%}
+    }
+
     .footer{margin-top:34px;text-align:center;color:#705f49;font-size:11px;letter-spacing:1px;text-transform:uppercase}
 
     @media(max-width:1150px){
@@ -457,6 +481,7 @@
     <nav class="nav" id="nav">
       <button class="active" data-view="dashboard"><span class="ico">⌂</span>Tableau de bord</button>
       <button data-view="bureau"><span class="ico">✉</span>LE BUREAU</button>
+      <button data-view="westlegacy"><span class="ico">↗</span>Panel WestLegacy</button>
       <button data-view="inventory"><span class="ico">▦</span>Inventaire</button>
       <button data-view="movements"><span class="ico">⇄</span>Entrées / sorties</button>
       <button data-view="craft"><span class="ico">⚒</span>Fabrication</button>
@@ -846,6 +871,18 @@
             <input id="bureauFile" type="file" hidden>
             <div class="bureau-hint">Entrée pour envoyer · Maj+Entrée pour aller à la ligne · tu peux aussi glisser-déposer ou coller une image.</div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="westlegacy" class="view">
+      <div class="card">
+        <h3 class="section-title">PANEL WESTLEGACY <small>accès au panel officiel</small></h3>
+        <div class="card-body westlegacy-panel">
+          <div class="westlegacy-emblem">WL</div>
+          <h3>Panel officiel WestLegacy</h3>
+          <p>Le site WestLegacy s’ouvre dans un nouvel onglet afin de conserver ta connexion et toutes ses fonctions interactives.</p>
+          <a class="btn westlegacy-open" href="https://www.westlegacy.fr/panel.php" target="_blank" rel="noopener noreferrer">Ouvrir le Panel WestLegacy <span>↗</span></a>
         </div>
       </div>
     </section>
