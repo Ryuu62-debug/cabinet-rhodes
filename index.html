@@ -119,6 +119,14 @@
       box-shadow:inset 0 0 0 1px rgba(255,225,156,.12),0 5px 14px rgba(0,0,0,.28);
     }
     .topbar-bureau-shortcut:hover{filter:brightness(1.1)}
+    @keyframes bureauUnreadPulse{
+      0%,100%{color:#d9c79c;text-shadow:0 0 0 rgba(50,255,105,0)}
+      50%{color:#32ff70;text-shadow:0 0 7px rgba(50,255,112,.95),0 0 16px rgba(50,255,112,.72),0 0 28px rgba(50,255,112,.38)}
+    }
+    #nav button.bureau-unread,
+    .topbar-bureau-shortcut.bureau-unread{
+      animation:bureauUnreadPulse 2.2s ease-in-out infinite !important;
+    }
     @media(max-width:900px){
       .topbar{flex-wrap:wrap}
       .topbar-bureau-shortcut{position:static;transform:none;order:3;margin:0 auto}
@@ -1108,6 +1116,7 @@
   let bureauTypingTimer = null;
   let bureauTypingRefreshTimer = null;
   let bureauLastTypingPing = 0;
+  let bureauUnreadCount = 0;
   let giphySearchTimer = null;
   let giphyResults = new Map();
   const craftSupplierChoices = new Map();
@@ -1370,7 +1379,10 @@
     const btn=document.querySelector(`#nav button[data-view="${id}"]`);
     $("pageTitle").textContent=btn?btn.textContent.trim():"Cabinet Médical";
     if(id==="users" && (isAdmin||isAdjoint)) loadUsers();
-    if(id==="bureau") loadBureauMessages(true);
+    if(id==="bureau"){
+      setBureauUnread(0);
+      loadBureauMessages(true).then(()=>markBureauRead());
+    }
     window.scrollTo({top:0,behavior:"smooth"});
   }
   document.querySelectorAll("#nav button").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.view)));
@@ -1959,6 +1971,40 @@
     }
   }
 
+  function setBureauUnread(count){
+    bureauUnreadCount=Math.max(0,Number(count)||0);
+    const bureauOpen=!!document.querySelector("#bureau.view.active");
+    const shouldBlink=bureauUnreadCount>0 && !bureauOpen;
+    document.querySelector('#nav button[data-view="bureau"]')?.classList.toggle("bureau-unread",shouldBlink);
+    document.querySelector(".topbar-bureau-shortcut")?.classList.toggle("bureau-unread",shouldBlink);
+  }
+
+  async function refreshBureauUnread(){
+    if(!currentUser || currentProfile?.access_status!=="approved")return;
+    if(document.querySelector("#bureau.view.active")){
+      await markBureauRead();
+      return;
+    }
+    try{
+      const {data,error}=await db.rpc("get_bureau_unread_count");
+      if(error)throw error;
+      setBureauUnread(Array.isArray(data)?data[0]:data);
+    }catch(err){
+      console.warn("Messages non lus du Bureau :",err);
+    }
+  }
+
+  async function markBureauRead(){
+    if(!currentUser || currentProfile?.access_status!=="approved")return;
+    setBureauUnread(0);
+    try{
+      const {error}=await db.rpc("mark_bureau_read");
+      if(error)throw error;
+    }catch(err){
+      console.warn("Lecture du Bureau :",err);
+    }
+  }
+
   async function loadBureauMessages(forceBottom=false){
     if(!currentUser || currentProfile?.access_status!=="approved" || bureauLoading)return;
     bureauLoading=true;
@@ -2190,14 +2236,22 @@
     if(bureauChannel || !currentUser)return;
     bureauChannel=sb
       .channel("bureau-messages-live")
-      .on("postgres_changes",{event:"*",schema:"public",table:"bureau_messages"},()=>{
-        if(document.querySelector("#bureau.view.active"))loadBureauMessages(false);
+      .on("postgres_changes",{event:"*",schema:"public",table:"bureau_messages"},async payload=>{
+        const bureauOpen=!!document.querySelector("#bureau.view.active");
+        if(bureauOpen){
+          await loadBureauMessages(false);
+          await markBureauRead();
+          return;
+        }
+        if(payload?.eventType==="INSERT" && payload?.new?.author_id===currentUser?.id)return;
+        await refreshBureauUnread();
       })
       .on("postgres_changes",{event:"*",schema:"public",table:"bureau_typing"},()=>{
         if(document.querySelector("#bureau.view.active"))refreshBureauTyping();
       })
       .subscribe();
 
+    refreshBureauUnread();
     clearInterval(bureauTypingRefreshTimer);
     bureauTypingRefreshTimer=setInterval(()=>{
       if(document.querySelector("#bureau.view.active"))refreshBureauTyping();
@@ -2208,6 +2262,7 @@
     stopBureauTyping();
     clearInterval(bureauTypingRefreshTimer);
     bureauTypingRefreshTimer=null;
+    setBureauUnread(0);
     if(!bureauChannel)return;
     try{sb.removeChannel(bureauChannel);}catch(_){}
     bureauChannel=null;
