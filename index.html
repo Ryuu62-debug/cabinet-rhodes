@@ -389,6 +389,20 @@
   .orders-table .order-status.status-en-cours{color:#c9f5d4;border-color:rgba(108,190,130,.65);background:rgba(24,79,43,.65)}
   .orders-table .order-status.status-livre{color:#ffd0c8;border-color:rgba(205,91,75,.72);background:rgba(116,28,20,.72)}
   .orders-table .order-schedule-input{min-width:132px}
+  .order-date-picker{display:flex;align-items:center;gap:7px;min-width:174px}
+  .order-date-picker .order-start-date{flex:1;min-width:132px}
+  .order-calendar-btn{
+    flex:0 0 36px;width:36px;height:38px;padding:0;
+    display:grid;place-items:center;
+    border:1px solid #a67d40;border-radius:3px;
+    background:linear-gradient(#6f1a12,#54110c);
+    color:#ffe0a0;font-size:18px;line-height:1;
+    box-shadow:inset 0 0 0 1px rgba(255,222,146,.10);
+  }
+  .order-calendar-btn:hover{filter:brightness(1.12);border-color:#d1a85d}
+  .orders-table input[type="date"]::-webkit-calendar-picker-indicator{
+    opacity:1;cursor:pointer;filter:sepia(1) saturate(2.2) brightness(1.35)
+  }
   .orders-table .supplier-group-row td{
     padding:10px 13px;background:linear-gradient(90deg,rgba(111,26,18,.94),rgba(75,42,30,.94));
     border-style:solid;border-color:rgba(199,156,84,.55);color:#f5db9c
@@ -1593,7 +1607,10 @@
         : "—";
       const time=o.deliveryTime?String(o.deliveryTime).slice(0,5):"—";
       const dateCell=pending
-        ? `<input class="order-schedule-input order-start-date" type="date" aria-label="Date de livraison">`
+        ? `<div class="order-date-picker">
+            <button type="button" class="order-calendar-btn" aria-label="Ouvrir le calendrier" title="Choisir une date">📅</button>
+            <input class="order-schedule-input order-start-date" type="date" aria-label="Date de livraison">
+          </div>`
         : esc(date);
       const timeCell=pending
         ? `<input class="order-schedule-input order-start-time" type="time" aria-label="Heure de livraison">`
@@ -2349,6 +2366,19 @@
       await loadRemoteState();
       toast("Commande ajoutée. Le stock ne changera qu'une fois livrée.");
     }catch(err){dbError(err);}
+  });
+
+  $("ordersBody").addEventListener("click",e=>{
+    const btn=e.target.closest(".order-calendar-btn");
+    if(!btn)return;
+    const input=btn.closest(".order-date-picker")?.querySelector(".order-start-date");
+    if(!input)return;
+    try{
+      if(typeof input.showPicker==="function")input.showPicker();
+      else{input.focus();input.click();}
+    }catch(_err){
+      input.focus();
+    }
   });
 
   $("ordersBody").addEventListener("change",async e=>{
