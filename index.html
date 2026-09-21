@@ -493,7 +493,7 @@
   }
 </style>
 </head>
-<body class="locked">
+<body class="locked" data-site-version="2026-09-21-1749">
 
 <div class="auth-gate hidden" id="authGate">
   <div class="auth-card">
@@ -547,7 +547,7 @@
     </nav>
 
     <div class="telegram">
-      <small id="telegramOwnerName">John Myers</small>
+      <small id="telegramOwnerName">JOHN MYERS</small>
       <strong id="telegramPlaque">RH1959</strong>
     </div>
     <div class="user-box">
@@ -2280,7 +2280,7 @@
 
   function renderSettings(){
     $("settingName").value=state.settings.name||"";$("settingPlace").value=state.settings.place||"";$("settingTelegram").value=state.settings.telegram||"";$("settingCash").value=num(state.cash).toFixed(2);$("telegramPlaque").textContent=state.settings.telegram||"—";
-    if($("telegramOwnerName"))$("telegramOwnerName").textContent=currentProfile?.display_name||"Médecin";
+    if($("telegramOwnerName"))$("telegramOwnerName").textContent="JOHN MYERS";
     document.querySelector(".brand h1").innerHTML=esc(state.settings.name).replace(/\sde\sRhodes/i,"<br>de Rhodes");
     document.querySelector(".brand p").textContent=state.settings.place;
   }
