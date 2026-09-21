@@ -1716,6 +1716,49 @@
     }
   }
 
+  async function setBureauTyping(active){
+    if(!currentUser || currentProfile?.access_status!=="approved")return;
+    try{await db.rpc("set_bureau_typing",{p_is_typing:!!active});}
+    catch(err){console.warn("Indicateur d’écriture :",err);}
+  }
+
+  async function refreshBureauTyping(){
+    const el=$("bureauTyping");
+    if(!el || !currentUser || currentProfile?.access_status!=="approved")return;
+    try{
+      const threshold=new Date(Date.now()-5000).toISOString();
+      const {data,error}=await db.from("bureau_typing").select("user_id,updated_at").gte("updated_at",threshold).neq("user_id",currentUser.id).order("updated_at",{ascending:false});
+      if(error)throw error;
+      const ids=[...new Set((data||[]).map(x=>x.user_id).filter(Boolean))];
+      if(!ids.length){el.textContent="";return;}
+      const names=ids.map(id=>bureauPeople.get(id)?.name).filter(Boolean);
+      let label="";
+      if(ids.length===1)label=names[0]?names[0]+" est en train d’écrire":"Un membre du cabinet est en train d’écrire";
+      else if(names.length>=2)label=names[0]+" et "+names[1]+(ids.length>2?" et "+(ids.length-2)+" autre"+(ids.length>3?"s":""):"")+" sont en train d’écrire";
+      else label=ids.length+" membres du cabinet sont en train d’écrire";
+      el.innerHTML=esc(label)+'<span class="bureau-typing-dots"><i></i><i></i><i></i></span>';
+    }catch(err){console.warn("Lecture de l’indicateur d’écriture :",err);}
+  }
+
+  function markBureauTyping(){
+    const value=$("bureauText")?.value||"";
+    clearTimeout(bureauTypingTimer);
+    if(!value.trim()){setBureauTyping(false);return;}
+    const now=Date.now();
+    if(now-bureauLastTypingPing>1400){
+      bureauLastTypingPing=now;
+      setBureauTyping(true);
+    }
+    bureauTypingTimer=setTimeout(()=>setBureauTyping(false),2400);
+  }
+
+  function stopBureauTyping(){
+    clearTimeout(bureauTypingTimer);
+    bureauTypingTimer=null;
+    bureauLastTypingPing=0;
+    setBureauTyping(false);
+  }
+
   function startBureauRealtime(){
     if(bureauChannel || !currentUser)return;
     bureauChannel=sb
