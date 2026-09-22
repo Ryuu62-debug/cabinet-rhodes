@@ -356,6 +356,10 @@
     body.is-admin .admin-only{display:block}
     .nav .admin-only{display:none}
     body.is-admin .nav .admin-only{display:block}
+    .book-supervisor-only{display:none}
+    .nav .book-supervisor-only{display:none}
+    body.is-book-supervisor .book-supervisor-only,
+    body.is-book-supervisor .nav .book-supervisor-only{display:block}
     .user-manage-only{display:none}
     .nav .user-manage-only{display:none}
     body.is-admin .nav .user-manage-only,
@@ -641,7 +645,7 @@
       <button class="active" data-view="dashboard"><span class="ico">⌂</span>Tableau de bord</button>
       <button data-view="bureau"><span class="ico">✉</span>LE BUREAU</button>
       <button data-view="consultations"><span class="ico">▤</span>Carnet de consultations</button>
-      <button class="admin-only" data-view="notebooksAdmin"><span class="ico">▥</span>Carnets du personnel</button>
+      <button class="book-supervisor-only" data-view="notebooksAdmin"><span class="ico">▥</span>Carnets du personnel</button>
       <button data-view="westlegacy"><span class="ico">↗</span>Panel WestLegacy</button>
       <button data-view="inventory"><span class="ico">▦</span>Inventaire</button>
       <button data-view="movements"><span class="ico">⇄</span>Entrées / sorties</button>
@@ -1549,6 +1553,8 @@
   }
 
 // Cabinet de Rhodes — chaque utilisateur possède son propre carnet, créé depuis le modèle de base.
+const bookSupervisorId='d5deb745-1298-4625-8c1d-6aa0f5ebc9f7';
+const isBookSupervisor=()=>currentUser?.id===bookSupervisorId && isAdmin;
 const canEditBook=()=>!!currentUser && currentProfile?.access_status==="approved";
 let bookCategories=[],bookReports=[],bookPage=-1,bookBusy=false,bookLoaded=false;
 const bookOath=[
@@ -1842,7 +1848,7 @@ $('bookCategoryDelete').addEventListener('click',async()=>{
 let adminNotebookUsers=[],adminNotebookCategories=[],adminNotebookReports=[],adminNotebookSelected='oath';
 
 async function loadAdminNotebookUsers(){
- if(!isAdmin)return;
+ if(!isBookSupervisor())return;
  $('adminNotebookStatus').textContent='Chargement des carnets…';
  try{
   const {data,error}=await db.rpc('admin_get_consultation_notebook_users');
@@ -1859,7 +1865,7 @@ async function loadAdminNotebookUsers(){
 }
 
 async function loadAdminNotebook(ownerId){
- if(!isAdmin||!ownerId)return;
+ if(!isBookSupervisor()||!ownerId)return;
  $('adminNotebookStatus').textContent='Ouverture du carnet…';
  try{
   const init=await db.rpc('ensure_personal_consultation_notebook',{p_owner_id:ownerId});
@@ -1917,7 +1923,7 @@ $('adminNotebookIndex').addEventListener('click',e=>{
       id="dashboard";
     }
     if(id==="settings"&&!isAdmin)id="dashboard";
-    if(id==="notebooksAdmin"&&!isAdmin)id="dashboard";
+    if(id==="notebooksAdmin"&&!isBookSupervisor())id="dashboard";
     if(id==="users"&&!(isAdmin||isAdjoint))id="dashboard";
     releaseLocksOutsideView(id);
     document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
@@ -1925,7 +1931,7 @@ $('adminNotebookIndex').addEventListener('click',e=>{
     const btn=document.querySelector(`#nav button[data-view="${id}"]`);
     $("pageTitle").textContent=btn?btn.textContent.trim():"Cabinet Médical";
     if(id==="consultations")loadBook();
-    if(id==="notebooksAdmin" && isAdmin)loadAdminNotebookUsers();
+    if(id==="notebooksAdmin" && isBookSupervisor())loadAdminNotebookUsers();
     if(id==="users" && (isAdmin||isAdjoint)) loadUsers();
     if(id==="bureau"){
       setBureauUnread(0);
@@ -3575,10 +3581,12 @@ $('adminNotebookIndex').addEventListener('click',e=>{
     document.body.classList.remove("locked");
     document.body.classList.toggle("is-admin",isAdmin);
     document.body.classList.toggle("is-adjoint",isAdjoint);
+    document.body.classList.toggle("is-book-supervisor",isBookSupervisor());
     $("userEmail").textContent=currentUser?.email||"";
     $("userName").textContent=currentProfile?.display_name||currentUser?.email||"Médecin";
     $("userRole").textContent=gradeLabel(currentProfile?.medical_grade)+(isAdmin?" · Administrateur":"");
     if(!isAdmin && (document.querySelector("#settings.view.active")||document.querySelector("#recipes.view.active")))setView("dashboard");
+    if(!isBookSupervisor() && document.querySelector("#notebooksAdmin.view.active"))setView("dashboard");
     if(!(isAdmin||isAdjoint) && document.querySelector("#users.view.active"))setView("dashboard");
     loadRemoteState();
     startEditLockSystem();
@@ -3624,6 +3632,7 @@ $('adminNotebookIndex').addEventListener('click',e=>{
         document.body.classList.remove("locked");
         document.body.classList.toggle("is-admin",isAdmin);
         document.body.classList.toggle("is-adjoint",isAdjoint);
+        document.body.classList.toggle("is-book-supervisor",isBookSupervisor());
         $("userEmail").textContent=currentUser?.email||"";
         $("userName").textContent=currentProfile?.display_name||currentUser?.email||"Médecin";
         $("userRole").textContent=gradeLabel(currentProfile?.medical_grade)+(isAdmin?" · Administrateur":"");
