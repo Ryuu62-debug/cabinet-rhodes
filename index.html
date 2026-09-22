@@ -670,11 +670,11 @@
             </div>
             <div class="field">
               <label>Date de livraison</label>
-              <input id="orderDeliveryDate" type="date" required>
+              <input id="orderDeliveryDate" type="date">
             </div>
             <div class="field">
               <label>Heure de livraison</label>
-              <input id="orderDeliveryTime" type="time" required>
+              <input id="orderDeliveryTime" type="time">
             </div>
             <div class="field">
               <label>Frais de livraison ($)</label>
@@ -1561,7 +1561,6 @@
       ? ingredients.map(r=>`<option value="${esc(r.id)}">${esc(r.name)}</option>`).join("")
       : '<option value="">Aucun ingrédient</option>';
     if(ingredients.some(r=>r.id===current))select.value=current;
-    if($("orderDeliveryDate") && !$("orderDeliveryDate").value)$("orderDeliveryDate").value=todayISO();
     fillOrderSuppliers();
   }
 
@@ -2341,15 +2340,14 @@
     const supplierId=$("orderSupplier").value;
     const quantity=Math.max(0,num($("orderQty").value));
     const deliveryFee=Math.max(0,num($("orderDeliveryFee").value));
-    const deliveryDate=$("orderDeliveryDate").value;
-    const deliveryTime=$("orderDeliveryTime").value;
+    const deliveryDate=$("orderDeliveryDate").value||null;
+    const deliveryTime=$("orderDeliveryTime").value||null;
     if(!resourceId||quantity<=0){toast("Choisis un ingrédient et une quantité valide.");return;}
     if(!supplierId){
       const count=suppliersForResource(resourceId).length;
       toast(count>1?"Choisis le fournisseur pour cette commande.":"Aucun fournisseur valide n’est renseigné pour cet ingrédient.");
       return;
     }
-    if(!deliveryDate||!deliveryTime){toast("Choisis la date et l'heure du rendez-vous de livraison.");return;}
     try{
       const {error}=await db.rpc("create_order_v2",{
         p_resource_id:resourceId,
@@ -2362,6 +2360,7 @@
       if(error)throw error;
       $("orderQty").value="1";
       $("orderDeliveryFee").value="0";
+      $("orderDeliveryDate").value="";
       $("orderDeliveryTime").value="";
       await loadRemoteState();
       toast("Commande ajoutée. Le stock ne changera qu'une fois livrée.");
