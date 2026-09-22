@@ -686,322 +686,172 @@
   @media(max-width:900px){.debt-board{padding:16px}.debt-board-header{align-items:flex-start;flex-direction:column}.debt-form{grid-template-columns:1fr 1fr}.debt-form-action{grid-column:1/-1}}
   @media(max-width:560px){.debt-form{grid-template-columns:1fr}.debt-form-action{grid-column:auto}.debt-board h3{font-size:24px}}
 
-  /* Pharmacie — véritable armoire blanche d'apothicaire, 1889 */
-  .pharmacy-room{
-    position:relative;
-    width:100%;
-    max-width:1500px;
-    min-height:720px;
-    margin:0 auto;
-    padding:28px 150px 72px;
-    overflow:hidden;
-    isolation:isolate;
-    border-radius:4px;
+  /* Pharmacie — armoire d'apothicaire réaliste et végétation dense */
+  .pharmacy-svg-defs{position:absolute;width:0;height:0;overflow:hidden}
+  .pharmacy-room.realistic-pharmacy{
+    position:relative;isolation:isolate;width:100%;max-width:1580px;min-height:790px;margin:0 auto;padding:54px 170px 96px;overflow:hidden;
+    border:1px solid rgba(171,146,102,.14);
     background:
-      radial-gradient(circle at 50% 18%,rgba(234,222,188,.12),transparent 32%),
-      linear-gradient(180deg,rgba(87,72,52,.16),rgba(20,17,13,.03) 45%,rgba(0,0,0,.18)),
-      repeating-linear-gradient(90deg,rgba(233,218,184,.018) 0 1px,transparent 1px 7px);
+      radial-gradient(ellipse at 50% 18%,rgba(221,206,171,.12),transparent 34%),
+      linear-gradient(180deg,rgba(91,74,52,.10),rgba(25,20,15,.02) 45%,rgba(8,7,5,.22)),
+      repeating-linear-gradient(90deg,rgba(241,227,195,.018) 0 1px,transparent 1px 6px),
+      #1b1814;
   }
-  .pharmacy-wall-glow{
-    position:absolute;z-index:-3;inset:0;
-    background:
-      radial-gradient(ellipse at 8% 52%,rgba(74,99,63,.13),transparent 26%),
-      radial-gradient(ellipse at 92% 48%,rgba(89,107,69,.13),transparent 28%);
-    pointer-events:none
-  }
+  .pharmacy-wall-panel{position:absolute;z-index:-4;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.018),transparent 14%,transparent 86%,rgba(255,255,255,.015))}
+  .wall-line{position:absolute;left:0;right:0;height:1px;background:rgba(202,184,146,.08)}
+  .wall-line-a{top:23%}.wall-line-b{top:76%}
+  .pharmacy-top-garland{position:absolute;z-index:7;top:-1px;left:5%;right:5%;height:145px;pointer-events:none;filter:drop-shadow(0 7px 5px rgba(0,0,0,.24))}
+  .pharmacy-top-garland svg{width:100%;height:100%;overflow:visible}
 
   .pharmacy-cabinet{
-    position:relative;z-index:5;
-    width:min(100%,1080px);
-    margin:0 auto;
-    padding:0 18px 17px;
-    border:1px solid #a89d84;
-    border-radius:8px 8px 4px 4px;
+    position:relative;z-index:6;width:min(100%,1110px);margin:0 auto;padding:0 18px 19px;
+    border:1px solid #938a78;border-radius:9px 9px 5px 5px;
     background:
-      linear-gradient(90deg,rgba(119,103,76,.12),transparent 13%,transparent 87%,rgba(111,94,67,.14)),
-      repeating-linear-gradient(0deg,rgba(126,111,85,.025) 0 2px,transparent 2px 8px),
-      linear-gradient(#f0ede4,#ded9ca);
+      linear-gradient(90deg,rgba(92,75,51,.12),transparent 8%,transparent 92%,rgba(94,75,49,.12)),
+      repeating-linear-gradient(0deg,rgba(126,112,86,.035) 0 1px,transparent 1px 7px),
+      linear-gradient(#f3f0e8,#dfdacd);
     box-shadow:
-      0 25px 55px rgba(0,0,0,.48),
-      0 4px 0 #8f846d,
-      inset 0 0 0 4px #f7f4eb,
-      inset 0 0 0 7px rgba(130,119,94,.34);
+      0 28px 58px rgba(0,0,0,.52),
+      0 5px 0 #817867,
+      inset 0 0 0 3px #faf8f1,
+      inset 0 0 0 6px rgba(120,108,83,.32),
+      inset 14px 0 22px rgba(105,91,65,.04),
+      inset -14px 0 22px rgba(105,91,65,.04)
   }
   .pharmacy-cabinet::before,.pharmacy-cabinet::after{
-    content:"";position:absolute;z-index:8;top:94px;bottom:34px;width:18px;
-    border:1px solid rgba(115,103,79,.42);
-    background:linear-gradient(90deg,#c9c2af,#f6f2e7 45%,#c8c0ac);
-    box-shadow:inset 0 0 0 3px rgba(255,255,255,.45),0 0 8px rgba(0,0,0,.18)
+    content:"";position:absolute;z-index:8;top:105px;bottom:40px;width:22px;
+    border:1px solid #9e9582;
+    background:
+      linear-gradient(90deg,#c5bdac,#fbf8f0 42%,#ddd7ca 69%,#b7ae9b),
+      repeating-linear-gradient(0deg,rgba(101,91,70,.05) 0 1px,transparent 1px 9px);
+    box-shadow:inset 0 0 0 4px rgba(255,255,255,.52),0 0 10px rgba(0,0,0,.14)
   }
-  .pharmacy-cabinet::before{left:1px;border-radius:3px 0 0 3px}
-  .pharmacy-cabinet::after{right:1px;border-radius:0 3px 3px 0}
+  .pharmacy-cabinet::before{left:-2px;border-radius:4px 0 0 4px}.pharmacy-cabinet::after{right:-2px;border-radius:0 4px 4px 0}
+  .cabinet-aging{position:absolute;z-index:12;pointer-events:none;width:85px;height:115px;opacity:.20}
+  .cabinet-aging::before,.cabinet-aging::after{content:"";position:absolute;border-radius:50%;border:1px solid #6f624d}
+  .cabinet-aging-left{left:18px;top:178px;transform:rotate(-16deg)}.cabinet-aging-right{right:16px;bottom:120px;transform:rotate(14deg)}
+  .cabinet-aging::before{width:55px;height:18px;left:4px;top:25px}.cabinet-aging::after{width:28px;height:9px;left:34px;top:58px}
 
   .pharmacy-crown{
-    position:relative;z-index:9;
-    margin:-12px -38px 0;
-    min-height:112px;
-    display:flex;align-items:center;justify-content:center;gap:16px;
-    padding:22px 42px 18px;
-    border:1px solid #aaa087;
-    border-bottom:4px double #9d9278;
-    border-radius:12px 12px 3px 3px;
+    position:relative;z-index:10;margin:-15px -43px 0;min-height:126px;padding:31px 48px 18px;
+    display:flex;align-items:center;justify-content:center;border:1px solid #9f9683;border-bottom:4px double #8c836f;border-radius:14px 14px 4px 4px;
     background:
-      linear-gradient(180deg,#faf8f1 0,#e9e5d9 55%,#d4cebd 100%);
-    box-shadow:
-      0 8px 16px rgba(0,0,0,.20),
-      inset 0 3px 0 rgba(255,255,255,.85),
-      inset 0 -6px 12px rgba(115,104,82,.13)
+      radial-gradient(ellipse at 50% -20%,rgba(255,255,255,.95),transparent 56%),
+      repeating-linear-gradient(90deg,rgba(99,86,63,.026) 0 1px,transparent 1px 10px),
+      linear-gradient(#faf8f2,#e7e2d6 63%,#d3ccbd);
+    box-shadow:0 10px 19px rgba(0,0,0,.22),inset 0 3px 0 rgba(255,255,255,.9),inset 0 -8px 16px rgba(111,99,77,.12)
   }
   .pharmacy-crown::before,.pharmacy-crown::after{
-    content:"";position:absolute;bottom:-10px;width:95px;height:18px;
-    border:1px solid #b2a891;background:#e9e5d9;
-    box-shadow:inset 0 2px 0 rgba(255,255,255,.7)
+    content:"";position:absolute;bottom:-10px;width:112px;height:21px;border:1px solid #aaa18d;background:linear-gradient(#eeeae0,#d4cebe);box-shadow:inset 0 2px 0 rgba(255,255,255,.7)
   }
-  .pharmacy-crown::before{left:28px;transform:skewX(-24deg)}
-  .pharmacy-crown::after{right:28px;transform:skewX(24deg)}
-  .pharmacy-title-block{text-align:center;min-width:330px}
-  .pharmacy-title-block small{display:block;color:#746d5f;font-size:9px;letter-spacing:2.6px;margin-bottom:3px}
-  .pharmacy-title-block h3{
-    margin:0;color:#49473f;
-    font-family:Georgia,"Times New Roman",serif;font-size:34px;letter-spacing:4px;
-    text-shadow:0 1px 0 #fff
-  }
-  .pharmacy-title-block span{display:block;margin-top:3px;color:#7a7467;font-family:Georgia,"Times New Roman",serif;font-size:11px;font-style:italic;letter-spacing:1px}
+  .pharmacy-crown::before{left:30px;transform:skewX(-25deg)}.pharmacy-crown::after{right:30px;transform:skewX(25deg)}
+  .pharmacy-title-block{text-align:center;min-width:370px}
+  .pharmacy-title-block small{display:block;color:#746d60;font-size:9px;letter-spacing:2.7px;margin-bottom:4px}
+  .pharmacy-title-block h3{margin:0;color:#45453e;font-family:Georgia,"Times New Roman",serif;font-size:36px;letter-spacing:5px;text-shadow:0 1px 0 #fff}
+  .pharmacy-title-block span{display:block;margin-top:4px;color:#777164;font-family:Georgia,"Times New Roman",serif;font-size:11px;font-style:italic;letter-spacing:1px}
   .pharmacy-medallion{
-    position:absolute;left:50%;top:-26px;transform:translateX(-50%);
-    width:54px;height:54px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    border:4px double #9d9175;background:#f8f5ea;color:#77715f;font-size:25px;
-    box-shadow:0 5px 12px rgba(0,0,0,.22),inset 0 0 0 3px #e0dbca
+    position:absolute;left:50%;top:-31px;transform:translateX(-50%);width:64px;height:64px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;border:5px double #91866d;background:radial-gradient(circle,#fffdf6,#dfd8c7);box-shadow:0 6px 14px rgba(0,0,0,.24),inset 0 0 0 3px #f8f4e9
   }
-  .crown-scroll{color:#a49b84;font-size:28px;opacity:.72}
-  .crown-scroll-left{transform:rotate(-32deg)}
-  .crown-scroll-right{transform:scaleX(-1) rotate(-32deg)}
-  .pharmacy-upper-moulding{
-    height:17px;margin:10px -8px 0;
-    border:1px solid #aaa087;border-top-color:#fff;
-    background:linear-gradient(#f7f4ec,#d4cebe);
-    box-shadow:0 5px 8px rgba(0,0,0,.15)
-  }
+  .medallion-cross{color:#6c7562;font-size:28px;text-shadow:0 1px 0 #fff}
+  .crown-carving{position:absolute;top:42px;width:170px;height:43px;border-top:2px solid #a39a87;border-radius:50%;opacity:.55}
+  .carving-left{left:52px;transform:rotate(-4deg)}.carving-right{right:52px;transform:rotate(4deg)}
+  .crown-carving::before,.crown-carving::after{content:"";position:absolute;top:-5px;width:46px;height:17px;border:1px solid #a39a87;border-radius:50% 50% 0 50%}
+  .crown-carving::before{left:26px;transform:rotate(-20deg)}.crown-carving::after{right:26px;transform:scaleX(-1) rotate(-20deg)}
+  .pharmacy-upper-moulding{height:21px;margin:10px -10px 0;display:flex;align-items:center;justify-content:space-around;border:1px solid #a89f8b;border-top-color:#fff;background:linear-gradient(#f8f5ed,#cfc7b7);box-shadow:0 6px 9px rgba(0,0,0,.15)}
+  .pharmacy-upper-moulding i{width:16px;height:16px;border:1px solid #aaa18d;border-radius:50%;background:radial-gradient(circle,#fff,#d0c8b7)}
 
-  .pharmacy-doors{
-    position:relative;display:grid;grid-template-columns:58px minmax(0,1fr) 58px;
-    margin:0 4px;padding:10px 0 0;
-    border-left:1px solid #b8af9b;border-right:1px solid #b8af9b;
-    background:linear-gradient(90deg,#d9d3c4,#eeeae0 7%,#eeeae0 93%,#d2cbbb)
-  }
-  .pharmacy-door-detail{
-    position:relative;margin:7px 7px 10px;
-    border:2px solid #aaa18e;border-radius:4px;
-    background:
-      linear-gradient(110deg,rgba(255,255,255,.55),transparent 40%),
-      linear-gradient(#e8e4da,#cbc4b4);
-    box-shadow:inset 0 0 0 4px #f5f2e9,inset 0 0 0 6px #aaa18e
-  }
-  .door-pane{
-    position:absolute;left:12px;right:12px;border:1px solid rgba(123,143,125,.48);
-    background:
-      linear-gradient(120deg,rgba(255,255,255,.35),transparent 36%),
-      rgba(129,155,135,.17);
-    box-shadow:inset 0 0 13px rgba(55,78,61,.11)
-  }
-  .pane-a{top:18px;height:39%}.pane-b{bottom:18px;height:39%}
-  .door-handle{
-    position:absolute;top:50%;width:7px;height:34px;border-radius:5px;
-    background:linear-gradient(90deg,#7d663a,#d7bd73,#8b7141);
-    box-shadow:0 1px 4px rgba(0,0,0,.28)
-  }
-  .pharmacy-door-detail-left .door-handle{right:5px}
-  .pharmacy-door-detail-right .door-handle{left:5px}
+  .pharmacy-doors{position:relative;display:grid;grid-template-columns:104px minmax(0,1fr) 104px;margin:0 5px;padding:12px 0 0;border-left:1px solid #b6ae9a;border-right:1px solid #b6ae9a;background:linear-gradient(90deg,#d3ccbd,#f0ece2 8%,#f0ece2 92%,#cec6b6)}
+  .pharmacy-side-door{position:relative;margin:6px 8px 12px;border:2px solid #9f9683;border-radius:5px;background:linear-gradient(105deg,#e5e0d4,#f5f2e9 45%,#d0c8b8);box-shadow:inset 0 0 0 5px #f9f6ef,inset 0 0 0 8px #aaa18d,0 2px 6px rgba(0,0,0,.15)}
+  .door-frame-inner{position:absolute;inset:13px 11px;display:grid;grid-template-rows:1fr 1fr;gap:12px}
+  .glass-pane{position:relative;overflow:hidden;border:1px solid #869584;background:linear-gradient(118deg,rgba(255,255,255,.50),rgba(157,177,157,.16) 45%,rgba(81,108,86,.22));box-shadow:inset 0 0 12px rgba(67,91,69,.15)}
+  .glass-pane::after{content:"";position:absolute;left:-25%;top:-10%;width:30%;height:130%;transform:skewX(-18deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent)}
+  .brass-handle{position:absolute;z-index:4;top:49%;width:8px;height:44px;border-radius:5px;background:linear-gradient(90deg,#745b2e,#d8bd70 42%,#8b6d37);box-shadow:0 2px 4px rgba(0,0,0,.28),inset 0 0 0 1px rgba(255,255,255,.18)}
+  .pharmacy-side-door-left .brass-handle{right:5px}.pharmacy-side-door-right .brass-handle{left:5px}
+  .bottle{position:absolute;bottom:5px;left:13px;width:20px;height:43px;border:1px solid rgba(59,48,34,.52);border-radius:6px 6px 4px 4px;box-shadow:inset 3px 0 5px rgba(255,255,255,.18),0 2px 3px rgba(0,0,0,.18)}
+  .bottle::before{content:"";position:absolute;left:5px;top:-12px;width:9px;height:13px;border:1px solid rgba(59,48,34,.52);border-bottom:0;border-radius:3px 3px 0 0}
+  .bottle-small{left:auto;right:10px;width:15px;height:32px}
+  .bottle-amber{background:linear-gradient(90deg,#704a26,#b77938,#6a4526)}.bottle-green{background:linear-gradient(90deg,#405947,#789071,#3f5846)}.bottle-clear{background:linear-gradient(90deg,rgba(212,217,198,.55),rgba(244,245,229,.72),rgba(170,183,166,.48))}
+  .folded-linen{position:absolute;left:10px;right:10px;bottom:10px;height:22px;border:1px solid #b7ae9d;background:repeating-linear-gradient(0deg,#f1eee5 0 6px,#d9d2c5 6px 8px);box-shadow:0 2px 3px rgba(0,0,0,.12)}
+  .rolled-bandage{position:absolute;left:14px;bottom:9px;width:38px;height:25px;border:1px solid #aaa293;border-radius:50%;background:radial-gradient(circle at 50% 50%,#b1aa9e 0 16%,#f0ede6 19% 58%,#c9c2b6 61% 100%)}
 
-  .pharmacy-display{min-width:0;margin:7px 0 10px;border:2px solid #a8a08d;background:#e9e6dc;box-shadow:0 4px 13px rgba(0,0,0,.18)}
-  .pharmacy-instructions{
-    position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:18px;
-    padding:13px 18px;border-bottom:1px solid #b8af9b;
-    background:linear-gradient(#f5f1e7,#ded8c9);color:#5d5a50
-  }
-  .pharmacy-instructions strong{display:block;color:#45473f;font-family:Georgia,"Times New Roman",serif;font-size:14px;margin-bottom:3px}
-  .pharmacy-instructions span{font-size:11px;color:#7a7569}
-  .pharmacy-instructions .btn{border-color:#a69c86;background:#ebe6d8;color:#504b41}
+  .pharmacy-display{min-width:0;margin:6px 0 12px;border:2px solid #9e9582;background:#e9e5da;box-shadow:0 5px 15px rgba(0,0,0,.18)}
+  .pharmacy-instructions{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:13px 18px;border-bottom:1px solid #b2a995;background:linear-gradient(#f7f4ec,#ddd6c7);color:#5b584f}
+  .pharmacy-instructions strong{display:block;color:#44463f;font-family:Georgia,"Times New Roman",serif;font-size:14px;margin-bottom:3px}
+  .pharmacy-instructions span{font-size:11px;color:#777267}
+  .pharmacy-instructions .btn{border-color:#a59b85;background:#ebe5d7;color:#4e493f}
 
-  .pharmacy-glass{
-    position:relative;z-index:2;padding:18px 18px 14px;overflow:hidden;
-    background:
-      linear-gradient(112deg,rgba(255,255,255,.38),transparent 25%,rgba(255,255,255,.12) 48%,transparent 72%),
-      radial-gradient(circle at 50% 12%,rgba(234,239,221,.55),transparent 55%),
-      #aebda9;
-    box-shadow:inset 0 0 38px rgba(52,74,54,.22),inset 0 0 0 5px rgba(245,244,228,.42)
-  }
-  .pharmacy-glass::before{
-    content:"";position:absolute;inset:8px;pointer-events:none;
-    border:1px solid rgba(255,255,255,.42);box-shadow:inset 0 0 18px rgba(255,255,255,.16)
-  }
-  .pharmacy-glass-highlight{
-    position:absolute;z-index:0;top:-30px;left:12%;width:34%;height:160%;
-    transform:skewX(-15deg);
-    background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);
-    pointer-events:none
-  }
-  .pharmacy-shelf{
-    position:relative;z-index:1;height:13px;margin:10px 0 3px;
-    border:1px solid #9e9685;border-top-color:#f7f4eb;
-    background:linear-gradient(#f4f0e5,#c8c0af);
-    box-shadow:0 5px 8px rgba(0,0,0,.24),inset 0 2px 0 rgba(255,255,255,.6)
-  }
+  .pharmacy-glass{position:relative;z-index:2;padding:19px 18px 15px;overflow:hidden;background:linear-gradient(112deg,rgba(255,255,255,.48),transparent 23%,rgba(255,255,255,.15) 47%,transparent 71%),radial-gradient(circle at 52% 16%,rgba(239,242,220,.56),transparent 58%),#a8b8a4;box-shadow:inset 0 0 44px rgba(45,68,48,.24),inset 0 0 0 5px rgba(247,246,231,.46)}
+  .pharmacy-glass::before{content:"";position:absolute;inset:8px;pointer-events:none;border:1px solid rgba(255,255,255,.45);box-shadow:inset 0 0 19px rgba(255,255,255,.17)}
+  .glass-reflection{position:absolute;z-index:0;top:-20px;height:150%;transform:skewX(-16deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.13),transparent);pointer-events:none}
+  .reflection-one{left:10%;width:24%}.reflection-two{right:8%;width:12%;opacity:.55}
+  .pharmacy-shelf{position:relative;z-index:1;height:14px;margin:10px 0 3px;border:1px solid #928a79;border-top-color:#faf7ef;background:linear-gradient(#f5f1e8,#c8bfad);box-shadow:0 6px 9px rgba(0,0,0,.25),inset 0 2px 0 rgba(255,255,255,.68)}
+  .pharmacy-shelf span{position:absolute;left:8%;right:8%;bottom:-5px;height:5px;background:rgba(92,79,60,.18);filter:blur(2px)}
   .pharmacy-shelf-top{margin:0 0 11px}
 
   .pharmacy-table-wrap{position:relative;z-index:2;overflow:auto}
   .pharmacy-table{width:100%;min-width:820px;border-collapse:separate;border-spacing:0 8px}
-  .pharmacy-table th{
-    padding:7px 10px;color:#4d5a4d;font-size:10px;letter-spacing:1px;text-transform:uppercase;text-align:left;
-    border-bottom:1px solid rgba(67,86,69,.30)
-  }
-  .pharmacy-table td{
-    padding:12px 10px;
-    background:rgba(249,247,238,.72);
-    border-top:1px solid rgba(104,116,97,.20);border-bottom:1px solid rgba(104,116,97,.20);
-    color:#4d5147;vertical-align:middle;
-    box-shadow:0 2px 4px rgba(45,58,45,.08)
-  }
-  .pharmacy-table td:first-child{border-left:1px solid rgba(104,116,97,.20);border-radius:3px 0 0 3px}
-  .pharmacy-table td:last-child{border-right:1px solid rgba(104,116,97,.20);border-radius:0 3px 3px 0}
-  .pharmacy-remedy{font-family:Georgia,"Times New Roman",serif;font-size:15px;font-weight:bold;color:#40483d}
-  .pharmacy-price{font-weight:bold;color:#7f6233;white-space:nowrap}
+  .pharmacy-table th{padding:7px 10px;color:#485548;font-size:10px;letter-spacing:1px;text-transform:uppercase;text-align:left;border-bottom:1px solid rgba(67,86,69,.30)}
+  .pharmacy-table td{padding:12px 10px;background:rgba(250,248,240,.77);border-top:1px solid rgba(104,116,97,.20);border-bottom:1px solid rgba(104,116,97,.20);color:#4c5046;vertical-align:middle;box-shadow:0 2px 4px rgba(45,58,45,.08)}
+  .pharmacy-table td:first-child{border-left:1px solid rgba(104,116,97,.20);border-radius:3px 0 0 3px}.pharmacy-table td:last-child{border-right:1px solid rgba(104,116,97,.20);border-radius:0 3px 3px 0}
+  .pharmacy-remedy{font-family:Georgia,"Times New Roman",serif;font-size:15px;font-weight:bold;color:#3d463c}
+  .pharmacy-price{font-weight:bold;color:#7b5f31;white-space:nowrap}
   .pharmacy-not-sold{display:inline-block;padding:5px 8px;border:1px solid rgba(150,75,65,.42);background:rgba(151,74,63,.10);color:#874f49;font-size:10px;font-weight:bold;text-transform:uppercase}
   .pharmacy-qty-box{display:flex;align-items:center;gap:7px;min-width:215px}
-  .pharmacy-qty-box input{
-    width:82px;height:36px;text-align:center;border:1px solid #9f9888;border-radius:3px;
-    background:#fbfaf5;color:#4c4b43;font-weight:bold;
-    box-shadow:inset 0 1px 3px rgba(0,0,0,.08)
-  }
-  .pharmacy-qty-box input:focus{outline:none;border-color:#7d906f;box-shadow:0 0 0 2px rgba(103,132,96,.16)}
+  .pharmacy-qty-box input{width:82px;height:36px;text-align:center;border:1px solid #9b9485;border-radius:3px;background:#fbfaf5;color:#4a4942;font-weight:bold;box-shadow:inset 0 1px 3px rgba(0,0,0,.08)}
+  .pharmacy-qty-box input:focus{outline:none;border-color:#778b6d;box-shadow:0 0 0 2px rgba(103,132,96,.16)}
   .pharmacy-qty-box input:disabled{opacity:.48;cursor:not-allowed}
   .pharmacy-small-btn{height:36px;padding:0 10px;font-size:10px;white-space:nowrap}
-  .pharmacy-restock{background:linear-gradient(#8d805f,#6f654b);border-color:#988b6b;color:#fff9e7}
-  .pharmacy-count{background:linear-gradient(#668062,#4d664c);border-color:#7e9679;color:#f6fff1}
+  .pharmacy-restock{background:linear-gradient(#8b7e5d,#6d6249);border-color:#978968;color:#fff9e6}
+  .pharmacy-count{background:linear-gradient(#637d60,#4a6349);border-color:#7b9377;color:#f6fff1}
+  .pharmacy-foot{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:14px;padding:12px 18px;border-top:1px solid #a69d89;background:linear-gradient(#e9e4d8,#d0c8b8);color:#666256;text-align:center}
+  .pharmacy-foot p{margin:0;max-width:770px;font-size:10px;line-height:1.45}.pharmacy-foot-cross{color:#717b66;font-size:14px}
+  .pharmacy-empty{text-align:center!important;padding:28px!important;color:#687064!important;font-style:italic}
 
-  .pharmacy-foot{
-    position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:14px;
-    padding:12px 18px;border-top:1px solid #aaa18d;
-    background:linear-gradient(#e8e3d6,#d2cbbb);color:#686458;text-align:center
-  }
-  .pharmacy-foot p{margin:0;max-width:770px;font-size:10px;line-height:1.45}
-  .pharmacy-foot-cross{color:#78806b;font-size:14px}
-  .pharmacy-empty{text-align:center!important;padding:28px!important;color:#6d7466!important;font-style:italic}
+  .pharmacy-base-moulding{position:relative;z-index:9;margin:0 -14px -8px;height:44px;display:flex;align-items:center;justify-content:center;gap:20px;border:1px solid #a59b86;border-top:4px double #918773;border-radius:0 0 7px 7px;background:linear-gradient(#e8e2d6,#c9c0ae);box-shadow:0 6px 9px rgba(0,0,0,.21),inset 0 2px 0 rgba(255,255,255,.72)}
+  .pharmacy-base-moulding b{font-family:Georgia,"Times New Roman",serif;color:#686358;font-size:10px;letter-spacing:3px}.base-rosette{color:#8d846f}
+  .pharmacy-feet{position:absolute;z-index:3;left:45px;right:45px;bottom:-25px;height:30px;display:flex;justify-content:space-between}
+  .pharmacy-feet i{display:block;width:60px;height:30px;background:linear-gradient(#d9d1c1,#9e9481);border:1px solid #8e846f;border-radius:0 0 13px 13px;box-shadow:0 9px 9px rgba(0,0,0,.25)}
 
-  .pharmacy-base-moulding{
-    position:relative;z-index:9;margin:0 -14px -7px;height:42px;
-    display:flex;align-items:center;justify-content:center;gap:18px;
-    border:1px solid #a99f89;border-top:4px double #9c927c;border-radius:0 0 6px 6px;
-    background:linear-gradient(#e7e2d5,#cfc7b7);
-    box-shadow:0 5px 8px rgba(0,0,0,.20),inset 0 2px 0 rgba(255,255,255,.72)
-  }
-  .pharmacy-base-moulding span{width:90px;height:1px;background:#aaa18c}
-  .pharmacy-base-moulding b{font-family:Georgia,"Times New Roman",serif;color:#6c675b;font-size:10px;letter-spacing:3px}
-  .pharmacy-feet{position:absolute;z-index:3;left:42px;right:42px;bottom:-23px;height:28px;display:flex;justify-content:space-between}
-  .pharmacy-feet i{display:block;width:56px;height:28px;background:linear-gradient(#d8d1c2,#a79d89);border:1px solid #918774;border-radius:0 0 12px 12px;box-shadow:0 8px 8px rgba(0,0,0,.24)}
+  .pharmacy-botanical-column{position:absolute;z-index:4;top:88px;bottom:58px;width:178px;pointer-events:none}
+  .botanical-column-left{left:0}.botanical-column-right{right:0}
+  .dense-bouquet{position:absolute;width:210px;height:390px;filter:url(#plantShadow);overflow:visible}
+  .bouquet-left-top{left:-18px;bottom:56px}.bouquet-right-top{right:-18px;bottom:55px}
+  .botanical-pot{position:absolute;z-index:6;bottom:18px;left:50%;transform:translateX(-50%);width:92px;height:66px;border:1px solid #8e856f;border-radius:8px 8px 23px 23px;background:linear-gradient(90deg,#b7ac92,#eee6cf 43%,#c5b99c 66%,#9b8e73);box-shadow:inset 0 5px 10px rgba(255,255,255,.35),0 8px 12px rgba(0,0,0,.30)}
+  .pot-right{width:101px;height:62px}.pot-rim{position:absolute;left:-10px;right:-10px;top:-9px;height:14px;border:1px solid #8f846c;border-radius:5px;background:linear-gradient(#e6dcc3,#aa9d7e)}
+  .pot-mark{position:absolute;left:50%;top:20px;transform:translateX(-50%);font-family:Georgia,serif;color:#786d58;font-size:15px}
+  .apothecary-wall-shelf{position:absolute;z-index:2;top:120px;left:1px;width:135px;height:14px;border:1px solid #7e6949;background:linear-gradient(#9a7951,#5b422c);box-shadow:0 5px 7px rgba(0,0,0,.30)}
+  .shelf-right{left:auto;right:1px;top:142px}
+  .herb-jar{position:absolute;bottom:14px;width:31px;height:48px;border:1px solid rgba(85,68,45,.72);border-radius:5px;background:linear-gradient(90deg,rgba(137,95,47,.76),rgba(204,151,80,.72),rgba(111,77,39,.78));box-shadow:inset 3px 0 5px rgba(255,255,255,.14)}
+  .herb-jar::before{content:"";position:absolute;left:5px;right:5px;top:-7px;height:8px;border-radius:3px 3px 0 0;background:#806740;border:1px solid #6d5738}
+  .herb-jar::after{content:"";position:absolute;left:5px;right:5px;top:18px;height:11px;background:#d7c49b;border:1px solid #a48d61}
+  .jar-a,.jar-d{left:7px}.jar-b,.jar-e{left:51px;height:55px}.jar-c,.jar-f{left:95px;height:42px}
+  .hanging-herb-rack{position:absolute;z-index:3;top:8px;left:10px;width:125px;height:118px;border-top:2px solid #735d3d}
+  .right-rack{left:auto;right:10px}
+  .hanging-herb-rack .rope{position:absolute;left:12px;right:12px;top:-9px;height:7px;border-top:1px solid #9b8257}
+  .herb-bundle{position:absolute;top:2px;width:29px;height:90px;border-left:3px solid #4d6048}
+  .herb-bundle::before,.herb-bundle::after{content:"";position:absolute;width:34px;height:60px;bottom:-3px;background:repeating-linear-gradient(120deg,#405640 0 3px,#65755b 3px 6px);border-radius:60% 18% 60% 18%;opacity:.92}
+  .herb-bundle::before{left:-20px;transform:rotate(11deg)}.herb-bundle::after{left:3px;transform:scaleX(-1) rotate(11deg)}
+  .bundle-1,.bundle-4{left:19px;transform:rotate(-8deg)}.bundle-2,.bundle-5{left:60px;height:105px}.bundle-3,.bundle-6{left:99px;transform:rotate(8deg)}
 
-  /* Compositions végétales autour du meuble */
-  .pharmacy-botanical-scene{
-    position:absolute;z-index:2;top:84px;bottom:52px;width:170px;pointer-events:none;
-    filter:drop-shadow(0 10px 7px rgba(0,0,0,.22))
-  }
-  .pharmacy-botanical-left{left:4px}.pharmacy-botanical-right{right:4px}
-  .apothecary-pot{
-    position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
-    width:76px;height:54px;border:1px solid #8c8066;border-radius:7px 7px 20px 20px;
-    background:linear-gradient(90deg,#a69a7d,#d4c8a4 48%,#8f8268);
-    box-shadow:inset 0 5px 8px rgba(255,255,255,.22),0 6px 9px rgba(0,0,0,.28)
-  }
-  .apothecary-pot::before{
-    content:"";position:absolute;left:-8px;right:-8px;top:-8px;height:12px;border-radius:4px;
-    border:1px solid #8c8066;background:linear-gradient(#d5c9a8,#9c8f72)
-  }
-  .pot-wide{width:90px;height:48px}
+  .pharmacy-floor-garden{position:absolute;z-index:3;left:0;right:0;bottom:-1px;height:160px;pointer-events:none;opacity:.92;filter:drop-shadow(0 5px 6px rgba(0,0,0,.20))}
+  .floor-garden-svg{width:100%;height:100%;overflow:visible}
 
-  .botanical-sprig{position:absolute;bottom:84px;left:50%;width:5px;border-radius:5px;background:#526b49;transform-origin:bottom center}
-  .sprig-a{height:250px;transform:translateX(-38px) rotate(-15deg)}
-  .sprig-b{height:210px;transform:translateX(24px) rotate(16deg)}
-  .sprig-c{height:245px;transform:translateX(29px) rotate(15deg)}
-  .sprig-d{height:205px;transform:translateX(-30px) rotate(-18deg)}
-  .botanical-sprig i{
-    position:absolute;width:34px;height:16px;border-radius:80% 12% 80% 12%;
-    background:linear-gradient(135deg,#758a63,#405b3d);
-    border:1px solid rgba(41,72,38,.42)
+  @media(max-width:1300px){
+    .pharmacy-room.realistic-pharmacy{padding-left:118px;padding-right:118px}
+    .pharmacy-botanical-column{width:128px;opacity:.82}.dense-bouquet{width:170px}
+    .apothecary-wall-shelf,.hanging-herb-rack{transform:scale(.82);transform-origin:center top}
+    .pharmacy-title-block h3{font-size:31px}
   }
-  .botanical-sprig i:nth-child(1){top:24%;left:-31px;transform:rotate(22deg)}
-  .botanical-sprig i:nth-child(2){top:39%;left:3px;transform:scaleX(-1) rotate(22deg)}
-  .botanical-sprig i:nth-child(3){top:54%;left:-31px;transform:rotate(18deg)}
-  .botanical-sprig i:nth-child(4){top:69%;left:3px;transform:scaleX(-1) rotate(18deg)}
-  .botanical-sprig i:nth-child(5){top:82%;left:-27px;transform:rotate(13deg)}
-
-  .botanical-flower{position:absolute;width:52px;height:52px}
-  .flower-a{left:27px;bottom:244px;transform:rotate(-9deg)}
-  .flower-b{right:22px;bottom:178px;transform:scale(.82) rotate(13deg)}
-  .flower-c{right:24px;bottom:242px;transform:rotate(8deg)}
-  .flower-d{left:20px;bottom:172px;transform:scale(.82) rotate(-14deg)}
-  .botanical-flower i{
-    position:absolute;left:17px;top:4px;width:19px;height:26px;border-radius:60% 60% 45% 45%;
-    background:linear-gradient(#efe5c9,#bda46c);transform-origin:9px 22px;
-    box-shadow:inset 0 0 5px rgba(107,76,32,.15)
-  }
-  .botanical-flower i:nth-child(1){transform:rotate(0deg)}
-  .botanical-flower i:nth-child(2){transform:rotate(72deg)}
-  .botanical-flower i:nth-child(3){transform:rotate(144deg)}
-  .botanical-flower i:nth-child(4){transform:rotate(216deg)}
-  .botanical-flower i:nth-child(5){transform:rotate(288deg)}
-  .botanical-flower b{position:absolute;z-index:2;left:19px;top:18px;width:15px;height:15px;border-radius:50%;background:#9b7137;border:2px solid #d5bc75}
-
-  .hanging-herbs{position:absolute;top:28px;width:78px;height:105px;border-top:2px solid rgba(123,99,63,.65)}
-  .herbs-a{left:6px;transform:rotate(-5deg)}.herbs-b{right:6px;transform:rotate(5deg)}
-  .hanging-herbs span{
-    position:absolute;top:0;width:3px;height:78px;background:#52634a;transform-origin:top center
-  }
-  .hanging-herbs span::after{
-    content:"";position:absolute;left:-12px;bottom:-5px;width:27px;height:48px;border-radius:50% 10% 50% 10%;
-    background:repeating-linear-gradient(45deg,#526b49 0 4px,#728166 4px 8px);opacity:.85
-  }
-  .hanging-herbs span:nth-child(1){left:15px;transform:rotate(-10deg)}
-  .hanging-herbs span:nth-child(2){left:38px;height:92px}
-  .hanging-herbs span:nth-child(3){left:60px;transform:rotate(10deg)}
-  .botanical-label{
-    position:absolute;left:4px;right:4px;bottom:3px;padding-top:5px;border-top:1px solid rgba(190,173,128,.28);
-    color:#879477;font-size:8px;letter-spacing:1.2px;text-align:center
-  }
-
-  .pharmacy-floor-botanicals{
-    position:absolute;z-index:1;left:13%;right:13%;bottom:11px;height:68px;pointer-events:none;opacity:.8
-  }
-  .floor-leaf{
-    position:absolute;bottom:10px;width:85px;height:28px;border-radius:80% 12% 80% 12%;
-    background:linear-gradient(135deg,#607653,#384e37);transform-origin:right center
-  }
-  .floor-leaf-1{left:3%;transform:rotate(11deg)}
-  .floor-leaf-2{left:15%;transform:rotate(-8deg) scale(.75)}
-  .floor-leaf-3{right:5%;transform:scaleX(-1) rotate(8deg)}
-  .floor-flower{
-    position:absolute;bottom:18px;width:24px;height:24px;border-radius:50%;
-    background:radial-gradient(circle,#9e763d 0 25%,#d7c28d 27% 48%,transparent 50%)
-  }
-  .floor-flower-1{left:27%}.floor-flower-2{right:24%;transform:scale(.8)}
-
-  @media(max-width:1250px){
-    .pharmacy-room{padding-left:95px;padding-right:95px}
-    .pharmacy-botanical-scene{width:115px;opacity:.68}
-    .pharmacy-title-block h3{font-size:30px}
-  }
-  @media(max-width:980px){
-    .pharmacy-room{padding:22px 8px 55px;min-height:0}
-    .pharmacy-botanical-scene,.pharmacy-floor-botanicals{display:none}
+  @media(max-width:1030px){
+    .pharmacy-room.realistic-pharmacy{padding:40px 10px 64px;min-height:0}
+    .pharmacy-botanical-column,.pharmacy-floor-garden,.pharmacy-top-garland{display:none}
     .pharmacy-cabinet{width:100%;padding-left:12px;padding-right:12px}
     .pharmacy-crown{margin-left:-24px;margin-right:-24px}
-    .pharmacy-doors{grid-template-columns:24px minmax(0,1fr) 24px}
-    .pharmacy-door-detail{margin-left:3px;margin-right:3px}
-    .door-pane,.door-handle{display:none}
-    .pharmacy-glass{padding:12px 8px}
-    .pharmacy-instructions{align-items:flex-start;flex-direction:column}
-    .pharmacy-title-block{min-width:0}.pharmacy-title-block h3{font-size:25px}
-    .crown-scroll{display:none}
+    .pharmacy-doors{grid-template-columns:34px minmax(0,1fr) 34px}
+    .pharmacy-side-door{margin-left:2px;margin-right:2px}.door-frame-inner,.brass-handle{display:none}
+    .pharmacy-title-block{min-width:0}.pharmacy-title-block h3{font-size:25px}.crown-carving{display:none}
+    .pharmacy-instructions{align-items:flex-start;flex-direction:column}.pharmacy-glass{padding:12px 8px}
   }
 </style>
 </head>
@@ -1297,38 +1147,144 @@
 
 
     <section id="pharmacy" class="view">
-      <div class="pharmacy-room">
-        <div class="pharmacy-wall-glow" aria-hidden="true"></div>
+      <div class="pharmacy-room realistic-pharmacy">
+        <svg class="pharmacy-svg-defs" aria-hidden="true">
+          <defs>
+            <linearGradient id="leafGreen" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#9ca987"/>
+              <stop offset=".42" stop-color="#68795c"/>
+              <stop offset="1" stop-color="#314633"/>
+            </linearGradient>
+            <linearGradient id="leafDark" x1="0" x2="1">
+              <stop offset="0" stop-color="#73836a"/>
+              <stop offset=".55" stop-color="#425843"/>
+              <stop offset="1" stop-color="#26392b"/>
+            </linearGradient>
+            <radialGradient id="petalCream">
+              <stop offset="0" stop-color="#fffaf0"/>
+              <stop offset=".65" stop-color="#e7d8b5"/>
+              <stop offset="1" stop-color="#bda36b"/>
+            </radialGradient>
+            <radialGradient id="petalRose">
+              <stop offset="0" stop-color="#fff0e7"/>
+              <stop offset=".62" stop-color="#d8a79e"/>
+              <stop offset="1" stop-color="#8f5d59"/>
+            </radialGradient>
+            <filter id="plantShadow" x="-30%" y="-30%" width="160%" height="180%">
+              <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000" flood-opacity=".28"/>
+            </filter>
 
-        <div class="pharmacy-botanical-scene pharmacy-botanical-left" aria-hidden="true">
-          <div class="apothecary-pot pot-tall"></div>
-          <div class="botanical-sprig sprig-a"><i></i><i></i><i></i><i></i><i></i></div>
-          <div class="botanical-sprig sprig-b"><i></i><i></i><i></i><i></i></div>
-          <div class="botanical-flower flower-a"><i></i><i></i><i></i><i></i><i></i><b></b></div>
-          <div class="botanical-flower flower-b"><i></i><i></i><i></i><i></i><i></i><b></b></div>
-          <div class="hanging-herbs herbs-a"><span></span><span></span><span></span></div>
-          <div class="botanical-label">MENTHE · CAMOMILLE · ARNICA</div>
+            <symbol id="leaf" viewBox="0 0 56 34">
+              <path d="M2 18C13 2 38 0 54 15 42 31 17 36 2 18Z" fill="url(#leafGreen)"/>
+              <path d="M4 18C21 17 34 16 51 15" fill="none" stroke="#354a36" stroke-width="1.2" opacity=".65"/>
+              <path d="M18 17l-7-7M27 16l-6-10M36 16l-3-9M18 19l-8 7M28 18l-6 10M38 17l-3 8" fill="none" stroke="#829073" stroke-width=".65" opacity=".55"/>
+            </symbol>
+            <symbol id="leaf-dark" viewBox="0 0 54 32">
+              <path d="M2 16C13 2 38 0 52 14 41 28 18 34 2 16Z" fill="url(#leafDark)"/>
+              <path d="M4 16C20 15 35 14 49 14" fill="none" stroke="#243628" stroke-width="1.1" opacity=".7"/>
+            </symbol>
+            <symbol id="flower-cream" viewBox="0 0 70 70">
+              <g transform="translate(35 35)">
+                <ellipse rx="11" ry="24" cy="-19" fill="url(#petalCream)"/>
+                <ellipse rx="11" ry="24" cy="-19" transform="rotate(60)" fill="url(#petalCream)"/>
+                <ellipse rx="11" ry="24" cy="-19" transform="rotate(120)" fill="url(#petalCream)"/>
+                <ellipse rx="11" ry="24" cy="-19" transform="rotate(180)" fill="url(#petalCream)"/>
+                <ellipse rx="11" ry="24" cy="-19" transform="rotate(240)" fill="url(#petalCream)"/>
+                <ellipse rx="11" ry="24" cy="-19" transform="rotate(300)" fill="url(#petalCream)"/>
+                <circle r="10" fill="#aa7f36"/>
+                <circle r="5.5" fill="#d5b45f"/>
+              </g>
+            </symbol>
+            <symbol id="flower-rose" viewBox="0 0 70 70">
+              <g transform="translate(35 35)">
+                <ellipse rx="12" ry="23" cy="-18" fill="url(#petalRose)"/>
+                <ellipse rx="12" ry="23" cy="-18" transform="rotate(60)" fill="url(#petalRose)"/>
+                <ellipse rx="12" ry="23" cy="-18" transform="rotate(120)" fill="url(#petalRose)"/>
+                <ellipse rx="12" ry="23" cy="-18" transform="rotate(180)" fill="url(#petalRose)"/>
+                <ellipse rx="12" ry="23" cy="-18" transform="rotate(240)" fill="url(#petalRose)"/>
+                <ellipse rx="12" ry="23" cy="-18" transform="rotate(300)" fill="url(#petalRose)"/>
+                <circle r="9" fill="#6d4b37"/>
+              </g>
+            </symbol>
+          </defs>
+        </svg>
+
+        <div class="pharmacy-wall-panel" aria-hidden="true">
+          <div class="wall-line wall-line-a"></div>
+          <div class="wall-line wall-line-b"></div>
         </div>
 
-        <div class="pharmacy-cabinet">
-          <div class="pharmacy-crown">
-            <div class="crown-scroll crown-scroll-left">❧</div>
-            <div class="pharmacy-medallion">⚕</div>
-            <div class="pharmacy-title-block">
-              <small>CABINET MÉDICAL DE RHODES · 1889</small>
-              <h3>PHARMACIE</h3>
-              <span>Remèdes · soins · préparations</span>
-            </div>
-            <div class="crown-scroll crown-scroll-right">❧</div>
+        <div class="pharmacy-top-garland" aria-hidden="true">
+          <svg viewBox="0 0 1000 150" preserveAspectRatio="none">
+            <path d="M15 45C180 105 310 20 500 71 690 121 822 29 985 59" fill="none" stroke="#4d624c" stroke-width="7" opacity=".95"/>
+            <use href="#leaf-dark" x="28" y="42" width="58" height="35" transform="rotate(22 57 59)"/><use href="#leaf" x="72" y="54" width="58" height="35" transform="rotate(-18 101 71)"/><use href="#leaf" x="116" y="66" width="58" height="35" transform="rotate(22 145 83)"/><use href="#leaf-dark" x="160" y="78" width="58" height="35" transform="rotate(-18 189 95)"/><use href="#leaf" x="204" y="42" width="58" height="35" transform="rotate(22 233 59)"/><use href="#leaf" x="248" y="54" width="58" height="35" transform="rotate(-18 277 71)"/><use href="#leaf-dark" x="292" y="66" width="58" height="35" transform="rotate(22 321 83)"/><use href="#leaf" x="336" y="78" width="58" height="35" transform="rotate(-18 365 95)"/><use href="#leaf" x="380" y="42" width="58" height="35" transform="rotate(22 409 59)"/><use href="#leaf-dark" x="424" y="54" width="58" height="35" transform="rotate(-18 453 71)"/><use href="#leaf" x="468" y="66" width="58" height="35" transform="rotate(22 497 83)"/><use href="#leaf" x="512" y="78" width="58" height="35" transform="rotate(-18 541 95)"/><use href="#leaf-dark" x="556" y="42" width="58" height="35" transform="rotate(22 585 59)"/><use href="#leaf" x="600" y="54" width="58" height="35" transform="rotate(-18 629 71)"/><use href="#leaf" x="644" y="66" width="58" height="35" transform="rotate(22 673 83)"/><use href="#leaf-dark" x="688" y="78" width="58" height="35" transform="rotate(-18 717 95)"/><use href="#leaf" x="732" y="42" width="58" height="35" transform="rotate(22 761 59)"/><use href="#leaf" x="776" y="54" width="58" height="35" transform="rotate(-18 805 71)"/><use href="#leaf-dark" x="820" y="66" width="58" height="35" transform="rotate(22 849 83)"/><use href="#leaf" x="864" y="78" width="58" height="35" transform="rotate(-18 893 95)"/><use href="#leaf" x="908" y="42" width="58" height="35" transform="rotate(22 937 59)"/><use href="#leaf-dark" x="952" y="54" width="58" height="35" transform="rotate(-18 981 71)"/>
+            <use href="#flower-cream" x="154" y="54" width="58" height="58"/>
+            <use href="#flower-rose" x="350" y="20" width="52" height="52"/>
+            <use href="#flower-cream" x="615" y="62" width="64" height="64"/>
+            <use href="#flower-rose" x="826" y="29" width="50" height="50"/>
+          </svg>
+        </div>
+
+        <aside class="pharmacy-botanical-column botanical-column-left" aria-hidden="true">
+          <div class="apothecary-wall-shelf">
+            <span class="herb-jar jar-a"></span>
+            <span class="herb-jar jar-b"></span>
+            <span class="herb-jar jar-c"></span>
+          </div>
+          <svg class="dense-bouquet bouquet-left-top" viewBox="0 0 240 410">
+            <path d="M123 395C100 290 111 184 144 34M112 392C71 286 53 193 69 79M132 392C168 288 181 189 174 91" fill="none" stroke="#415640" stroke-width="5"/>
+            <use href="#leaf-dark" x="43" y="70" width="58" height="35" transform="rotate(-32 72 87)"/><use href="#leaf" x="70" y="103" width="58" height="35" transform="rotate(25 99 120)"/><use href="#leaf" x="40" y="139" width="58" height="35" transform="rotate(-26 69 156)"/><use href="#leaf" x="78" y="167" width="58" height="35" transform="rotate(31 107 184)"/><use href="#leaf-dark" x="46" y="210" width="58" height="35" transform="rotate(-31 75 227)"/><use href="#leaf" x="85" y="237" width="58" height="35" transform="rotate(20 114 254)"/><use href="#leaf" x="52" y="280" width="58" height="35" transform="rotate(-27 81 297)"/><use href="#leaf" x="93" y="309" width="58" height="35" transform="rotate(25 122 326)"/><use href="#leaf-dark" x="124" y="46" width="58" height="35" transform="rotate(24 153 63)"/><use href="#leaf" x="107" y="83" width="58" height="35" transform="rotate(-24 136 100)"/><use href="#leaf" x="139" y="118" width="58" height="35" transform="rotate(27 168 135)"/><use href="#leaf" x="111" y="153" width="58" height="35" transform="rotate(-28 140 170)"/><use href="#leaf-dark" x="146" y="190" width="58" height="35" transform="rotate(22 175 207)"/><use href="#leaf" x="115" y="224" width="58" height="35" transform="rotate(-27 144 241)"/><use href="#leaf" x="151" y="260" width="58" height="35" transform="rotate(28 180 277)"/><use href="#leaf" x="123" y="297" width="58" height="35" transform="rotate(-20 152 314)"/><use href="#leaf-dark" x="170" y="92" width="58" height="35" transform="rotate(-22 199 109)"/><use href="#leaf" x="183" y="129" width="58" height="35" transform="rotate(28 212 146)"/><use href="#leaf" x="164" y="165" width="58" height="35" transform="rotate(-26 193 182)"/><use href="#leaf" x="190" y="202" width="58" height="35" transform="rotate(23 219 219)"/><use href="#leaf-dark" x="161" y="242" width="58" height="35" transform="rotate(-26 190 259)"/><use href="#leaf" x="185" y="281" width="58" height="35" transform="rotate(20 214 298)"/>
+            <use href="#flower-cream" x="19" y="115" width="62" height="62"/>
+            <use href="#flower-rose" x="142" y="64" width="65" height="65"/>
+            <use href="#flower-cream" x="115" y="198" width="72" height="72"/>
+            <use href="#flower-rose" x="30" y="244" width="56" height="56"/>
+          </svg>
+          <div class="botanical-pot porcelain-pot">
+            <span class="pot-rim"></span><span class="pot-mark">RH</span>
           </div>
 
-          <div class="pharmacy-upper-moulding"></div>
+          <div class="hanging-herb-rack">
+            <span class="rope"></span>
+            <div class="herb-bundle bundle-1"></div>
+            <div class="herb-bundle bundle-2"></div>
+            <div class="herb-bundle bundle-3"></div>
+          </div>
+        </aside>
+
+        <div class="pharmacy-cabinet">
+          <div class="cabinet-aging cabinet-aging-left"></div>
+          <div class="cabinet-aging cabinet-aging-right"></div>
+
+          <div class="pharmacy-crown">
+            <div class="crown-carving carving-left"></div>
+            <div class="pharmacy-medallion">
+              <span class="medallion-cross">✚</span>
+            </div>
+            <div class="pharmacy-title-block">
+              <small>CABINET MÉDICAL DE RHODES · ÉTABLI EN 1889</small>
+              <h3>PHARMACIE</h3>
+              <span>Armoire des remèdes et préparations</span>
+            </div>
+            <div class="crown-carving carving-right"></div>
+          </div>
+
+          <div class="pharmacy-upper-moulding">
+            <i></i><i></i><i></i>
+          </div>
 
           <div class="pharmacy-doors">
-            <div class="pharmacy-door-detail pharmacy-door-detail-left" aria-hidden="true">
-              <span class="door-pane pane-a"></span>
-              <span class="door-pane pane-b"></span>
-              <span class="door-handle"></span>
+            <div class="pharmacy-side-door pharmacy-side-door-left" aria-hidden="true">
+              <div class="door-frame-inner">
+                <div class="glass-pane pane-top">
+                  <span class="bottle bottle-amber"></span>
+                  <span class="bottle bottle-green bottle-small"></span>
+                </div>
+                <div class="glass-pane pane-bottom">
+                  <span class="folded-linen"></span>
+                  <span class="bottle bottle-clear bottle-small"></span>
+                </div>
+              </div>
+              <span class="brass-handle"></span>
             </div>
 
             <div class="pharmacy-display">
@@ -1341,8 +1297,9 @@
               </div>
 
               <div class="pharmacy-glass">
-                <div class="pharmacy-glass-highlight" aria-hidden="true"></div>
-                <div class="pharmacy-shelf pharmacy-shelf-top"></div>
+                <div class="glass-reflection reflection-one"></div>
+                <div class="glass-reflection reflection-two"></div>
+                <div class="pharmacy-shelf pharmacy-shelf-top"><span></span></div>
                 <div class="pharmacy-table-wrap">
                   <table class="pharmacy-table">
                     <thead>
@@ -1358,7 +1315,7 @@
                     </tbody>
                   </table>
                 </div>
-                <div class="pharmacy-shelf"></div>
+                <div class="pharmacy-shelf"><span></span></div>
               </div>
 
               <div class="pharmacy-foot">
@@ -1368,35 +1325,65 @@
               </div>
             </div>
 
-            <div class="pharmacy-door-detail pharmacy-door-detail-right" aria-hidden="true">
-              <span class="door-pane pane-a"></span>
-              <span class="door-pane pane-b"></span>
-              <span class="door-handle"></span>
+            <div class="pharmacy-side-door pharmacy-side-door-right" aria-hidden="true">
+              <div class="door-frame-inner">
+                <div class="glass-pane pane-top">
+                  <span class="bottle bottle-clear"></span>
+                  <span class="bottle bottle-amber bottle-small"></span>
+                </div>
+                <div class="glass-pane pane-bottom">
+                  <span class="rolled-bandage"></span>
+                  <span class="bottle bottle-green bottle-small"></span>
+                </div>
+              </div>
+              <span class="brass-handle"></span>
             </div>
           </div>
 
           <div class="pharmacy-base-moulding">
-            <span></span><b>RHODES</b><span></span>
+            <span class="base-rosette">✦</span>
+            <b>RHODES · LEMOYNE</b>
+            <span class="base-rosette">✦</span>
           </div>
           <div class="pharmacy-feet" aria-hidden="true"><i></i><i></i></div>
         </div>
 
-        <div class="pharmacy-botanical-scene pharmacy-botanical-right" aria-hidden="true">
-          <div class="apothecary-pot pot-wide"></div>
-          <div class="botanical-sprig sprig-c"><i></i><i></i><i></i><i></i><i></i></div>
-          <div class="botanical-sprig sprig-d"><i></i><i></i><i></i><i></i></div>
-          <div class="botanical-flower flower-c"><i></i><i></i><i></i><i></i><i></i><b></b></div>
-          <div class="botanical-flower flower-d"><i></i><i></i><i></i><i></i><i></i><b></b></div>
-          <div class="hanging-herbs herbs-b"><span></span><span></span><span></span></div>
-          <div class="botanical-label">LAVANDE · CONSOUDE · ALOÈS</div>
-        </div>
+        <aside class="pharmacy-botanical-column botanical-column-right" aria-hidden="true">
+          <div class="hanging-herb-rack right-rack">
+            <span class="rope"></span>
+            <div class="herb-bundle bundle-4"></div>
+            <div class="herb-bundle bundle-5"></div>
+            <div class="herb-bundle bundle-6"></div>
+          </div>
 
-        <div class="pharmacy-floor-botanicals" aria-hidden="true">
-          <span class="floor-leaf floor-leaf-1"></span>
-          <span class="floor-leaf floor-leaf-2"></span>
-          <span class="floor-leaf floor-leaf-3"></span>
-          <span class="floor-flower floor-flower-1"></span>
-          <span class="floor-flower floor-flower-2"></span>
+          <svg class="dense-bouquet bouquet-right-top" viewBox="0 0 240 410">
+            <path d="M117 395C142 284 135 177 102 28M128 394C171 286 189 191 173 78M108 393C72 287 58 187 65 89" fill="none" stroke="#415640" stroke-width="5"/>
+            <use href="#leaf-dark" x="157" y="64" width="58" height="35" transform="rotate(28 186 81)"/><use href="#leaf" x="128" y="99" width="58" height="35" transform="rotate(-25 157 116)"/><use href="#leaf" x="164" y="138" width="58" height="35" transform="rotate(26 193 155)"/><use href="#leaf" x="124" y="171" width="58" height="35" transform="rotate(-31 153 188)"/><use href="#leaf-dark" x="169" y="210" width="58" height="35" transform="rotate(31 198 227)"/><use href="#leaf" x="119" y="239" width="58" height="35" transform="rotate(-20 148 256)"/><use href="#leaf" x="164" y="280" width="58" height="35" transform="rotate(27 193 297)"/><use href="#leaf" x="112" y="307" width="58" height="35" transform="rotate(-25 141 324)"/><use href="#leaf-dark" x="86" y="42" width="58" height="35" transform="rotate(-24 115 59)"/><use href="#leaf" x="103" y="81" width="58" height="35" transform="rotate(24 132 98)"/><use href="#leaf" x="73" y="117" width="58" height="35" transform="rotate(-27 102 134)"/><use href="#leaf" x="102" y="153" width="58" height="35" transform="rotate(28 131 170)"/><use href="#leaf-dark" x="65" y="191" width="58" height="35" transform="rotate(-23 94 208)"/><use href="#leaf" x="96" y="226" width="58" height="35" transform="rotate(27 125 243)"/><use href="#leaf" x="60" y="264" width="58" height="35" transform="rotate(-28 89 281)"/><use href="#leaf" x="88" y="298" width="58" height="35" transform="rotate(19 117 315)"/><use href="#leaf-dark" x="34" y="91" width="58" height="35" transform="rotate(22 63 108)"/><use href="#leaf" x="20" y="129" width="58" height="35" transform="rotate(-28 49 146)"/><use href="#leaf" x="40" y="167" width="58" height="35" transform="rotate(25 69 184)"/><use href="#leaf" x="14" y="205" width="58" height="35" transform="rotate(-24 43 222)"/><use href="#leaf-dark" x="44" y="242" width="58" height="35" transform="rotate(24 73 259)"/><use href="#leaf" x="19" y="281" width="58" height="35" transform="rotate(-18 48 298)"/>
+            <use href="#flower-rose" x="154" y="111" width="62" height="62"/>
+            <use href="#flower-cream" x="31" y="67" width="65" height="65"/>
+            <use href="#flower-rose" x="65" y="202" width="72" height="72"/>
+            <use href="#flower-cream" x="145" y="251" width="57" height="57"/>
+          </svg>
+          <div class="botanical-pot porcelain-pot pot-right">
+            <span class="pot-rim"></span><span class="pot-mark">⚕</span>
+          </div>
+
+          <div class="apothecary-wall-shelf shelf-right">
+            <span class="herb-jar jar-d"></span>
+            <span class="herb-jar jar-e"></span>
+            <span class="herb-jar jar-f"></span>
+          </div>
+        </aside>
+
+        <div class="pharmacy-floor-garden" aria-hidden="true">
+          <svg class="floor-garden-svg" viewBox="0 0 1400 170" preserveAspectRatio="none">
+            <path d="M0 155C174 82 318 146 470 101 650 46 756 144 934 100 1100 57 1221 119 1400 72V170H0Z" fill="rgba(37,54,38,.22)"/>
+            <use href="#leaf-dark" x="-20" y="85" width="37.7" height="22.75" transform="rotate(-35 -1.1499999999999986 96.05)"/><use href="#leaf" x="23" y="95" width="44.660000000000004" height="26.95" transform="rotate(-24 45.33 108.09)"/><use href="#leaf" x="66" y="105" width="51.62" height="31.150000000000002" transform="rotate(-13 91.81 120.13)"/><use href="#leaf" x="109" y="115" width="58.58" height="35.35" transform="rotate(-2 138.29 132.17000000000002)"/><use href="#leaf" x="152" y="125" width="37.7" height="22.75" transform="rotate(9 170.85 136.05)"/><use href="#leaf-dark" x="195" y="85" width="44.660000000000004" height="26.95" transform="rotate(20 217.33 98.09)"/><use href="#leaf" x="238" y="95" width="51.62" height="31.150000000000002" transform="rotate(31 263.81 110.13)"/><use href="#leaf" x="281" y="105" width="58.58" height="35.35" transform="rotate(-35 310.29 122.17)"/><use href="#leaf" x="324" y="115" width="37.7" height="22.75" transform="rotate(-24 342.85 126.05)"/><use href="#leaf" x="367" y="125" width="44.660000000000004" height="26.95" transform="rotate(-13 389.33 138.09)"/><use href="#leaf-dark" x="410" y="85" width="51.62" height="31.150000000000002" transform="rotate(-2 435.81 100.13)"/><use href="#leaf" x="453" y="95" width="58.58" height="35.35" transform="rotate(9 482.29 112.17)"/><use href="#leaf" x="496" y="105" width="37.7" height="22.75" transform="rotate(20 514.85 116.05)"/><use href="#leaf" x="539" y="115" width="44.660000000000004" height="26.95" transform="rotate(31 561.33 128.09)"/><use href="#leaf" x="582" y="125" width="51.62" height="31.150000000000002" transform="rotate(-35 607.81 140.13)"/><use href="#leaf-dark" x="625" y="85" width="58.58" height="35.35" transform="rotate(-24 654.29 102.17)"/><use href="#leaf" x="668" y="95" width="37.7" height="22.75" transform="rotate(-13 686.85 106.05)"/><use href="#leaf" x="711" y="105" width="44.660000000000004" height="26.95" transform="rotate(-2 733.33 118.09)"/><use href="#leaf" x="754" y="115" width="51.62" height="31.150000000000002" transform="rotate(9 779.81 130.13)"/><use href="#leaf" x="797" y="125" width="58.58" height="35.35" transform="rotate(20 826.29 142.17000000000002)"/><use href="#leaf-dark" x="840" y="85" width="37.7" height="22.75" transform="rotate(31 858.85 96.05)"/><use href="#leaf" x="883" y="95" width="44.660000000000004" height="26.95" transform="rotate(-35 905.33 108.09)"/><use href="#leaf" x="926" y="105" width="51.62" height="31.150000000000002" transform="rotate(-24 951.81 120.13)"/><use href="#leaf" x="969" y="115" width="58.58" height="35.35" transform="rotate(-13 998.29 132.17000000000002)"/><use href="#leaf" x="1012" y="125" width="37.7" height="22.75" transform="rotate(-2 1030.85 136.05)"/><use href="#leaf-dark" x="1055" y="85" width="44.660000000000004" height="26.95" transform="rotate(9 1077.33 98.09)"/><use href="#leaf" x="1098" y="95" width="51.62" height="31.150000000000002" transform="rotate(20 1123.81 110.13)"/><use href="#leaf" x="1141" y="105" width="58.58" height="35.35" transform="rotate(31 1170.29 122.17)"/><use href="#leaf" x="1184" y="115" width="37.7" height="22.75" transform="rotate(-35 1202.85 126.05)"/><use href="#leaf" x="1227" y="125" width="44.660000000000004" height="26.95" transform="rotate(-24 1249.33 138.09)"/><use href="#leaf-dark" x="1270" y="85" width="51.62" height="31.150000000000002" transform="rotate(-13 1295.81 100.13)"/><use href="#leaf" x="1313" y="95" width="58.58" height="35.35" transform="rotate(-2 1342.29 112.17)"/><use href="#leaf" x="1356" y="105" width="37.7" height="22.75" transform="rotate(9 1374.85 116.05)"/><use href="#leaf" x="1399" y="115" width="44.660000000000004" height="26.95" transform="rotate(20 1421.33 128.09)"/>
+            <use href="#flower-cream" x="120" y="61" width="55" height="55"/>
+            <use href="#flower-rose" x="345" y="81" width="48" height="48"/>
+            <use href="#flower-cream" x="965" y="58" width="54" height="54"/>
+            <use href="#flower-rose" x="1190" y="76" width="50" height="50"/>
+          </svg>
         </div>
       </div>
     </section>
