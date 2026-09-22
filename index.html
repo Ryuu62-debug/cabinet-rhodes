@@ -139,15 +139,27 @@
     .grid{display:grid;gap:18px}
     .grid.cards{grid-template-columns:repeat(4,minmax(160px,1fr))}
     .grid.two{grid-template-columns:1.1fr .9fr}
-    .dashboard-three{display:grid;grid-template-columns:minmax(240px,.75fr) minmax(260px,.9fr) minmax(430px,1.45fr);gap:18px;margin-top:18px;align-items:stretch}
+    .dashboard-three{display:grid;grid-template-columns:minmax(220px,.7fr) minmax(240px,.8fr) minmax(310px,1fr) minmax(430px,1.35fr);gap:18px;margin-top:18px;align-items:stretch}
     .dashboard-three .card{min-width:0;height:100%;display:flex;flex-direction:column}
     .dashboard-three .section-title{min-height:54px;display:flex;align-items:center;flex-wrap:wrap}
     .dashboard-three .card-body{flex:1}
     .dashboard-three #lowStockPanel{padding:14px}
     .dashboard-three #lowStockPanel > div{padding:7px 0!important}
-    .dashboard-three .stock-card,.dashboard-three .movements-card{align-self:stretch}
-    @media(max-width:1350px){.dashboard-three{grid-template-columns:1fr 1fr}.dashboard-three .pricing-card{grid-column:1/-1}}
-    @media(max-width:850px){.dashboard-three{grid-template-columns:1fr}.dashboard-three .pricing-card{grid-column:auto}}
+    .dashboard-three .stock-card,.dashboard-three .movements-card,.dashboard-three .smoke-card{align-self:stretch}
+    .smoke-card .card-body{padding:14px}
+    .smoke-table{min-width:0!important;width:100%;table-layout:fixed}
+    .smoke-table th:first-child{width:92px}
+    .smoke-table th,.smoke-table td{padding:9px 10px;font-size:12px}
+    .smoke-color{display:flex;align-items:center;gap:8px;font-weight:bold;text-transform:uppercase;color:#f0d797}
+    .smoke-dot{width:15px;height:15px;border-radius:50%;display:inline-block;flex:0 0 15px;border:1px solid rgba(255,255,255,.45);box-shadow:0 0 0 2px rgba(0,0,0,.22)}
+    .smoke-dot.white{background:#f4f1df}
+    .smoke-dot.blue{background:#348cff}
+    .smoke-dot.pink{background:#ff70bf}
+    .smoke-dot.green{background:#42d36b}
+    .smoke-dot.red{background:#f04435}
+    .smoke-meaning{line-height:1.35}
+    @media(max-width:1650px){.dashboard-three{grid-template-columns:1fr 1fr}}
+    @media(max-width:850px){.dashboard-three{grid-template-columns:1fr}}
     .card{
       background:linear-gradient(180deg,rgba(63,45,35,.98),rgba(41,30,24,.98));
       border:1px solid rgba(207,164,88,.48);
@@ -688,6 +700,39 @@
         <div class="card movements-card">
           <h3 class="section-title">Derniers mouvements</h3>
           <div class="card-body" id="recentPanel"></div>
+        </div>
+
+        <div class="card smoke-card">
+          <h3 class="section-title">Code des fumigènes <small>signification opérationnelle</small></h3>
+          <div class="card-body">
+            <table class="smoke-table">
+              <thead>
+                <tr><th>Couleur</th><th>Signification</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="smoke-color"><span class="smoke-dot white"></span>Blanc</span></td>
+                  <td class="smoke-meaning">Évacuation de la ville.</td>
+                </tr>
+                <tr>
+                  <td><span class="smoke-color"><span class="smoke-dot blue"></span>Bleu</span></td>
+                  <td class="smoke-meaning">Demande de renfort pour les forces de l’ordre.</td>
+                </tr>
+                <tr>
+                  <td><span class="smoke-color"><span class="smoke-dot pink"></span>Rose</span></td>
+                  <td class="smoke-meaning">Signalement de position destiné aux autres médecins.</td>
+                </tr>
+                <tr>
+                  <td><span class="smoke-color"><span class="smoke-dot green"></span>Vert</span></td>
+                  <td class="smoke-meaning">Zone sécurisée pour l’intervention des médecins.</td>
+                </tr>
+                <tr>
+                  <td><span class="smoke-color"><span class="smoke-dot red"></span>Rouge</span></td>
+                  <td class="smoke-meaning">Danger immédiat : tirs possibles dans toutes les directions.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div class="card pricing-card">
