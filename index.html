@@ -1434,11 +1434,11 @@
   }
   function gradeLabel(g){
     return {
-      apprenti:"Apprenti",
+      apprenti:"Apprenti médecin",
       medecin:"Médecin",
       medecin_adjoint:"Médecin adjoint",
       chef_de_cabinet:"Chef de cabinet"
-    }[g]||"Apprenti";
+    }[g]||"Apprenti médecin";
   }
   function dbError(error, fallback="Une erreur est survenue."){
     console.error(error);
@@ -2145,7 +2145,7 @@ $('bookCategoryForm').addEventListener('submit',async e=>{
       if(summary)summary.style.display="none";
       if(help)help.style.display="none";
       if(refreshWrap)refreshWrap.style.display="none";
-      if(head)head.innerHTML="<tr><th>Apprenti</th><th>Action</th></tr>";
+      if(head)head.innerHTML="<tr><th>Apprenti médecin</th><th>Action</th></tr>";
       $("usersBody").innerHTML='<tr><td colspan="2" class="empty">Chargement des apprentis…</td></tr>';
 
       try{
@@ -2154,10 +2154,10 @@ $('bookCategoryForm').addEventListener('submit',async e=>{
         const rows=data||[];
         $("usersBody").innerHTML=rows.length?rows.map(u=>`
           <tr data-user-id="${esc(u.id)}">
-            <td><strong style="color:#ecd69e">${esc(u.display_name||"Apprenti")}</strong></td>
-            <td><button class="btn good adjoint-promote-btn" data-id="${esc(u.id)}" data-name="${esc(u.display_name||"cet apprenti")}">Promouvoir en médecin</button></td>
+            <td><strong style="color:#ecd69e">${esc(u.display_name||"Apprenti médecin")}</strong></td>
+            <td><button class="btn good adjoint-promote-btn" data-id="${esc(u.id)}" data-name="${esc(u.display_name||"cet apprenti médecin")}">Promouvoir en médecin</button></td>
           </tr>
-        `).join(""):'<tr><td colspan="2" class="empty">Aucun apprenti à promouvoir.</td></tr>';
+        `).join(""):'<tr><td colspan="2" class="empty">Aucun apprenti médecin à promouvoir.</td></tr>';
       }catch(err){
         dbError(err,"Impossible de charger les apprentis.");
         $("usersBody").innerHTML='<tr><td colspan="2" class="empty">Impossible de charger la liste.</td></tr>';
@@ -2196,7 +2196,7 @@ $('bookCategoryForm').addEventListener('submit',async e=>{
         const gradeControl=isChef
           ? '<span class="pill gold">Chef de cabinet</span>'
           : `<select class="user-grade-select" aria-label="Grade de ${esc(u.display_name||u.email||"l'utilisateur")}">
-              <option value="apprenti" ${grade==="apprenti"?"selected":""}>Apprenti</option>
+              <option value="apprenti" ${grade==="apprenti"?"selected":""}>Apprenti médecin</option>
               <option value="medecin" ${grade==="medecin"?"selected":""}>Médecin</option>
               <option value="medecin_adjoint" ${grade==="medecin_adjoint"?"selected":""}>Médecin adjoint</option>
             </select>`;
@@ -3097,7 +3097,7 @@ $('bookCategoryForm').addEventListener('submit',async e=>{
   $("usersBody").addEventListener("click",async e=>{
     const promoteBtn=e.target.closest(".adjoint-promote-btn");
     if(promoteBtn && isAdjoint && !isAdmin){
-      const name=promoteBtn.dataset.name||"cet apprenti";
+      const name=promoteBtn.dataset.name||"cet apprenti médecin";
       if(!confirm(`Promouvoir ${name} au grade de Médecin ?`))return;
       try{
         promoteBtn.disabled=true;
