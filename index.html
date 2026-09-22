@@ -608,6 +608,83 @@
 .book-copy-part{padding:5px 11px;font-size:12px;letter-spacing:.3px;color:#654624;background:#ead5a9;border:1px solid #a88753;border-radius:4px;box-shadow:0 1px 3px #704e2222}
 .book-copy-part:hover{background:#f9edce;color:#3b2713}
 .book-copy-part:focus-visible{outline:2px solid #835b29;outline-offset:3px}
+
+  /* Ardoise des impayés — registre 1889 */
+  .debt-wood-frame{
+    padding:14px;
+    border:1px solid #b98b4b;
+    background:
+      linear-gradient(90deg,rgba(54,24,12,.7),rgba(126,72,35,.24),rgba(54,24,12,.7)),
+      repeating-linear-gradient(0deg,#4a2918 0 5px,#3b2115 5px 10px);
+    box-shadow:0 12px 35px rgba(0,0,0,.42),inset 0 0 0 3px rgba(218,172,94,.12);
+  }
+  .debt-board{
+    position:relative;
+    overflow:hidden;
+    min-height:560px;
+    padding:26px;
+    border:2px solid #c7b98c;
+    background:
+      radial-gradient(circle at 16% 12%,rgba(255,255,255,.045),transparent 21%),
+      radial-gradient(circle at 78% 64%,rgba(255,255,255,.025),transparent 28%),
+      repeating-linear-gradient(3deg,rgba(255,255,255,.012) 0 1px,transparent 1px 7px),
+      #17231f;
+    color:#eee6cf;
+    box-shadow:inset 0 0 45px rgba(0,0,0,.68),inset 0 0 0 1px rgba(255,255,255,.06);
+  }
+  .debt-board::after{
+    content:"";
+    pointer-events:none;
+    position:absolute;inset:0;
+    background:linear-gradient(115deg,transparent 0 32%,rgba(255,255,255,.018) 39%,transparent 47%);
+  }
+  .debt-board-header{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:flex-end;gap:18px;padding-bottom:18px;border-bottom:1px solid rgba(238,230,207,.28)}
+  .debt-kicker{font-size:10px;letter-spacing:2.4px;color:#bdb69e;margin-bottom:5px}
+  .debt-board h3{margin:0;color:#f4efd9;font-family:Georgia,"Times New Roman",serif;font-size:30px;letter-spacing:2px;text-shadow:0 1px 0 #000}
+  .debt-board-header p{margin:7px 0 0;color:#c9c2aa;font-size:12px}
+  .debt-refresh{white-space:nowrap;background:rgba(255,255,255,.04);border-color:#aaa183;color:#eee6cf}
+  .debt-form{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr 1fr .9fr .8fr .7fr auto;gap:10px;align-items:end;margin:20px 0}
+  .debt-field label{display:block;margin:0 0 6px;color:#d8d0b9;font-size:10px;font-weight:bold;letter-spacing:1px;text-transform:uppercase}
+  .debt-field input{
+    width:100%;height:40px;padding:8px 10px;
+    border:1px solid rgba(224,215,188,.44);border-radius:2px;
+    background:rgba(0,0,0,.22);color:#fff6da;
+    font-family:Georgia,"Times New Roman",serif;font-size:14px;
+    box-shadow:inset 0 0 12px rgba(0,0,0,.18)
+  }
+  .debt-field input::placeholder{color:#8f8a78}
+  .debt-field input:focus{outline:none;border-color:#e5d9ae;box-shadow:0 0 0 2px rgba(229,217,174,.12)}
+  .debt-form-action{display:flex;align-items:end}
+  .debt-add{height:40px;white-space:nowrap;background:linear-gradient(#705020,#4a3418);border-color:#c6a966;color:#fff0c1}
+  .debt-summary{position:relative;z-index:1;display:flex;gap:18px;flex-wrap:wrap;margin:4px 0 12px;padding:9px 12px;border:1px dashed rgba(238,230,207,.28);color:#d6cfb9;font-size:12px}
+  .debt-summary strong{color:#fff1bd}
+  .debt-late-summary strong{color:#ff8c82}
+  .debt-table-wrap{position:relative;z-index:1;overflow:auto;border:1px solid rgba(226,216,185,.34)}
+  .debt-table{width:100%;min-width:960px;border-collapse:collapse;background:rgba(0,0,0,.08)}
+  .debt-table th{padding:10px 9px;border-bottom:1px solid rgba(226,216,185,.42);color:#dcd5be;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;text-align:left}
+  .debt-table td{padding:11px 9px;border-bottom:1px dashed rgba(226,216,185,.16);color:#f0ead4;font-family:Georgia,"Times New Roman",serif;font-size:13px;transition:background .25s ease,color .25s ease}
+  .debt-table tr:last-child td{border-bottom:0}
+  .debt-table tbody tr:not(.debt-overdue):hover td{background:rgba(255,255,255,.025)}
+  .debt-table tr.debt-overdue td{
+    background:rgba(122,18,18,.52);
+    color:#ffe1db;
+    border-bottom-color:rgba(255,125,111,.34);
+    box-shadow:inset 0 1px 0 rgba(255,115,101,.10),inset 0 -1px 0 rgba(255,115,101,.10)
+  }
+  .debt-money{font-weight:bold;color:#ffe5a0!important;white-space:nowrap}
+  .debt-status{font-size:10px;font-family:Arial,sans-serif;font-weight:800;letter-spacing:.6px;text-transform:uppercase;white-space:nowrap}
+  .debt-status.late{color:#ffafa6}
+  .debt-status.ok{color:#b7d8bd}
+  .debt-delete{
+    width:31px;height:29px;padding:0;border:1px solid rgba(237,124,112,.55);border-radius:3px;
+    background:rgba(116,20,18,.62);color:#ffd9d4;cursor:pointer;font-weight:bold;font-size:16px;line-height:1
+  }
+  .debt-delete:hover{filter:brightness(1.24);border-color:#ff9b90}
+  .debt-empty{text-align:center!important;color:#aaa48f!important;padding:28px!important;font-style:italic}
+  .debt-chalk-note{position:relative;z-index:1;margin-top:16px;text-align:center;color:#9f9a87;font-size:11px;font-style:italic;letter-spacing:.5px}
+  @media(max-width:1500px){.debt-form{grid-template-columns:repeat(3,1fr)}.debt-form-action{grid-column:auto}.debt-add{width:100%}}
+  @media(max-width:900px){.debt-board{padding:16px}.debt-board-header{align-items:flex-start;flex-direction:column}.debt-form{grid-template-columns:1fr 1fr}.debt-form-action{grid-column:1/-1}}
+  @media(max-width:560px){.debt-form{grid-template-columns:1fr}.debt-form-action{grid-column:auto}.debt-board h3{font-size:24px}}
 </style>
 </head>
 <body class="locked" data-site-version="2026-09-21-1806">
@@ -656,6 +733,7 @@
       <button data-view="westlegacy"><span class="ico">↗</span>Panel WestLegacy</button>
       <button data-view="inventory"><span class="ico">▦</span>Inventaire</button>
       <button data-view="movements"><span class="ico">⇄</span>Entrées / sorties</button>
+      <button data-view="debts"><span class="ico">▧</span>Ardoise des impayés</button>
       <button data-view="craft"><span class="ico">⚒</span>Fabrication</button>
       <button data-view="suppliers"><span class="ico">☏</span>Fournisseurs</button>
       <button data-view="history"><span class="ico">≡</span>Historique</button>
@@ -948,6 +1026,79 @@
               <div class="form-actions"><button class="btn" type="submit">Valider le mouvement</button></div>
             </form>
           </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="debts" class="view">
+      <div class="debt-wood-frame">
+        <div class="debt-board">
+          <div class="debt-board-header">
+            <div>
+              <div class="debt-kicker">CABINET MÉDICAL DE RHODES · REGISTRE 1889</div>
+              <h3>ARDOISE DES IMPAYÉS</h3>
+              <p>Les dettes de plus de vingt-quatre heures sont automatiquement signalées en rouge.</p>
+            </div>
+            <button class="btn debt-refresh" id="refreshDebts" type="button">Actualiser l’ardoise</button>
+          </div>
+
+          <form id="debtForm" class="debt-form">
+            <div class="debt-field">
+              <label>Nom</label>
+              <input id="debtLastName" type="text" maxlength="80" autocomplete="off" required placeholder="Ex. Morgan">
+            </div>
+            <div class="debt-field">
+              <label>Prénom</label>
+              <input id="debtFirstName" type="text" maxlength="80" autocomplete="off" required placeholder="Ex. Arthur">
+            </div>
+            <div class="debt-field">
+              <label>Télégramme</label>
+              <input id="debtTelegram" type="text" maxlength="80" autocomplete="off" required placeholder="Ex. RH1959">
+            </div>
+            <div class="debt-field">
+              <label>Montant de la dette ($)</label>
+              <input id="debtAmount" type="number" min="0.01" step="0.01" required placeholder="0,00">
+            </div>
+            <div class="debt-field">
+              <label>Date</label>
+              <input id="debtDate" type="date" required>
+            </div>
+            <div class="debt-field">
+              <label>Heure</label>
+              <input id="debtTime" type="time" required>
+            </div>
+            <div class="debt-form-action">
+              <button class="btn debt-add" type="submit">Inscrire l’impayé</button>
+            </div>
+          </form>
+
+          <div class="debt-summary">
+            <span><strong id="debtCount">0</strong> impayé(s)</span>
+            <span>Total dû : <strong id="debtTotal">0,00 $</strong></span>
+            <span class="debt-late-summary"><strong id="debtLateCount">0</strong> en retard de +24 h</span>
+          </div>
+
+          <div class="debt-table-wrap">
+            <table class="debt-table">
+              <thead>
+                <tr>
+                  <th>Nom</th>
+                  <th>Prénom</th>
+                  <th>Télégramme</th>
+                  <th>Dette</th>
+                  <th>Date</th>
+                  <th>Heure</th>
+                  <th>État</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="debtBody">
+                <tr><td colspan="8" class="debt-empty">Chargement de l’ardoise…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="debt-chalk-note">« Une dette honorée s’efface. Une dette oubliée reste à la craie. »</div>
         </div>
       </div>
     </section>
@@ -1314,6 +1465,9 @@
   let bureauUnreadRefreshTimer = null;
   let bureauLastTypingPing = 0;
   let bureauUnreadCount = 0;
+  let unpaidDebts = [];
+  let unpaidDebtsLoading = false;
+  let unpaidDebtClockTimer = null;
   let bureauSessionReadAt = null;
   let bureauSessionHadUnread = false;
   let giphySearchTimer = null;
@@ -1946,6 +2100,13 @@ $('adminNotebookIndex').addEventListener('click',e=>{
     if(id==="consultations")loadBook();
     if(id==="notebooksAdmin" && isBookSupervisor())loadAdminNotebookUsers();
     if(id==="users" && (isAdmin||isAdjoint)) loadUsers();
+    if(id==="debts"){
+      setDebtDefaults(false);
+      loadUnpaidDebts();
+      startUnpaidDebtClock();
+    }else{
+      stopUnpaidDebtClock();
+    }
     if(id==="bureau"){
       openBureauConversation();
     }
@@ -2891,6 +3052,120 @@ $('adminNotebookIndex').addEventListener('click',e=>{
     if($("bureauTyping"))$("bureauTyping").textContent="";
   }
 
+
+  function localDateTimeDefaults(){
+    const d=new Date();
+    const pad=n=>String(n).padStart(2,"0");
+    return {
+      date:d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()),
+      time:pad(d.getHours())+":"+pad(d.getMinutes())
+    };
+  }
+
+  function setDebtDefaults(force=false){
+    const defaults=localDateTimeDefaults();
+    if($("debtDate")&&(force||!$("debtDate").value))$("debtDate").value=defaults.date;
+    if($("debtTime")&&(force||!$("debtTime").value))$("debtTime").value=defaults.time;
+  }
+
+  function debtTimestamp(row){
+    const date=String(row?.debt_date||"").slice(0,10);
+    const time=String(row?.debt_time||"00:00").slice(0,8);
+    const ms=new Date(date+"T"+time).getTime();
+    return Number.isFinite(ms)?ms:null;
+  }
+
+  function debtIsOverdue(row,now=Date.now()){
+    const start=debtTimestamp(row);
+    return start!==null && now-start>=24*60*60*1000;
+  }
+
+  function debtStatusLabel(row,now=Date.now()){
+    const start=debtTimestamp(row);
+    if(start===null)return {late:false,label:"Date inconnue"};
+    const elapsed=now-start;
+    if(elapsed>=24*60*60*1000){
+      const lateMs=elapsed-24*60*60*1000;
+      const hours=Math.floor(lateMs/(60*60*1000));
+      const days=Math.floor(hours/24);
+      return {late:true,label:days>0?"Retard · "+days+" j "+(hours%24)+" h":"Retard · "+hours+" h"};
+    }
+    const left=Math.max(0,24*60*60*1000-elapsed);
+    const hours=Math.floor(left/(60*60*1000));
+    const minutes=Math.floor((left%(60*60*1000))/(60*1000));
+    return {late:false,label:"Avant alerte · "+hours+" h "+minutes+" min"};
+  }
+
+  function debtDateLabel(value){
+    const s=String(value||"").slice(0,10);
+    if(!s)return "—";
+    const [y,m,d]=s.split("-");
+    return y&&m&&d?d+"/"+m+"/"+y:s;
+  }
+
+  function renderUnpaidDebts(){
+    const body=$("debtBody");
+    if(!body)return;
+    const now=Date.now();
+    const rows=[...unpaidDebts].sort((a,b)=>(debtTimestamp(a)||0)-(debtTimestamp(b)||0));
+    const lateCount=rows.filter(r=>debtIsOverdue(r,now)).length;
+    $("debtCount").textContent=rows.length;
+    $("debtLateCount").textContent=lateCount;
+    $("debtTotal").textContent=money(rows.reduce((sum,r)=>sum+num(r.amount),0));
+
+    if(!rows.length){
+      body.innerHTML='<tr><td colspan="8" class="debt-empty">Aucun impayé inscrit sur l’ardoise.</td></tr>';
+      return;
+    }
+
+    body.innerHTML=rows.map(row=>{
+      const status=debtStatusLabel(row,now);
+      return `<tr class="${status.late?"debt-overdue":""}" data-debt-id="${esc(row.id)}">
+        <td><strong>${esc(row.last_name)}</strong></td>
+        <td>${esc(row.first_name)}</td>
+        <td>${esc(row.telegram||"—")}</td>
+        <td class="debt-money">${money(row.amount)}</td>
+        <td>${esc(debtDateLabel(row.debt_date))}</td>
+        <td>${esc(String(row.debt_time||"").slice(0,5)||"—")}</td>
+        <td><span class="debt-status ${status.late?"late":"ok"}">${esc(status.label)}</span></td>
+        <td><button type="button" class="debt-delete" data-debt-delete="${esc(row.id)}" title="Supprimer cet impayé" aria-label="Supprimer cet impayé">×</button></td>
+      </tr>`;
+    }).join("");
+  }
+
+  async function loadUnpaidDebts(silent=false){
+    if(!currentUser||currentProfile?.access_status!=="approved"||unpaidDebtsLoading)return;
+    unpaidDebtsLoading=true;
+    if(!silent && $("debtBody"))$("debtBody").innerHTML='<tr><td colspan="8" class="debt-empty">Chargement de l’ardoise…</td></tr>';
+    try{
+      const {data,error}=await db.from("unpaid_debts")
+        .select("id,last_name,first_name,telegram,amount,debt_date,debt_time,created_by,created_at")
+        .order("debt_date",{ascending:true})
+        .order("debt_time",{ascending:true});
+      if(error)throw error;
+      unpaidDebts=data||[];
+      renderUnpaidDebts();
+      setDebtDefaults(false);
+    }catch(err){
+      dbError(err,"Impossible de charger l’ardoise des impayés.");
+      if($("debtBody"))$("debtBody").innerHTML='<tr><td colspan="8" class="debt-empty">Impossible de charger les impayés.</td></tr>';
+    }finally{
+      unpaidDebtsLoading=false;
+    }
+  }
+
+  function startUnpaidDebtClock(){
+    clearInterval(unpaidDebtClockTimer);
+    unpaidDebtClockTimer=setInterval(()=>{
+      if(document.querySelector("#debts.view.active"))renderUnpaidDebts();
+    },60000);
+  }
+
+  function stopUnpaidDebtClock(){
+    clearInterval(unpaidDebtClockTimer);
+    unpaidDebtClockTimer=null;
+  }
+
   function renderSettings(){
     $("settingName").value=state.settings.name||"";$("settingPlace").value=state.settings.place||"";$("settingTelegram").value=state.settings.telegram||"";$("settingCash").value=num(state.cash).toFixed(2);$("telegramPlaque").textContent=state.settings.telegram||"—";
     if($("telegramOwnerName"))$("telegramOwnerName").textContent="JOHN MYERS";
@@ -2898,6 +3173,71 @@ $('adminNotebookIndex').addEventListener('click',e=>{
     document.querySelector(".brand p").textContent=state.settings.place;
   }
   function renderAll(){renderDashboard();renderInventory();fillMovementResources();renderCraft();renderRecipes();fillRemoveIngredientSelect();renderSuppliers();renderHistory();renderSettings();}
+
+
+  $("debtForm").addEventListener("submit",async e=>{
+    e.preventDefault();
+    const lastName=$("debtLastName").value.trim();
+    const firstName=$("debtFirstName").value.trim();
+    const telegram=$("debtTelegram").value.trim();
+    const amount=Math.max(0,num($("debtAmount").value));
+    const debtDate=$("debtDate").value;
+    const debtTime=$("debtTime").value;
+
+    if(!lastName||!firstName||!telegram||amount<=0||!debtDate||!debtTime){
+      toast("Renseigne le nom, le prénom, le télégramme, le montant, la date et l’heure.");
+      return;
+    }
+
+    const button=$("debtForm").querySelector('button[type="submit"]');
+    try{
+      button.disabled=true;
+      const {error}=await db.from("unpaid_debts").insert({
+        last_name:lastName,
+        first_name:firstName,
+        telegram,
+        amount,
+        debt_date:debtDate,
+        debt_time:debtTime,
+        created_by:currentUser.id
+      });
+      if(error)throw error;
+
+      $("debtLastName").value="";
+      $("debtFirstName").value="";
+      $("debtTelegram").value="";
+      $("debtAmount").value="";
+      setDebtDefaults(true);
+      await loadUnpaidDebts(true);
+      toast("Impayé inscrit sur l’ardoise.");
+    }catch(err){
+      dbError(err,"Impossible d’inscrire cet impayé.");
+    }finally{
+      button.disabled=false;
+    }
+  });
+
+  $("debtBody").addEventListener("click",async e=>{
+    const button=e.target.closest("[data-debt-delete]");
+    if(!button)return;
+    const id=button.dataset.debtDelete;
+    const row=unpaidDebts.find(d=>d.id===id);
+    if(!row)return;
+    if(!confirm(`Effacer l’impayé de ${row.first_name} ${row.last_name} (${money(row.amount)}) ?`))return;
+    try{
+      button.disabled=true;
+      const {error}=await db.from("unpaid_debts").delete().eq("id",id);
+      if(error)throw error;
+      unpaidDebts=unpaidDebts.filter(d=>d.id!==id);
+      renderUnpaidDebts();
+      toast("Impayé effacé de l’ardoise.");
+    }catch(err){
+      dbError(err,"Impossible de supprimer cet impayé.");
+      await loadUnpaidDebts(true);
+    }
+  });
+
+  $("refreshDebts").addEventListener("click",()=>loadUnpaidDebts());
 
   $("saveRecipePricing").addEventListener("click",async()=>{
     if(!isAdmin){toast("Action réservée à l’administrateur.");return;}
@@ -3745,6 +4085,8 @@ $('adminNotebookIndex').addEventListener('click',e=>{
     }else{
       clearInterval(refreshTimer);refreshTimer=null;
       stopBureauRealtime();
+      stopUnpaidDebtClock();
+      unpaidDebts=[];
       clearInterval(lockPollTimer);lockPollTimer=null;
       clearInterval(lockExpiryTimer);lockExpiryTimer=null;
       myEditLocks.clear();activeEditLocks.clear();
