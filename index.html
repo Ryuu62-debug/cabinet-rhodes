@@ -655,7 +655,6 @@
       <button data-view="craft"><span class="ico">⚒</span>Fabrication</button>
       <button data-view="suppliers"><span class="ico">☏</span>Fournisseurs</button>
       <button data-view="history"><span class="ico">≡</span>Historique</button>
-      <button class="user-manage-only" id="usersNav" data-view="users"><span class="ico">♟</span>Apprentis</button>
     </nav>
 
     <div class="telegram">
@@ -673,10 +672,11 @@
       </div>
     </div>
 
-    <nav class="nav private-nav" id="privateNav" aria-label="Espace privé">
-      <div class="private-nav-title admin-only">ESPACE PRIVÉ</div>
+    <nav class="nav private-nav" id="privateNav" aria-label="Gestion du cabinet">
+      <div class="private-nav-title user-manage-only">GESTION DU CABINET</div>
       <button class="book-supervisor-only" data-view="notebooksAdmin"><span class="ico">▥</span>Carnets du personnel</button>
       <button class="admin-only" data-view="recipes"><span class="ico">✎</span>Recettes</button>
+      <button class="user-manage-only" id="usersNav" data-view="users"><span class="ico">♟</span>Apprentis</button>
       <button class="admin-only" id="settingsNav" data-view="settings"><span class="ico">⚙</span>Paramètres</button>
     </nav>
   </aside>
