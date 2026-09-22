@@ -555,6 +555,15 @@
 .book-report .book-field-points{width:90px!important}
 .book-report .book-inline-field:focus{outline:2px solid #885324;outline-offset:2px}
 .book-report .book-inline-field::placeholder{color:#886e4b;opacity:1}
+.book-spread{display:grid;grid-template-columns:52px minmax(0,1fr) 52px;gap:12px;align-items:start}
+.book-spread .book-leaf{width:100%;min-width:0}
+.book-page-arrow{position:sticky;top:45vh;align-self:start;margin-top:200px;width:52px;height:70px;padding:6px;color:#e4c382;border:1px solid #b58c4a;border-radius:26px;background:linear-gradient(110deg,#543921,#21150f 55%,#65482b);box-shadow:0 4px 12px #0008,inset 0 0 0 3px #21150f,inset 0 0 0 4px #b18a4d66;transition:color .2s,box-shadow .2s}
+.book-page-arrow svg{display:block;width:100%;height:auto}
+.book-arrow-next svg{transform:rotate(180deg)}
+.book-page-arrow:hover:not(:disabled){color:#fff0bd;box-shadow:0 0 16px #c69b4766,inset 0 0 0 3px #21150f}
+.book-page-arrow:focus-visible{outline:2px solid #ffe3a6;outline-offset:4px}
+.book-page-arrow:disabled{opacity:.3;cursor:default}
+@media(max-width:700px){.book-spread{grid-template-columns:32px minmax(0,1fr) 32px;gap:4px}.book-page-arrow{width:32px;height:56px;padding:3px;margin-top:120px}.book-spread .book-paper{padding:25px 18px}}
 </style>
 </head>
 <body class="locked" data-site-version="2026-09-21-1806">
@@ -1105,12 +1114,12 @@
  <div class="book-layout">
   <aside class="book-directory" aria-label="Intercalaires"><label for="bookSearch">Rechercher dans le carnet</label><input id="bookSearch" type="search" placeholder="Blessure, zone, mot-clé…"><div id="bookIndex"></div></aside>
   <div class="book-stage">
-   <div id="bookLeaf" class="book-leaf">
+   <div class="book-spread"><button id="bookPrev" type="button" class="book-page-arrow" aria-label="Page précédente" title="Page précédente"><svg viewBox="0 0 64 40" aria-hidden="true" focusable="false"><path d="M57 20H9M23 6L8 20l15 14M29 13l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M47 15l5 5-5 5-5-5z" fill="currentColor"/></svg></button><div id="bookLeaf" class="book-leaf">
     <button id="bookCover" class="book-cover" aria-label="Ouvrir le carnet à la page du serment"><span class="book-cover-title"><small>Cabinet Médical<br>de Rhodes</small><strong>Carnet de<br>consultations</strong><em>— 1889 —</em></span><span class="book-cover-open">OUVRIR LE CARNET</span></button>
     <article id="bookPaper" class="book-paper" hidden></article>
    </div>
-   <div class="book-navigation"><button id="bookPrev" class="btn" aria-label="Page précédente">←</button><span id="bookCounter" aria-live="polite"></span><button id="bookNext" class="btn" aria-label="Page suivante">→</button></div>
-   <div class="book-toolbar"><button id="bookCopy" class="btn secondary" hidden>Copier le texte</button><button id="bookEdit" class="btn" hidden>Modifier ce rapport</button></div>
+   <button id="bookNext" type="button" class="book-page-arrow book-arrow-next" aria-label="Page suivante" title="Page suivante"><svg viewBox="0 0 64 40" aria-hidden="true" focusable="false"><path d="M57 20H9M23 6L8 20l15 14M29 13l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M47 15l5 5-5 5-5-5z" fill="currentColor"/></svg></button></div><div class="book-navigation"><span id="bookCounter" aria-live="polite"></span></div>
+   <div class="book-toolbar"><button id="bookCopy" class="btn secondary" hidden>Copier le texte</button><button id="bookReset" class="btn secondary" type="button" hidden>Réinitialiser les cases</button><button id="bookEdit" class="btn" hidden>Modifier ce rapport</button></div>
   </div>
  </div>
  <dialog id="bookEditor" class="book-dialog">
@@ -1489,12 +1498,25 @@ async function loadBook(){
 
 // Les réponses restent propres à la consultation en cours, sans modifier le modèle partagé.
 const bookAnswers=new Map();
+const bookAnswerKey=id=>(currentUser?.id||'anonymous')+':'+id;
+function bookClinician(){
+ return {name:currentProfile?.display_name?.trim()||'Nom non renseigné',grade:gradeLabel(currentProfile?.medical_grade)};
+}
+function personaliseBookText(text){
+ const clinician=bookClinician();
+ return text.split('\n').map(line=>{
+  if(/^\s*Signature\s*:/i.test(line))return 'Signature : '+clinician.name+' — '+clinician.grade;
+  if(/^\s*[-–]?\s*(?:Dr\.?|Docteur)\s+.+?\s*[-–]?\s*$/i.test(line))return clinician.name+'\n'+clinician.grade;
+  if(/^\s*Rapport du Médecin\s*$/i.test(line))return 'Rapport médical';
+  return line;
+ }).join('\n');
+}
 function bookFormText(report){
  let text=String(report.body||'').replace(/\r\n?/g,'\n').trim();
  const lines=text.split('\n');
  const firstContent=lines.slice(1).find(line=>line.trim());
  if(firstContent && /^\s*[-–]?\s*Cabinet\b/i.test(firstContent))lines.shift();
- text=lines.join('\n').trim();
+ text=personaliseBookText(lines.join('\n').trim());
  text=text.replace(/\[(lieu|ville)\]/gi,'{{lieu}}').replace(/\[heure\]/gi,'{{heure}}').replace(/\[date\]/gi,'{{date}}');
  // Ancien modèle « Overdoses » sans crochets.
  text=text.replace(/\bà lieu\b/gi,'à {{lieu}}').replace(/\blieu\s*-\s*heure\b/gi,'{{lieu}} - {{heure}}');
@@ -1524,7 +1546,7 @@ function bookFormParts(report){
  parts.push({text:text.slice(offset)});return parts;
 }
 function renderBookForm(report){
- const answers=bookAnswers.get(report.id)||{};
+ const answers=bookAnswers.get(bookAnswerKey(report.id))||{};
  return bookFormParts(report).map(part=>{
   if(!part.kind)return esc(part.text);
   const val=answers[part.key]||'';
@@ -1538,19 +1560,19 @@ function renderBookForm(report){
  }).join('');
 }
 function bookCompletedText(report){
- const answers=bookAnswers.get(report.id)||{};
+ const answers=bookAnswers.get(bookAnswerKey(report.id))||{};
  const labels={lieu:'lieu',heure:'heure',date:'date',points:'nombre de points',administration:'oui/non',balle:'oui/non'};
  return report.title+'\n'+bookFormParts(report).map(part=>part.kind?(answers[part.key]||'['+labels[part.kind]+']'):part.text).join('');
 }
 $('bookPaper').addEventListener('input',e=>{
  const input=e.target.closest('[data-book-answer]');if(!input)return;
- const id=input.dataset.bookReport,answers=bookAnswers.get(id)||{};
- answers[input.dataset.bookAnswer]=input.value;bookAnswers.set(id,answers);
+ const id=input.dataset.bookReport,answers=bookAnswers.get(bookAnswerKey(id))||{};
+ answers[input.dataset.bookAnswer]=input.value;bookAnswers.set(bookAnswerKey(id),answers);
 });
 $('bookPaper').addEventListener('change',e=>{
  const input=e.target.closest('[data-book-answer]');if(!input)return;
- const id=input.dataset.bookReport,answers=bookAnswers.get(id)||{};
- answers[input.dataset.bookAnswer]=input.value;bookAnswers.set(id,answers);
+ const id=input.dataset.bookReport,answers=bookAnswers.get(bookAnswerKey(id))||{};
+ answers[input.dataset.bookAnswer]=input.value;bookAnswers.set(bookAnswerKey(id),answers);
 });
 
 function renderBook(){
@@ -1561,6 +1583,7 @@ function renderBook(){
  $('bookPrev').disabled=bookPage<0;$('bookNext').disabled=bookPage>=pages.length-1||!bookLoaded;
  $('bookCounter').textContent=bookPage<0?'Édition 1889':(bookPage+1)+' / '+pages.length;
  $('bookCopy').hidden=!page;
+ $('bookReset').hidden=!page?.id;
  if(page?.type==='oath'){
   $('bookPaper').innerHTML=bookOrnament+'<p class="book-kicker">Cabinet Médical de Rhodes</p><h2>Serment des médecins</h2><div class="book-oath">'+bookOath.map(t=>'<p>'+esc(t)+'</p>').join('')+'</div>'+bookOrnament+'<p class="book-folio">Première page · Honneur & probité</p>';
  }else if(page){
@@ -1603,6 +1626,11 @@ function openBookEditor(fresh){
  if(r?.category_id)$('bookCatInput').value=r.category_id;
  $('bookArchive').hidden=!r?.id;$('bookEditor').showModal();
 }
+$('bookReset').addEventListener('click',()=>{
+ const report=bookPages()[bookPage];if(!report?.id)return;
+ bookAnswers.delete(bookAnswerKey(report.id));renderBook();
+ toast('Tes réponses de ce rapport ont été effacées.');
+});
 $('bookSearch').addEventListener('input',renderBookIndex);
 $('bookIndex').addEventListener('click',e=>{const b=e.target.closest('[data-page]');if(b)turnBook(Number(b.dataset.page));});
 $('bookCover').addEventListener('click',()=>turnBook(0));
