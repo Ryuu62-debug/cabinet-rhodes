@@ -700,7 +700,6 @@
                     <th>Recette</th>
                     <th>Prix pharmacie ($)</th>
                     <th>Prix conseillé ($)</th>
-                    <th>À rendre au cabinet ($)</th>
                   </tr>
                 </thead>
                 <tbody id="recipePricingBody"></tbody>
@@ -709,7 +708,7 @@
             <div class="form-actions admin-only">
               <button class="btn" id="saveRecipePricing" type="button">Enregistrer les prix</button>
             </div>
-            <p class="hint">Le « prix conseillé » correspond au tarif de la prestation facturée au patient. « À rendre au cabinet » est le montant à reverser au cabinet pour cette prestation. Kit de soin et Seringue vivifiante restent affichés mais ne sont pas vendus à la pharmacie.</p>
+            <p class="hint">Le « prix conseillé » correspond au tarif de la prestation facturée au patient. Kit de soin et Seringue vivifiante restent affichés mais ne sont pas vendus à la pharmacie.</p>
           </div>
         </div>
       </div>
@@ -2012,16 +2011,12 @@ $('bookCategoryForm').addEventListener('submit',async e=>{
       const recommendedCell=isAdmin
         ? `<div class="currency-input"><input class="pricing-recommended" type="number" min="0" step="0.01" value="${num(p.recommendedPrice).toFixed(2)}"></div>`
         : `<strong>${money(p.recommendedPrice)}</strong>`;
-      const cabinetCell=isAdmin
-        ? `<div class="currency-input"><input class="pricing-cabinet" type="number" min="0" step="0.01" value="${num(p.cabinetReturn).toFixed(2)}"></div>`
-        : `<strong>${money(p.cabinetReturn)}</strong>`;
       return `<tr data-pricing-product="${esc(p.productId)}">
         <td class="resource-name pricing-product">${esc(p.productName)}</td>
         <td>${pharmacyCell}</td>
         <td>${recommendedCell}</td>
-        <td>${cabinetCell}</td>
       </tr>`;
-    }).join(""):'<tr><td colspan="4" class="empty">Aucune recette.</td></tr>';
+    }).join(""):'<tr><td colspan="3" class="empty">Aucune recette.</td></tr>';
   }
 
   function renderDashboard(){
@@ -2649,7 +2644,7 @@ $('bookCategoryForm').addEventListener('submit',async e=>{
           ? Math.max(0,num(tr.querySelector(".pricing-pharmacy")?.value))
           : null;
         const recommended=Math.max(0,num(tr.querySelector(".pricing-recommended")?.value));
-        const cabinetReturn=Math.max(0,num(tr.querySelector(".pricing-cabinet")?.value));
+        const cabinetReturn=num(item?.cabinetReturn);
         const {error}=await db.rpc("admin_set_recipe_pricing",{
           p_product_resource_id:productId,
           p_pharmacy_price:pharmacy,
