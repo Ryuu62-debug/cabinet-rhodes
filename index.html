@@ -464,6 +464,10 @@
   .bureau-empty{padding:34px 18px;text-align:center;color:#9e8967}
   .bureau-message{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:11px;padding:10px 8px;border-radius:6px}
   .bureau-message:hover{background:rgba(255,255,255,.025)}
+  .bureau-new-divider{display:flex;align-items:center;gap:12px;margin:16px 4px 12px;color:#f0c978;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+  .bureau-new-divider::before,.bureau-new-divider::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,rgba(240,201,120,.72))}
+  .bureau-new-divider::after{background:linear-gradient(90deg,rgba(240,201,120,.72),transparent)}
+  .bureau-new-divider span{padding:5px 10px;border:1px solid rgba(240,201,120,.35);background:rgba(92,56,18,.26);border-radius:999px;text-align:center;white-space:nowrap}
   .bureau-avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(199,156,84,.42);background:rgba(199,156,84,.10);color:#ecd69e;font-weight:800;font-family:Georgia,serif}
   .bureau-message-main{min-width:0}
   .bureau-message-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:3px}
@@ -1311,6 +1315,8 @@
   let bureauUnreadRefreshTimer = null;
   let bureauLastTypingPing = 0;
   let bureauUnreadCount = 0;
+  let bureauSessionReadAt = null;
+  let bureauSessionHadUnread = false;
   let giphySearchTimer = null;
   let giphyResults = new Map();
   const craftSupplierChoices = new Map();
@@ -1942,8 +1948,7 @@ $('adminNotebookIndex').addEventListener('click',e=>{
     if(id==="notebooksAdmin" && isBookSupervisor())loadAdminNotebookUsers();
     if(id==="users" && (isAdmin||isAdjoint)) loadUsers();
     if(id==="bureau"){
-      setBureauUnread(0);
-      loadBureauMessages(true).then(()=>markBureauRead());
+      openBureauConversation();
     }
     window.scrollTo({top:0,behavior:"smooth"});
   }
@@ -2554,6 +2559,37 @@ $('adminNotebookIndex').addEventListener('click',e=>{
     }
   }
 
+  async function openBureauConversation(){
+    if(!currentUser || currentProfile?.access_status!=="approved")return;
+    setBureauUnread(0);
+    bureauSessionReadAt=null;
+    bureauSessionHadUnread=false;
+
+    try{
+      const {data,error}=await db.rpc("get_bureau_read_snapshot");
+      if(error)throw error;
+      const snapshot=Array.isArray(data)?data[0]:data;
+      bureauSessionReadAt=snapshot?.last_seen_at||null;
+      bureauSessionHadUnread=num(snapshot?.unread_count)>0;
+    }catch(err){
+      console.warn("Repère de lecture du Bureau :",err);
+    }
+
+    await loadBureauMessages(true);
+    await markBureauRead();
+  }
+
+  function scrollBureauToBottom(){
+    const box=$("bureauMessages");
+    if(!box)return;
+    const go=()=>{box.scrollTop=box.scrollHeight;};
+    go();
+    requestAnimationFrame(()=>{go();requestAnimationFrame(go);});
+    setTimeout(go,120);
+    setTimeout(go,450);
+    setTimeout(go,900);
+  }
+
   async function markBureauRead(){
     if(!currentUser || currentProfile?.access_status!=="approved")return;
     setBureauUnread(0);
@@ -2571,7 +2607,7 @@ $('adminNotebookIndex').addEventListener('click',e=>{
     const box=$("bureauMessages");
     if(box && !box.children.length)box.innerHTML='<div class="bureau-empty">Chargement du Bureau…</div>';
     try{
-      const {data,error}=await db.rpc("get_bureau_messages",{p_limit:120});
+      const {data,error}=await db.rpc("get_bureau_messages",{p_limit:200});
       if(error)throw error;
       const rows=[...(data||[])].reverse();
       rows.forEach(m=>{
@@ -2597,7 +2633,13 @@ $('adminNotebookIndex').addEventListener('click',e=>{
       box.innerHTML='<div class="bureau-empty">Le Bureau est calme pour le moment.<br>Écris le premier message.</div>';
       return;
     }
-    box.innerHTML=rows.map(m=>{
+
+    const readTime=bureauSessionReadAt?Date.parse(bureauSessionReadAt):NaN;
+    const markerIndex=bureauSessionHadUnread && Number.isFinite(readTime)
+      ? rows.findIndex(m=>Date.parse(m.created_at)>readTime)
+      : -1;
+
+    box.innerHTML=rows.map((m,index)=>{
       const mine=m.author_id===currentUser?.id;
       const canDelete=mine||isAdmin;
       let attachment="";
@@ -2613,7 +2655,10 @@ $('adminNotebookIndex').addEventListener('click',e=>{
           attachment='<div class="bureau-attachment"><span class="muted">Pièce jointe indisponible.</span></div>';
         }
       }
-      return `<div class="bureau-message" data-message-id="${esc(m.id)}">
+      const unreadMarker=index===markerIndex
+        ? '<div class="bureau-new-divider" id="bureauNewMessagesMarker"><span>Nouveaux messages depuis votre dernière visite</span></div>'
+        : "";
+      return unreadMarker+`<div class="bureau-message" data-message-id="${esc(m.id)}">
         <div class="bureau-avatar">${esc(bureauInitials(m.author_name))}</div>
         <div class="bureau-message-main">
           <div class="bureau-message-head">
@@ -2627,7 +2672,15 @@ $('adminNotebookIndex').addEventListener('click',e=>{
         ${canDelete?`<button class="bureau-delete" type="button" data-id="${esc(m.id)}" title="Supprimer le message">×</button>`:""}
       </div>`;
     }).join("");
-    if(forceBottom||wasNearBottom)box.scrollTop=box.scrollHeight;
+
+    if(forceBottom){
+      scrollBureauToBottom();
+      box.querySelectorAll(".bureau-image").forEach(img=>{
+        if(!img.complete)img.addEventListener("load",scrollBureauToBottom,{once:true});
+      });
+    }else if(wasNearBottom){
+      scrollBureauToBottom();
+    }
   }
 
   function setBureauFile(file){
@@ -2831,6 +2884,8 @@ $('adminNotebookIndex').addEventListener('click',e=>{
     clearInterval(bureauUnreadRefreshTimer);
     bureauUnreadRefreshTimer=null;
     setBureauUnread(0);
+    bureauSessionReadAt=null;
+    bureauSessionHadUnread=false;
     if(!bureauChannel)return;
     try{sb.removeChannel(bureauChannel);}catch(_){}
     bureauChannel=null;
