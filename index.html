@@ -549,6 +549,12 @@
 @media(max-width:1000px){.book-layout{grid-template-columns:190px minmax(0,1fr);gap:14px}.book-paper{padding:28px;}.book-oath,.book-report{font-size:15px}}
 @media(max-width:700px){.book-layout{grid-template-columns:1fr}.book-directory{max-height:300px;overflow:auto}.book-paper{min-height:600px}.book-editor-fields{grid-template-columns:1fr}}
 
+
+.book-report .book-inline-field{display:inline-block!important;width:auto!important;max-width:100%;margin:3px 5px;padding:5px 8px;border:1px solid #9b7540;border-bottom:2px solid #855a28;border-radius:3px;background:#fff9e3;color:#392718;font:inherit;vertical-align:baseline;box-shadow:inset 0 1px 3px #74552922}
+.book-report .book-field-lieu{width:190px!important}
+.book-report .book-field-points{width:90px!important}
+.book-report .book-inline-field:focus{outline:2px solid #885324;outline-offset:2px}
+.book-report .book-inline-field::placeholder{color:#886e4b;opacity:1}
 </style>
 </head>
 <body class="locked" data-site-version="2026-09-21-1806">
@@ -1480,6 +1486,73 @@ async function loadBook(){
   $('bookStatus').textContent=bookReports.length+' modèles · '+bookCategories.length+' intercalaires';
  }catch(e){$('bookStatus').textContent='Chargement impossible. Clique sur Actualiser le carnet.';dbError(e);}finally{bookBusy=false;}
 }
+
+// Les réponses restent propres à la consultation en cours, sans modifier le modèle partagé.
+const bookAnswers=new Map();
+function bookFormText(report){
+ let text=String(report.body||'').replace(/\r\n?/g,'\n').trim();
+ const lines=text.split('\n');
+ const firstContent=lines.slice(1).find(line=>line.trim());
+ if(firstContent && /^\s*[-–]?\s*Cabinet\b/i.test(firstContent))lines.shift();
+ text=lines.join('\n').trim();
+ text=text.replace(/\[(lieu|ville)\]/gi,'{{lieu}}').replace(/\[heure\]/gi,'{{heure}}').replace(/\[date\]/gi,'{{date}}');
+ // Ancien modèle « Overdoses » sans crochets.
+ text=text.replace(/\bà lieu\b/gi,'à {{lieu}}').replace(/\blieu\s*-\s*heure\b/gi,'{{lieu}} - {{heure}}');
+ const numbers='(?:\\d+(?:[.,]\\d+)?|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|plusieurs|quelques)';
+ // Tous les nombres de points, y compris les plans profonds et cutanés.
+ text=text.replace(new RegExp('\\b'+numbers+'\\s+points?\\b','gi'),'{{points}} points');
+ text=text.replace(/\b(par|de)\s+(points?\s+(?:de\s+)?sutures?)\b/gi,'$1 {{points}} $2');
+ text=text.split('\n').map(line=>{
+   if(/\bAdministration\b/i.test(line) && !/^\s*Recommandations/i.test(line)){
+     return line.replace(/\s*(?::|—|-)?\s*(?:oui|non)\s*[.!]?\s*$/i,'').replace(/[\s:]+$/,'')+' : {{administration}}';
+   }
+   if(/Présence de balle dans la plaie/i.test(line)){
+     return '– Présence de balle dans la plaie : {{balle}}';
+   }
+   return line;
+ }).join('\n');
+ return text;
+}
+function bookFormParts(report){
+ let index=0;const parts=[];let offset=0;const text=bookFormText(report);
+ const re=/\{\{(lieu|heure|date|points|administration|balle)\}\}/g;let match;
+ while((match=re.exec(text))){
+  parts.push({text:text.slice(offset,match.index)});
+  parts.push({kind:match[1],key:match[1]+'-'+index++});
+  offset=re.lastIndex;
+ }
+ parts.push({text:text.slice(offset)});return parts;
+}
+function renderBookForm(report){
+ const answers=bookAnswers.get(report.id)||{};
+ return bookFormParts(report).map(part=>{
+  if(!part.kind)return esc(part.text);
+  const val=answers[part.key]||'';
+  const attrs=' class="book-inline-field book-field-'+part.kind+'" data-book-answer="'+esc(part.key)+'" data-book-report="'+esc(report.id)+'"';
+  if(part.kind==='administration'||part.kind==='balle'){
+    const label=part.kind==='balle'?'Présence de balle dans la plaie':'Administration effectuée';
+    return '<select'+attrs+' aria-label="'+label+'"><option value="">— Choisir —</option><option value="Oui"'+(val==='Oui'?' selected':'')+'>Oui</option><option value="Non"'+(val==='Non'?' selected':'')+'>Non</option></select>';
+  }
+  const types={lieu:'text',heure:'time',date:'date',points:'number'},labels={lieu:'Lieu',heure:'Heure',date:'Date',points:'Nombre de points'};
+  return '<input'+attrs+' type="'+types[part.kind]+'" aria-label="'+labels[part.kind]+'" placeholder="'+labels[part.kind]+'" value="'+esc(val)+'"'+(part.kind==='points'?' min="0" step="1"':'')+'>';
+ }).join('');
+}
+function bookCompletedText(report){
+ const answers=bookAnswers.get(report.id)||{};
+ const labels={lieu:'lieu',heure:'heure',date:'date',points:'nombre de points',administration:'oui/non',balle:'oui/non'};
+ return report.title+'\n'+bookFormParts(report).map(part=>part.kind?(answers[part.key]||'['+labels[part.kind]+']'):part.text).join('');
+}
+$('bookPaper').addEventListener('input',e=>{
+ const input=e.target.closest('[data-book-answer]');if(!input)return;
+ const id=input.dataset.bookReport,answers=bookAnswers.get(id)||{};
+ answers[input.dataset.bookAnswer]=input.value;bookAnswers.set(id,answers);
+});
+$('bookPaper').addEventListener('change',e=>{
+ const input=e.target.closest('[data-book-answer]');if(!input)return;
+ const id=input.dataset.bookReport,answers=bookAnswers.get(id)||{};
+ answers[input.dataset.bookAnswer]=input.value;bookAnswers.set(id,answers);
+});
+
 function renderBook(){
  const pages=bookPages(),page=pages[bookPage];
  $('bookCover').hidden=bookPage!==-1;$('bookPaper').hidden=bookPage===-1;
@@ -1492,7 +1565,7 @@ function renderBook(){
   $('bookPaper').innerHTML=bookOrnament+'<p class="book-kicker">Cabinet Médical de Rhodes</p><h2>Serment des médecins</h2><div class="book-oath">'+bookOath.map(t=>'<p>'+esc(t)+'</p>').join('')+'</div>'+bookOrnament+'<p class="book-folio">Première page · Honneur & probité</p>';
  }else if(page){
   const cat=bookCategories.find(c=>c.id===page.category_id);
-  $('bookPaper').innerHTML=bookOrnament+'<p class="book-kicker">'+esc(cat?.name)+' · '+esc(page.subcategory)+'</p><h2>'+esc(page.title)+'</h2><div class="book-report">'+esc(page.body)+'</div>'+bookOrnament+'<p class="book-folio">Cabinet Médical de Rhodes · '+(bookPage+1)+'</p>';
+  $('bookPaper').innerHTML=bookOrnament+'<p class="book-kicker">'+esc(cat?.name)+' · '+esc(page.subcategory)+'</p><h2>'+esc(page.title)+'</h2><div class="book-report">'+renderBookForm(page)+'</div>'+bookOrnament+'<p class="book-folio">Cabinet Médical de Rhodes · '+(bookPage+1)+'</p>';
  }
  renderBookIndex();
 }
@@ -1556,7 +1629,7 @@ $('bookArchive').addEventListener('click',async()=>{
  if(!canEditBook()||!confirm('Retirer ce rapport du carnet ? Il sera archivé en base.'))return;
  try{const {error}=await db.from('consultation_templates').update({active:false}).eq('id',$('bookEditor').dataset.reportId);if(error)throw error;$('bookEditor').close();bookPage=0;await loadBook();toast('Rapport archivé.');}catch(e){dbError(e);}
 });
-$('bookCopy').addEventListener('click',async()=>{try{const page=bookPages()[bookPage];await navigator.clipboard.writeText(page.type==='oath'?bookOath.join('\n\n'):page.body);toast('Texte copié pour ton panel RP.');}catch(e){toast('Copie impossible : sélectionne le texte dans la page.');}});
+$('bookCopy').addEventListener('click',async()=>{try{const page=bookPages()[bookPage];await navigator.clipboard.writeText(page.type==='oath'?bookOath.join('\n\n'):bookCompletedText(page));toast('Texte copié pour ton panel RP.');}catch(e){toast('Copie impossible : sélectionne le texte dans la page.');}});
 $('bookCategoryEdit').addEventListener('click',()=>{
  if(!canEditBook())return;
  $('bookCategorySelect').innerHTML='<option value="">Nouvel intercalaire</option>'+bookCategories.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>').join('');
