@@ -716,7 +716,7 @@
           <div class="form-actions">
             <button class="btn danger" id="deleteSelectedOrder" type="button">Effacer la commande sélectionnée</button>
           </div>
-          <p class="hint">Une commande « À commander » attend encore sa prise en charge. Pour la passer « En cours », renseigne obligatoirement sa date et son heure de livraison. Le stock et la caisse ne sont modifiés qu'au passage en « Livré ».</p>
+          <p class="hint">Une commande « À commander » attend encore sa prise en charge. La date et l’heure de livraison sont facultatives et peuvent être ajoutées ou modifiées tant que la commande n’est pas livrée. Le stock et la caisse ne sont modifiés qu’au passage en « Livré ».</p>
         </div>
       </div>
 
@@ -1606,14 +1606,14 @@
         ? new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"}).format(new Date(o.deliveryDate+"T12:00:00"))
         : "—";
       const time=o.deliveryTime?String(o.deliveryTime).slice(0,5):"—";
-      const dateCell=pending
+      const dateCell=!delivered
         ? `<div class="order-date-picker">
             <button type="button" class="order-calendar-btn" aria-label="Ouvrir le calendrier" title="Choisir une date">📅</button>
-            <input class="order-schedule-input order-start-date" type="date" aria-label="Date de livraison">
+            <input class="order-schedule-input order-start-date" type="date" value="${esc(o.deliveryDate||"")}" aria-label="Date de livraison">
           </div>`
         : esc(date);
-      const timeCell=pending
-        ? `<input class="order-schedule-input order-start-time" type="time" aria-label="Heure de livraison">`
+      const timeCell=!delivered
+        ? `<input class="order-schedule-input order-start-time" type="time" value="${esc(o.deliveryTime?String(o.deliveryTime).slice(0,5):"")}" aria-label="Heure de livraison">`
         : esc(time);
       const statusClass=pending?"status-a-commander":(delivered?"status-livre":"status-en-cours");
       return `<tr data-order-id="${esc(o.id)}" data-order-status="${esc(o.status)}">
@@ -2410,17 +2410,34 @@
       return;
     }
 
+    if(e.target.matches(".order-start-date,.order-start-time")){
+      if(current==="livre")return;
+      const deliveryDate=tr.querySelector(".order-start-date")?.value||null;
+      const deliveryTime=tr.querySelector(".order-start-time")?.value||null;
+      try{
+        const {data,error}=await db.rpc("update_order_schedule",{
+          p_order_id:id,
+          p_delivery_date:deliveryDate,
+          p_delivery_time:deliveryTime
+        });
+        if(error)throw error;
+        if(data!==true)throw new Error("Impossible de modifier la date ou l’heure de cette commande.");
+        const order=state.orders.find(o=>o.id===id);
+        if(order){
+          order.deliveryDate=deliveryDate;
+          order.deliveryTime=deliveryTime;
+        }
+        toast("Date / heure enregistrée.");
+      }catch(err){dbError(err);await loadRemoteState();}
+      return;
+    }
+
     if(e.target.matches(".order-status")){
       const next=e.target.value;
 
       if(current==="a_commander" && next==="en_cours"){
-        const deliveryDate=tr.querySelector(".order-start-date")?.value||"";
-        const deliveryTime=tr.querySelector(".order-start-time")?.value||"";
-        if(!deliveryDate||!deliveryTime){
-          e.target.value="a_commander";
-          toast("Renseigne la date et l'heure de livraison avant de passer la commande en cours.");
-          return;
-        }
+        const deliveryDate=tr.querySelector(".order-start-date")?.value||null;
+        const deliveryTime=tr.querySelector(".order-start-time")?.value||null;
         try{
           e.target.disabled=true;
           const {error}=await db.rpc("start_order",{
