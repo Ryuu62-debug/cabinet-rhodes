@@ -1009,6 +1009,11 @@
     #pharmacy .pharmacy-remedy,#pharmacy .pharmacy-price{font-size:14px}
     #pharmacy .pharmacy-small-btn{font-size:10px}
   }
+#organizeNavigation{margin:10px 0;width:100%;font-size:12px}
+#navigationList{list-style:none;padding:0;max-height:60vh;overflow:auto}
+#navigationList li{display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid #b58c4a55}
+#navigationList li span{flex:1}
+#navigationList button{min-width:40px;font-size:19px;padding:5px 10px}
 </style>
 </head>
 <body class="locked" data-site-version="2026-09-21-1806">
@@ -1063,6 +1068,7 @@
       <button data-view="suppliers"><span class="ico">☏</span>Fournisseurs</button>
       <button data-view="history"><span class="ico">≡</span>Historique</button>
     </nav>
+    <button id="organizeNavigation" class="btn secondary admin-only" type="button">↕ Organiser le menu</button>
 
     <div class="telegram">
       <small id="telegramOwnerName">JOHN MYERS</small>
@@ -1747,6 +1753,7 @@
   </main>
 </div>
 
+<dialog id="navigationDialog" class="book-dialog" aria-labelledby="navigationTitle"><h3 id="navigationTitle">Organiser le menu</h3><p>Déplace les rubriques avec les flèches. L’ordre enregistré s’applique à tous les utilisateurs.</p><ol id="navigationList"></ol><div class="book-toolbar"><button id="navigationSave" class="btn good" type="button">Enregistrer l’ordre</button><button id="navigationDefault" class="btn secondary" type="button">Ordre initial</button><button id="navigationCancel" class="btn secondary" type="button">Annuler</button></div></dialog>
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2448,6 +2455,63 @@ $('adminNotebookIndex').addEventListener('click',e=>{
  if(!button)return;
  adminNotebookSelected=button.dataset.adminReport;
  renderAdminNotebook();
+});
+
+
+const defaultNavigation=[...document.querySelectorAll('#nav > button[data-view]')].map(b=>b.dataset.view);
+let navigationDraft=[],navigationVersion=1,navigationLoading=false,navigationSaving=false;
+function normalizeNavigation(order){
+ return [...new Set([...(Array.isArray(order)?order:[]),...defaultNavigation])].filter(id=>defaultNavigation.includes(id));
+}
+function applyNavigation(order){
+ for(const id of normalizeNavigation(order)){
+  const b=[...$('nav').children].find(b=>b.dataset.view===id);
+  if(b)$('nav').appendChild(b);
+ }
+}
+async function loadNavigation(){
+ if(!currentUser||navigationLoading||navigationSaving)return;
+ navigationLoading=true;
+ try{
+  const {data,error}=await db.from('navigation_preferences').select('item_order,version').eq('id',1).single();
+  if(error)throw error;
+  if(!$('navigationDialog').open){navigationVersion=data.version;applyNavigation(data.item_order);}
+ }catch(e){console.warn('Ordre du menu :',e);}finally{navigationLoading=false;}
+}
+function renderNavigationEditor(){
+ $('navigationList').innerHTML=navigationDraft.map((id,i)=>{
+  const button=[...$('nav').children].find(b=>b.dataset.view===id);
+  return '<li><span>'+esc(button?.textContent.trim()||id)+'</span><button type="button" class="btn secondary" data-nav-move="-1" data-nav-index="'+i+'" aria-label="Monter '+esc(button?.textContent.trim()||id)+'" '+(i===0?'disabled':'')+'>↑</button><button type="button" class="btn secondary" data-nav-move="1" data-nav-index="'+i+'" aria-label="Descendre '+esc(button?.textContent.trim()||id)+'" '+(i===navigationDraft.length-1?'disabled':'')+'>↓</button></li>';
+ }).join('');
+}
+$('organizeNavigation').addEventListener('click',async()=>{
+ if(!isAdmin)return;
+ await loadNavigation();
+ navigationDraft=[...$('nav').children].filter(b=>b.dataset.view).map(b=>b.dataset.view);
+ renderNavigationEditor();$('navigationDialog').showModal();
+});
+$('navigationList').addEventListener('click',e=>{
+ const b=e.target.closest('[data-nav-move]');if(!b||!isAdmin||navigationSaving)return;
+ const i=Number(b.dataset.navIndex),next=i+Number(b.dataset.navMove);
+ if(next<0||next>=navigationDraft.length)return;
+ [navigationDraft[i],navigationDraft[next]]=[navigationDraft[next],navigationDraft[i]];
+ renderNavigationEditor();
+ const moved=$('navigationList').children[next]?.querySelector('[data-nav-move="'+b.dataset.navMove+'"]');
+ moved?.focus();
+});
+$('navigationCancel').addEventListener('click',()=>{if(!navigationSaving)$('navigationDialog').close();});
+$('navigationDefault').addEventListener('click',()=>{if(isAdmin&&!navigationSaving){navigationDraft=[...defaultNavigation];renderNavigationEditor();}});
+$('navigationDialog').addEventListener('cancel',e=>{if(navigationSaving)e.preventDefault();});
+$('navigationSave').addEventListener('click',async()=>{
+ if(!isAdmin||navigationSaving)return;
+ navigationSaving=true;$('navigationSave').disabled=true;
+ try{
+  const order=normalizeNavigation(navigationDraft);
+  const {data,error}=await db.from('navigation_preferences').update({item_order:order,version:navigationVersion+1}).eq('id',1).eq('version',navigationVersion).select('version').maybeSingle();
+  if(error)throw error;
+  if(!data){toast('Le menu a été modifié par un autre administrateur. Ferme puis rouvre cette fenêtre.');return;}
+  navigationVersion=data.version;applyNavigation(order);$('navigationDialog').close();toast('Ordre du menu enregistré pour tous.');
+ }catch(e){dbError(e);}finally{navigationSaving=false;$('navigationSave').disabled=false;}
 });
 
   function setView(id){
@@ -3588,7 +3652,7 @@ $('adminNotebookIndex').addEventListener('click',e=>{
     document.querySelector(".brand h1").innerHTML=esc(state.settings.name).replace(/\sde\sRhodes/i,"<br>de Rhodes");
     document.querySelector(".brand p").textContent=state.settings.place;
   }
-  function renderAll(){renderDashboard();renderInventory();fillMovementResources();renderCraft();renderRecipes();fillRemoveIngredientSelect();renderSuppliers();renderHistory();renderSettings();}
+  function renderAll(){loadNavigation();renderDashboard();renderInventory();fillMovementResources();renderCraft();renderRecipes();fillRemoveIngredientSelect();renderSuppliers();renderHistory();renderSettings();}
 
 
 
