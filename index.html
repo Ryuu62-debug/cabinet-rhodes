@@ -686,172 +686,85 @@
   @media(max-width:900px){.debt-board{padding:16px}.debt-board-header{align-items:flex-start;flex-direction:column}.debt-form{grid-template-columns:1fr 1fr}.debt-form-action{grid-column:1/-1}}
   @media(max-width:560px){.debt-form{grid-template-columns:1fr}.debt-form-action{grid-column:auto}.debt-board h3{font-size:24px}}
 
-  /* Pharmacie — armoire d'apothicaire réaliste et végétation dense */
-  .pharmacy-svg-defs{position:absolute;width:0;height:0;overflow:hidden}
-  .pharmacy-room.realistic-pharmacy{
-    position:relative;isolation:isolate;width:100%;max-width:1580px;min-height:790px;margin:0 auto;padding:54px 170px 96px;overflow:hidden;
-    border:1px solid rgba(171,146,102,.14);
-    background:
-      radial-gradient(ellipse at 50% 18%,rgba(221,206,171,.12),transparent 34%),
-      linear-gradient(180deg,rgba(91,74,52,.10),rgba(25,20,15,.02) 45%,rgba(8,7,5,.22)),
-      repeating-linear-gradient(90deg,rgba(241,227,195,.018) 0 1px,transparent 1px 6px),
-      #1b1814;
+  /* Pharmacie — illustration botanique 1889, armoire blanche vue de face */
+  .pharmacy-illustration-stage{
+    position:relative;
+    width:min(100%,1450px);
+    aspect-ratio:1600/1100;
+    margin:0 auto;
+    overflow:hidden;
+    border:1px solid rgba(184,151,93,.34);
+    border-radius:5px;
+    background:#e9ddc5;
+    box-shadow:0 22px 48px rgba(0,0,0,.42),inset 0 0 0 1px rgba(255,255,255,.15);
   }
-  .pharmacy-wall-panel{position:absolute;z-index:-4;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.018),transparent 14%,transparent 86%,rgba(255,255,255,.015))}
-  .wall-line{position:absolute;left:0;right:0;height:1px;background:rgba(202,184,146,.08)}
-  .wall-line-a{top:23%}.wall-line-b{top:76%}
-  .pharmacy-top-garland{position:absolute;z-index:7;top:-1px;left:5%;right:5%;height:145px;pointer-events:none;filter:drop-shadow(0 7px 5px rgba(0,0,0,.24))}
-  .pharmacy-top-garland svg{width:100%;height:100%;overflow:visible}
-
-  .pharmacy-cabinet{
-    position:relative;z-index:6;width:min(100%,1110px);margin:0 auto;padding:0 18px 19px;
-    border:1px solid #938a78;border-radius:9px 9px 5px 5px;
-    background:
-      linear-gradient(90deg,rgba(92,75,51,.12),transparent 8%,transparent 92%,rgba(94,75,49,.12)),
-      repeating-linear-gradient(0deg,rgba(126,112,86,.035) 0 1px,transparent 1px 7px),
-      linear-gradient(#f3f0e8,#dfdacd);
-    box-shadow:
-      0 28px 58px rgba(0,0,0,.52),
-      0 5px 0 #817867,
-      inset 0 0 0 3px #faf8f1,
-      inset 0 0 0 6px rgba(120,108,83,.32),
-      inset 14px 0 22px rgba(105,91,65,.04),
-      inset -14px 0 22px rgba(105,91,65,.04)
+  .pharmacy-artwork{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .pharmacy-ledger{
+    position:absolute;
+    z-index:10;
+    left:31.1%;
+    right:31.1%;
+    top:29.6%;
+    bottom:20.7%;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    border:2px solid rgba(110,96,72,.72);
+    border-radius:4px;
+    background:rgba(248,244,231,.91);
+    box-shadow:0 10px 28px rgba(31,37,28,.28),inset 0 0 22px rgba(94,115,88,.08);
+    backdrop-filter:blur(1.4px);
   }
-  .pharmacy-cabinet::before,.pharmacy-cabinet::after{
-    content:"";position:absolute;z-index:8;top:105px;bottom:40px;width:22px;
-    border:1px solid #9e9582;
-    background:
-      linear-gradient(90deg,#c5bdac,#fbf8f0 42%,#ddd7ca 69%,#b7ae9b),
-      repeating-linear-gradient(0deg,rgba(101,91,70,.05) 0 1px,transparent 1px 9px);
-    box-shadow:inset 0 0 0 4px rgba(255,255,255,.52),0 0 10px rgba(0,0,0,.14)
+  .pharmacy-ledger::before{
+    content:"";
+    position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(116deg,rgba(255,255,255,.30),transparent 28%,transparent 72%,rgba(255,255,255,.14));
   }
-  .pharmacy-cabinet::before{left:-2px;border-radius:4px 0 0 4px}.pharmacy-cabinet::after{right:-2px;border-radius:0 4px 4px 0}
-  .cabinet-aging{position:absolute;z-index:12;pointer-events:none;width:85px;height:115px;opacity:.20}
-  .cabinet-aging::before,.cabinet-aging::after{content:"";position:absolute;border-radius:50%;border:1px solid #6f624d}
-  .cabinet-aging-left{left:18px;top:178px;transform:rotate(-16deg)}.cabinet-aging-right{right:16px;bottom:120px;transform:rotate(14deg)}
-  .cabinet-aging::before{width:55px;height:18px;left:4px;top:25px}.cabinet-aging::after{width:28px;height:9px;left:34px;top:58px}
-
-  .pharmacy-crown{
-    position:relative;z-index:10;margin:-15px -43px 0;min-height:126px;padding:31px 48px 18px;
-    display:flex;align-items:center;justify-content:center;border:1px solid #9f9683;border-bottom:4px double #8c836f;border-radius:14px 14px 4px 4px;
-    background:
-      radial-gradient(ellipse at 50% -20%,rgba(255,255,255,.95),transparent 56%),
-      repeating-linear-gradient(90deg,rgba(99,86,63,.026) 0 1px,transparent 1px 10px),
-      linear-gradient(#faf8f2,#e7e2d6 63%,#d3ccbd);
-    box-shadow:0 10px 19px rgba(0,0,0,.22),inset 0 3px 0 rgba(255,255,255,.9),inset 0 -8px 16px rgba(111,99,77,.12)
+  .pharmacy-ledger-head{
+    position:relative;z-index:1;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:10px 12px;
+    border-bottom:1px solid rgba(103,119,94,.35);
+    background:rgba(229,227,210,.78);
   }
-  .pharmacy-crown::before,.pharmacy-crown::after{
-    content:"";position:absolute;bottom:-10px;width:112px;height:21px;border:1px solid #aaa18d;background:linear-gradient(#eeeae0,#d4cebe);box-shadow:inset 0 2px 0 rgba(255,255,255,.7)
+  .pharmacy-ledger-head span{display:block;color:#796b54;font-size:8px;font-weight:bold;letter-spacing:1.5px;margin-bottom:2px}
+  .pharmacy-ledger-head strong{font-family:Georgia,"Times New Roman",serif;color:#475044;font-size:14px}
+  .pharmacy-ledger-head .btn{padding:7px 9px;font-size:9px;border-color:#a89a7c;background:#f4eedf;color:#544b3c}
+  .pharmacy-table-wrap{position:relative;z-index:1;flex:1;overflow:auto;padding:7px 8px 4px}
+  .pharmacy-table{width:100%;border-collapse:separate;border-spacing:0 6px;table-layout:fixed}
+  .pharmacy-table th{padding:4px 6px;color:#596553;font-size:8px;line-height:1.1;letter-spacing:.6px;text-transform:uppercase;text-align:left;border-bottom:1px solid rgba(81,101,79,.28)}
+  .pharmacy-table th:nth-child(1){width:24%}.pharmacy-table th:nth-child(2){width:15%}.pharmacy-table th:nth-child(3){width:30%}.pharmacy-table th:nth-child(4){width:31%}
+  .pharmacy-table td{
+    padding:8px 6px;
+    background:rgba(255,253,246,.82);
+    border-top:1px solid rgba(103,119,94,.20);
+    border-bottom:1px solid rgba(103,119,94,.20);
+    color:#465047;vertical-align:middle;
   }
-  .pharmacy-crown::before{left:30px;transform:skewX(-25deg)}.pharmacy-crown::after{right:30px;transform:skewX(25deg)}
-  .pharmacy-title-block{text-align:center;min-width:370px}
-  .pharmacy-title-block small{display:block;color:#746d60;font-size:9px;letter-spacing:2.7px;margin-bottom:4px}
-  .pharmacy-title-block h3{margin:0;color:#45453e;font-family:Georgia,"Times New Roman",serif;font-size:36px;letter-spacing:5px;text-shadow:0 1px 0 #fff}
-  .pharmacy-title-block span{display:block;margin-top:4px;color:#777164;font-family:Georgia,"Times New Roman",serif;font-size:11px;font-style:italic;letter-spacing:1px}
-  .pharmacy-medallion{
-    position:absolute;left:50%;top:-31px;transform:translateX(-50%);width:64px;height:64px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;border:5px double #91866d;background:radial-gradient(circle,#fffdf6,#dfd8c7);box-shadow:0 6px 14px rgba(0,0,0,.24),inset 0 0 0 3px #f8f4e9
+  .pharmacy-table td:first-child{border-left:1px solid rgba(103,119,94,.20);border-radius:3px 0 0 3px}
+  .pharmacy-table td:last-child{border-right:1px solid rgba(103,119,94,.20);border-radius:0 3px 3px 0}
+  .pharmacy-remedy{font-family:Georgia,"Times New Roman",serif;font-size:12px;font-weight:bold;color:#3f493e}
+  .pharmacy-price{font-size:11px;font-weight:bold;color:#755b2f;white-space:nowrap}
+  .pharmacy-not-sold{display:none!important}
+  .pharmacy-qty-box{display:flex;align-items:center;gap:4px;min-width:0}
+  .pharmacy-qty-box input{width:48px;min-width:48px;height:29px;padding:3px;text-align:center;border:1px solid #a39a87;border-radius:3px;background:#fffdf7;color:#4a4942;font-weight:bold;font-size:11px}
+  .pharmacy-qty-box input:focus{outline:none;border-color:#71866b;box-shadow:0 0 0 2px rgba(103,132,96,.14)}
+  .pharmacy-small-btn{height:29px;padding:0 6px;font-size:7.5px;line-height:1;white-space:nowrap}
+  .pharmacy-restock{background:linear-gradient(#8c7b58,#6b5e43);border-color:#978565;color:#fff9e6}
+  .pharmacy-count{background:linear-gradient(#617c5d,#496147);border-color:#7b9377;color:#f6fff1}
+  .pharmacy-empty{text-align:center!important;padding:25px!important;color:#6b7367!important;font-style:italic}
+  .pharmacy-ledger-foot{position:relative;z-index:1;padding:7px 10px;border-top:1px solid rgba(103,119,94,.28);background:rgba(231,226,209,.74);color:#716b5e;font-size:8px;line-height:1.25;text-align:center}
+  @media(max-width:1150px){
+    .pharmacy-illustration-stage{aspect-ratio:auto;min-height:730px;background:#e9ddc5}
+    .pharmacy-artwork{position:absolute;width:1150px;max-width:none;height:auto;left:50%;top:0;transform:translateX(-50%)}
+    .pharmacy-ledger{left:20px;right:20px;top:auto;bottom:24px;height:310px}
   }
-  .medallion-cross{color:#6c7562;font-size:28px;text-shadow:0 1px 0 #fff}
-  .crown-carving{position:absolute;top:42px;width:170px;height:43px;border-top:2px solid #a39a87;border-radius:50%;opacity:.55}
-  .carving-left{left:52px;transform:rotate(-4deg)}.carving-right{right:52px;transform:rotate(4deg)}
-  .crown-carving::before,.crown-carving::after{content:"";position:absolute;top:-5px;width:46px;height:17px;border:1px solid #a39a87;border-radius:50% 50% 0 50%}
-  .crown-carving::before{left:26px;transform:rotate(-20deg)}.crown-carving::after{right:26px;transform:scaleX(-1) rotate(-20deg)}
-  .pharmacy-upper-moulding{height:21px;margin:10px -10px 0;display:flex;align-items:center;justify-content:space-around;border:1px solid #a89f8b;border-top-color:#fff;background:linear-gradient(#f8f5ed,#cfc7b7);box-shadow:0 6px 9px rgba(0,0,0,.15)}
-  .pharmacy-upper-moulding i{width:16px;height:16px;border:1px solid #aaa18d;border-radius:50%;background:radial-gradient(circle,#fff,#d0c8b7)}
-
-  .pharmacy-doors{position:relative;display:grid;grid-template-columns:104px minmax(0,1fr) 104px;margin:0 5px;padding:12px 0 0;border-left:1px solid #b6ae9a;border-right:1px solid #b6ae9a;background:linear-gradient(90deg,#d3ccbd,#f0ece2 8%,#f0ece2 92%,#cec6b6)}
-  .pharmacy-side-door{position:relative;margin:6px 8px 12px;border:2px solid #9f9683;border-radius:5px;background:linear-gradient(105deg,#e5e0d4,#f5f2e9 45%,#d0c8b8);box-shadow:inset 0 0 0 5px #f9f6ef,inset 0 0 0 8px #aaa18d,0 2px 6px rgba(0,0,0,.15)}
-  .door-frame-inner{position:absolute;inset:13px 11px;display:grid;grid-template-rows:1fr 1fr;gap:12px}
-  .glass-pane{position:relative;overflow:hidden;border:1px solid #869584;background:linear-gradient(118deg,rgba(255,255,255,.50),rgba(157,177,157,.16) 45%,rgba(81,108,86,.22));box-shadow:inset 0 0 12px rgba(67,91,69,.15)}
-  .glass-pane::after{content:"";position:absolute;left:-25%;top:-10%;width:30%;height:130%;transform:skewX(-18deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent)}
-  .brass-handle{position:absolute;z-index:4;top:49%;width:8px;height:44px;border-radius:5px;background:linear-gradient(90deg,#745b2e,#d8bd70 42%,#8b6d37);box-shadow:0 2px 4px rgba(0,0,0,.28),inset 0 0 0 1px rgba(255,255,255,.18)}
-  .pharmacy-side-door-left .brass-handle{right:5px}.pharmacy-side-door-right .brass-handle{left:5px}
-  .bottle{position:absolute;bottom:5px;left:13px;width:20px;height:43px;border:1px solid rgba(59,48,34,.52);border-radius:6px 6px 4px 4px;box-shadow:inset 3px 0 5px rgba(255,255,255,.18),0 2px 3px rgba(0,0,0,.18)}
-  .bottle::before{content:"";position:absolute;left:5px;top:-12px;width:9px;height:13px;border:1px solid rgba(59,48,34,.52);border-bottom:0;border-radius:3px 3px 0 0}
-  .bottle-small{left:auto;right:10px;width:15px;height:32px}
-  .bottle-amber{background:linear-gradient(90deg,#704a26,#b77938,#6a4526)}.bottle-green{background:linear-gradient(90deg,#405947,#789071,#3f5846)}.bottle-clear{background:linear-gradient(90deg,rgba(212,217,198,.55),rgba(244,245,229,.72),rgba(170,183,166,.48))}
-  .folded-linen{position:absolute;left:10px;right:10px;bottom:10px;height:22px;border:1px solid #b7ae9d;background:repeating-linear-gradient(0deg,#f1eee5 0 6px,#d9d2c5 6px 8px);box-shadow:0 2px 3px rgba(0,0,0,.12)}
-  .rolled-bandage{position:absolute;left:14px;bottom:9px;width:38px;height:25px;border:1px solid #aaa293;border-radius:50%;background:radial-gradient(circle at 50% 50%,#b1aa9e 0 16%,#f0ede6 19% 58%,#c9c2b6 61% 100%)}
-
-  .pharmacy-display{min-width:0;margin:6px 0 12px;border:2px solid #9e9582;background:#e9e5da;box-shadow:0 5px 15px rgba(0,0,0,.18)}
-  .pharmacy-instructions{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:13px 18px;border-bottom:1px solid #b2a995;background:linear-gradient(#f7f4ec,#ddd6c7);color:#5b584f}
-  .pharmacy-instructions strong{display:block;color:#44463f;font-family:Georgia,"Times New Roman",serif;font-size:14px;margin-bottom:3px}
-  .pharmacy-instructions span{font-size:11px;color:#777267}
-  .pharmacy-instructions .btn{border-color:#a59b85;background:#ebe5d7;color:#4e493f}
-
-  .pharmacy-glass{position:relative;z-index:2;padding:19px 18px 15px;overflow:hidden;background:linear-gradient(112deg,rgba(255,255,255,.48),transparent 23%,rgba(255,255,255,.15) 47%,transparent 71%),radial-gradient(circle at 52% 16%,rgba(239,242,220,.56),transparent 58%),#a8b8a4;box-shadow:inset 0 0 44px rgba(45,68,48,.24),inset 0 0 0 5px rgba(247,246,231,.46)}
-  .pharmacy-glass::before{content:"";position:absolute;inset:8px;pointer-events:none;border:1px solid rgba(255,255,255,.45);box-shadow:inset 0 0 19px rgba(255,255,255,.17)}
-  .glass-reflection{position:absolute;z-index:0;top:-20px;height:150%;transform:skewX(-16deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.13),transparent);pointer-events:none}
-  .reflection-one{left:10%;width:24%}.reflection-two{right:8%;width:12%;opacity:.55}
-  .pharmacy-shelf{position:relative;z-index:1;height:14px;margin:10px 0 3px;border:1px solid #928a79;border-top-color:#faf7ef;background:linear-gradient(#f5f1e8,#c8bfad);box-shadow:0 6px 9px rgba(0,0,0,.25),inset 0 2px 0 rgba(255,255,255,.68)}
-  .pharmacy-shelf span{position:absolute;left:8%;right:8%;bottom:-5px;height:5px;background:rgba(92,79,60,.18);filter:blur(2px)}
-  .pharmacy-shelf-top{margin:0 0 11px}
-
-  .pharmacy-table-wrap{position:relative;z-index:2;overflow:auto}
-  .pharmacy-table{width:100%;min-width:820px;border-collapse:separate;border-spacing:0 8px}
-  .pharmacy-table th{padding:7px 10px;color:#485548;font-size:10px;letter-spacing:1px;text-transform:uppercase;text-align:left;border-bottom:1px solid rgba(67,86,69,.30)}
-  .pharmacy-table td{padding:12px 10px;background:rgba(250,248,240,.77);border-top:1px solid rgba(104,116,97,.20);border-bottom:1px solid rgba(104,116,97,.20);color:#4c5046;vertical-align:middle;box-shadow:0 2px 4px rgba(45,58,45,.08)}
-  .pharmacy-table td:first-child{border-left:1px solid rgba(104,116,97,.20);border-radius:3px 0 0 3px}.pharmacy-table td:last-child{border-right:1px solid rgba(104,116,97,.20);border-radius:0 3px 3px 0}
-  .pharmacy-remedy{font-family:Georgia,"Times New Roman",serif;font-size:15px;font-weight:bold;color:#3d463c}
-  .pharmacy-price{font-weight:bold;color:#7b5f31;white-space:nowrap}
-  .pharmacy-not-sold{display:inline-block;padding:5px 8px;border:1px solid rgba(150,75,65,.42);background:rgba(151,74,63,.10);color:#874f49;font-size:10px;font-weight:bold;text-transform:uppercase}
-  .pharmacy-qty-box{display:flex;align-items:center;gap:7px;min-width:215px}
-  .pharmacy-qty-box input{width:82px;height:36px;text-align:center;border:1px solid #9b9485;border-radius:3px;background:#fbfaf5;color:#4a4942;font-weight:bold;box-shadow:inset 0 1px 3px rgba(0,0,0,.08)}
-  .pharmacy-qty-box input:focus{outline:none;border-color:#778b6d;box-shadow:0 0 0 2px rgba(103,132,96,.16)}
-  .pharmacy-qty-box input:disabled{opacity:.48;cursor:not-allowed}
-  .pharmacy-small-btn{height:36px;padding:0 10px;font-size:10px;white-space:nowrap}
-  .pharmacy-restock{background:linear-gradient(#8b7e5d,#6d6249);border-color:#978968;color:#fff9e6}
-  .pharmacy-count{background:linear-gradient(#637d60,#4a6349);border-color:#7b9377;color:#f6fff1}
-  .pharmacy-foot{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:14px;padding:12px 18px;border-top:1px solid #a69d89;background:linear-gradient(#e9e4d8,#d0c8b8);color:#666256;text-align:center}
-  .pharmacy-foot p{margin:0;max-width:770px;font-size:10px;line-height:1.45}.pharmacy-foot-cross{color:#717b66;font-size:14px}
-  .pharmacy-empty{text-align:center!important;padding:28px!important;color:#687064!important;font-style:italic}
-
-  .pharmacy-base-moulding{position:relative;z-index:9;margin:0 -14px -8px;height:44px;display:flex;align-items:center;justify-content:center;gap:20px;border:1px solid #a59b86;border-top:4px double #918773;border-radius:0 0 7px 7px;background:linear-gradient(#e8e2d6,#c9c0ae);box-shadow:0 6px 9px rgba(0,0,0,.21),inset 0 2px 0 rgba(255,255,255,.72)}
-  .pharmacy-base-moulding b{font-family:Georgia,"Times New Roman",serif;color:#686358;font-size:10px;letter-spacing:3px}.base-rosette{color:#8d846f}
-  .pharmacy-feet{position:absolute;z-index:3;left:45px;right:45px;bottom:-25px;height:30px;display:flex;justify-content:space-between}
-  .pharmacy-feet i{display:block;width:60px;height:30px;background:linear-gradient(#d9d1c1,#9e9481);border:1px solid #8e846f;border-radius:0 0 13px 13px;box-shadow:0 9px 9px rgba(0,0,0,.25)}
-
-  .pharmacy-botanical-column{position:absolute;z-index:4;top:88px;bottom:58px;width:178px;pointer-events:none}
-  .botanical-column-left{left:0}.botanical-column-right{right:0}
-  .dense-bouquet{position:absolute;width:210px;height:390px;filter:url(#plantShadow);overflow:visible}
-  .bouquet-left-top{left:-18px;bottom:56px}.bouquet-right-top{right:-18px;bottom:55px}
-  .botanical-pot{position:absolute;z-index:6;bottom:18px;left:50%;transform:translateX(-50%);width:92px;height:66px;border:1px solid #8e856f;border-radius:8px 8px 23px 23px;background:linear-gradient(90deg,#b7ac92,#eee6cf 43%,#c5b99c 66%,#9b8e73);box-shadow:inset 0 5px 10px rgba(255,255,255,.35),0 8px 12px rgba(0,0,0,.30)}
-  .pot-right{width:101px;height:62px}.pot-rim{position:absolute;left:-10px;right:-10px;top:-9px;height:14px;border:1px solid #8f846c;border-radius:5px;background:linear-gradient(#e6dcc3,#aa9d7e)}
-  .pot-mark{position:absolute;left:50%;top:20px;transform:translateX(-50%);font-family:Georgia,serif;color:#786d58;font-size:15px}
-  .apothecary-wall-shelf{position:absolute;z-index:2;top:120px;left:1px;width:135px;height:14px;border:1px solid #7e6949;background:linear-gradient(#9a7951,#5b422c);box-shadow:0 5px 7px rgba(0,0,0,.30)}
-  .shelf-right{left:auto;right:1px;top:142px}
-  .herb-jar{position:absolute;bottom:14px;width:31px;height:48px;border:1px solid rgba(85,68,45,.72);border-radius:5px;background:linear-gradient(90deg,rgba(137,95,47,.76),rgba(204,151,80,.72),rgba(111,77,39,.78));box-shadow:inset 3px 0 5px rgba(255,255,255,.14)}
-  .herb-jar::before{content:"";position:absolute;left:5px;right:5px;top:-7px;height:8px;border-radius:3px 3px 0 0;background:#806740;border:1px solid #6d5738}
-  .herb-jar::after{content:"";position:absolute;left:5px;right:5px;top:18px;height:11px;background:#d7c49b;border:1px solid #a48d61}
-  .jar-a,.jar-d{left:7px}.jar-b,.jar-e{left:51px;height:55px}.jar-c,.jar-f{left:95px;height:42px}
-  .hanging-herb-rack{position:absolute;z-index:3;top:8px;left:10px;width:125px;height:118px;border-top:2px solid #735d3d}
-  .right-rack{left:auto;right:10px}
-  .hanging-herb-rack .rope{position:absolute;left:12px;right:12px;top:-9px;height:7px;border-top:1px solid #9b8257}
-  .herb-bundle{position:absolute;top:2px;width:29px;height:90px;border-left:3px solid #4d6048}
-  .herb-bundle::before,.herb-bundle::after{content:"";position:absolute;width:34px;height:60px;bottom:-3px;background:repeating-linear-gradient(120deg,#405640 0 3px,#65755b 3px 6px);border-radius:60% 18% 60% 18%;opacity:.92}
-  .herb-bundle::before{left:-20px;transform:rotate(11deg)}.herb-bundle::after{left:3px;transform:scaleX(-1) rotate(11deg)}
-  .bundle-1,.bundle-4{left:19px;transform:rotate(-8deg)}.bundle-2,.bundle-5{left:60px;height:105px}.bundle-3,.bundle-6{left:99px;transform:rotate(8deg)}
-
-  .pharmacy-floor-garden{position:absolute;z-index:3;left:0;right:0;bottom:-1px;height:160px;pointer-events:none;opacity:.92;filter:drop-shadow(0 5px 6px rgba(0,0,0,.20))}
-  .floor-garden-svg{width:100%;height:100%;overflow:visible}
-
-  @media(max-width:1300px){
-    .pharmacy-room.realistic-pharmacy{padding-left:118px;padding-right:118px}
-    .pharmacy-botanical-column{width:128px;opacity:.82}.dense-bouquet{width:170px}
-    .apothecary-wall-shelf,.hanging-herb-rack{transform:scale(.82);transform-origin:center top}
-    .pharmacy-title-block h3{font-size:31px}
-  }
-  @media(max-width:1030px){
-    .pharmacy-room.realistic-pharmacy{padding:40px 10px 64px;min-height:0}
-    .pharmacy-botanical-column,.pharmacy-floor-garden,.pharmacy-top-garland{display:none}
-    .pharmacy-cabinet{width:100%;padding-left:12px;padding-right:12px}
-    .pharmacy-crown{margin-left:-24px;margin-right:-24px}
-    .pharmacy-doors{grid-template-columns:34px minmax(0,1fr) 34px}
-    .pharmacy-side-door{margin-left:2px;margin-right:2px}.door-frame-inner,.brass-handle{display:none}
-    .pharmacy-title-block{min-width:0}.pharmacy-title-block h3{font-size:25px}.crown-carving{display:none}
-    .pharmacy-instructions{align-items:flex-start;flex-direction:column}.pharmacy-glass{padding:12px 8px}
+  @media(max-width:700px){
+    .pharmacy-illustration-stage{min-height:690px}
+    .pharmacy-artwork{width:900px}
+    .pharmacy-ledger{left:8px;right:8px;bottom:10px;height:340px}
+    .pharmacy-ledger-head{align-items:flex-start;flex-direction:column}
+    .pharmacy-table{min-width:620px}
   }
 </style>
 </head>
@@ -1147,243 +1060,82 @@
 
 
     <section id="pharmacy" class="view">
-      <div class="pharmacy-room realistic-pharmacy">
-        <svg class="pharmacy-svg-defs" aria-hidden="true">
-          <defs>
-            <linearGradient id="leafGreen" x1="0" x2="1" y1="0" y2="1">
-              <stop offset="0" stop-color="#9ca987"/>
-              <stop offset=".42" stop-color="#68795c"/>
-              <stop offset="1" stop-color="#314633"/>
-            </linearGradient>
-            <linearGradient id="leafDark" x1="0" x2="1">
-              <stop offset="0" stop-color="#73836a"/>
-              <stop offset=".55" stop-color="#425843"/>
-              <stop offset="1" stop-color="#26392b"/>
-            </linearGradient>
-            <radialGradient id="petalCream">
-              <stop offset="0" stop-color="#fffaf0"/>
-              <stop offset=".65" stop-color="#e7d8b5"/>
-              <stop offset="1" stop-color="#bda36b"/>
-            </radialGradient>
-            <radialGradient id="petalRose">
-              <stop offset="0" stop-color="#fff0e7"/>
-              <stop offset=".62" stop-color="#d8a79e"/>
-              <stop offset="1" stop-color="#8f5d59"/>
-            </radialGradient>
-            <filter id="plantShadow" x="-30%" y="-30%" width="160%" height="180%">
-              <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000" flood-opacity=".28"/>
-            </filter>
+      <div class="pharmacy-illustration-stage">
+        <svg class="pharmacy-artwork" viewBox="0 0 1600 1100" role="img" aria-label="Armoire de pharmacie blanche de 1889 entourée de plantes et de fleurs">
+<defs>
+ <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3ead8"/><stop offset="1" stop-color="#e2d4ba"/></linearGradient>
+ <linearGradient id="woodWhite" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fffdf5"/><stop offset=".42" stop-color="#eae3d4"/><stop offset=".75" stop-color="#f8f4e9"/><stop offset="1" stop-color="#c9bda7"/></linearGradient>
+ <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f5fbef" stop-opacity=".7"/><stop offset=".45" stop-color="#aab9a5" stop-opacity=".36"/><stop offset="1" stop-color="#70846f" stop-opacity=".23"/></linearGradient>
+ <linearGradient id="leafG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9aa678"/><stop offset=".5" stop-color="#5f7656"/><stop offset="1" stop-color="#2f4936"/></linearGradient>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#000" flood-opacity=".24"/></filter>
+ <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation=".6"/></filter>
+ <pattern id="crackle" width="54" height="54" patternUnits="userSpaceOnUse"><path d="M5 8l9 7-5 11 12 5 6-9 11 8 8-6M15 45l9-9 11 5 7-10" fill="none" stroke="#ad9c82" stroke-width=".8" opacity=".22"/></pattern>
+ <symbol id="leaf" viewBox="0 0 54 34"><path d="M2 17C13 2 38 0 52 14 41 29 18 34 2 17Z" fill="url(#leafG)" stroke="#38503a" stroke-width="1.2"/><path d="M5 17C19 16 34 15 49 14" fill="none" stroke="#324735" stroke-width="1"/><path d="M20 16l-8-7m16 6l-5-10m15 9l-3-8M20 18l-9 7m18-8l-6 10m16-11l-4 8" stroke="#91a184" stroke-width=".7"/></symbol>
+ <symbol id="daisy" viewBox="0 0 100 100"><g transform="translate(50 50)"><ellipse rx="8" ry="28" cy="-24" transform="rotate(0)" fill="#fffdf5" stroke="#c8b997"/><ellipse rx="8" ry="28" cy="-24" transform="rotate(30)" fill="#fffdf5" stroke="#c8b997"/><ellipse rx="8" ry="28" cy="-24" transform="rotate(60)" fill="#fffdf5" stroke="#c8b997"/><ellipse rx="8" ry="28" cy="-24" transform="rotate(90)" fill="#fffdf5" stroke="#c8b997"/><ellipse rx="8" ry="28" cy="-24" transform="rotate(120)" fill="#fffdf5" stroke="#c8b997"/><ellipse rx="8" ry="28" cy="-24" transform="rotate(150)" fill="#fffdf5" stroke="#c8b997"/><ellipse rx="8" ry="28" cy="-24" transform="rotate(180)" fill="#fffdf5" stroke="#c8b997"/><ellipse rx="8" ry="28" cy="-24" transform="rotate(210)" fill="#fffdf5" stroke="#c8b997"/><ellipse rx="8" ry="28" cy="-24" transform="rotate(240)" fill="#fffdf5" stroke="#c8b997"/><ellipse rx="8" ry="28" cy="-24" transform="rotate(270)" fill="#fffdf5" stroke="#c8b997"/><ellipse rx="8" ry="28" cy="-24" transform="rotate(300)" fill="#fffdf5" stroke="#c8b997"/><ellipse rx="8" ry="28" cy="-24" transform="rotate(330)" fill="#fffdf5" stroke="#c8b997"/><circle r="15" fill="#d9a52d" stroke="#8c6a24"/><circle r="7" fill="#7e5d20"/></g></symbol>
+ <symbol id="ech" viewBox="0 0 100 100"><g transform="translate(50 52)"><ellipse rx="9" ry="30" cy="-22" transform="rotate(0)" fill="#d9878c" stroke="#9e5b62"/><ellipse rx="9" ry="30" cy="-22" transform="rotate(32.7)" fill="#d9878c" stroke="#9e5b62"/><ellipse rx="9" ry="30" cy="-22" transform="rotate(65.4)" fill="#d9878c" stroke="#9e5b62"/><ellipse rx="9" ry="30" cy="-22" transform="rotate(98.10000000000001)" fill="#d9878c" stroke="#9e5b62"/><ellipse rx="9" ry="30" cy="-22" transform="rotate(130.8)" fill="#d9878c" stroke="#9e5b62"/><ellipse rx="9" ry="30" cy="-22" transform="rotate(163.5)" fill="#d9878c" stroke="#9e5b62"/><ellipse rx="9" ry="30" cy="-22" transform="rotate(196.20000000000002)" fill="#d9878c" stroke="#9e5b62"/><ellipse rx="9" ry="30" cy="-22" transform="rotate(228.90000000000003)" fill="#d9878c" stroke="#9e5b62"/><ellipse rx="9" ry="30" cy="-22" transform="rotate(261.6)" fill="#d9878c" stroke="#9e5b62"/><ellipse rx="9" ry="30" cy="-22" transform="rotate(294.3)" fill="#d9878c" stroke="#9e5b62"/><ellipse rx="9" ry="30" cy="-22" transform="rotate(327)" fill="#d9878c" stroke="#9e5b62"/><circle r="17" fill="#9d5d2e"/><circle r="9" fill="#5e3e24"/></g></symbol>
+ <symbol id="hyd" viewBox="0 0 120 100"><g transform="translate(18 15) scale(.55)"><use href="#daisy" width="52" height="52" opacity=".88"/></g><g transform="translate(47 62) scale(.55)"><use href="#daisy" width="52" height="52" opacity=".88"/></g><g transform="translate(76 43) scale(.55)"><use href="#daisy" width="52" height="52" opacity=".88"/></g><g transform="translate(105 24) scale(.55)"><use href="#daisy" width="52" height="52" opacity=".88"/></g><g transform="translate(46 71) scale(.55)"><use href="#daisy" width="52" height="52" opacity=".88"/></g><g transform="translate(75 52) scale(.55)"><use href="#daisy" width="52" height="52" opacity=".88"/></g><g transform="translate(104 33) scale(.55)"><use href="#daisy" width="52" height="52" opacity=".88"/></g><g transform="translate(45 80) scale(.55)"><use href="#daisy" width="52" height="52" opacity=".88"/></g><g transform="translate(74 61) scale(.55)"><use href="#daisy" width="52" height="52" opacity=".88"/></g><g transform="translate(103 42) scale(.55)"><use href="#daisy" width="52" height="52" opacity=".88"/></g><g transform="translate(44 23) scale(.55)"><use href="#daisy" width="52" height="52" opacity=".88"/></g><g transform="translate(73 70) scale(.55)"><use href="#daisy" width="52" height="52" opacity=".88"/></g><g transform="translate(102 51) scale(.55)"><use href="#daisy" width="52" height="52" opacity=".88"/></g><g transform="translate(43 32) scale(.55)"><use href="#daisy" width="52" height="52" opacity=".88"/></g><g transform="translate(72 79) scale(.55)"><use href="#daisy" width="52" height="52" opacity=".88"/></g><g transform="translate(101 60) scale(.55)"><use href="#daisy" width="52" height="52" opacity=".88"/></g><g transform="translate(42 41) scale(.55)"><use href="#daisy" width="52" height="52" opacity=".88"/></g><g transform="translate(71 22) scale(.55)"><use href="#daisy" width="52" height="52" opacity=".88"/></g></symbol>
+ <symbol id="lav" viewBox="0 0 80 180"><path d="M40 178C38 120 39 64 43 9" stroke="#405943" stroke-width="4" fill="none"/><ellipse cx="28" cy="22" rx="10" ry="5" transform="rotate(-35 28 22)" fill="#746aa3" stroke="#51497e"/><ellipse cx="52" cy="31" rx="10" ry="5" transform="rotate(35 52 31)" fill="#746aa3" stroke="#51497e"/><ellipse cx="28" cy="40" rx="10" ry="5" transform="rotate(-35 28 40)" fill="#746aa3" stroke="#51497e"/><ellipse cx="52" cy="49" rx="10" ry="5" transform="rotate(35 52 49)" fill="#746aa3" stroke="#51497e"/><ellipse cx="28" cy="58" rx="10" ry="5" transform="rotate(-35 28 58)" fill="#746aa3" stroke="#51497e"/><ellipse cx="52" cy="67" rx="10" ry="5" transform="rotate(35 52 67)" fill="#746aa3" stroke="#51497e"/><ellipse cx="28" cy="76" rx="10" ry="5" transform="rotate(-35 28 76)" fill="#746aa3" stroke="#51497e"/><ellipse cx="52" cy="85" rx="10" ry="5" transform="rotate(35 52 85)" fill="#746aa3" stroke="#51497e"/><ellipse cx="28" cy="94" rx="10" ry="5" transform="rotate(-35 28 94)" fill="#746aa3" stroke="#51497e"/><ellipse cx="52" cy="103" rx="10" ry="5" transform="rotate(35 52 103)" fill="#746aa3" stroke="#51497e"/><ellipse cx="28" cy="112" rx="10" ry="5" transform="rotate(-35 28 112)" fill="#746aa3" stroke="#51497e"/><ellipse cx="52" cy="121" rx="10" ry="5" transform="rotate(35 52 121)" fill="#746aa3" stroke="#51497e"/><ellipse cx="28" cy="130" rx="10" ry="5" transform="rotate(-35 28 130)" fill="#746aa3" stroke="#51497e"/><ellipse cx="52" cy="139" rx="10" ry="5" transform="rotate(35 52 139)" fill="#746aa3" stroke="#51497e"/><ellipse cx="28" cy="148" rx="10" ry="5" transform="rotate(-35 28 148)" fill="#746aa3" stroke="#51497e"/></symbol>
+ <symbol id="fox" viewBox="0 0 90 210"><path d="M45 205C44 141 43 84 46 8" stroke="#466044" stroke-width="5" fill="none"/><path d="M31 18c-18 3-21 22-4 31 14 8 28-4 26-18-1-11-11-17-22-15Z" fill="#d47b9b" stroke="#8e526b" stroke-width="2"/><circle cx="40" cy="37" r="3" fill="#6a3a53"/><path d="M46 35c-18 3-21 22-4 31 14 8 28-4 26-18-1-11-11-17-22-15Z" fill="#d47b9b" stroke="#8e526b" stroke-width="2"/><circle cx="55" cy="54" r="3" fill="#6a3a53"/><path d="M31 52c-18 3-21 22-4 31 14 8 28-4 26-18-1-11-11-17-22-15Z" fill="#d47b9b" stroke="#8e526b" stroke-width="2"/><circle cx="40" cy="71" r="3" fill="#6a3a53"/><path d="M46 69c-18 3-21 22-4 31 14 8 28-4 26-18-1-11-11-17-22-15Z" fill="#d47b9b" stroke="#8e526b" stroke-width="2"/><circle cx="55" cy="88" r="3" fill="#6a3a53"/><path d="M31 86c-18 3-21 22-4 31 14 8 28-4 26-18-1-11-11-17-22-15Z" fill="#d47b9b" stroke="#8e526b" stroke-width="2"/><circle cx="40" cy="105" r="3" fill="#6a3a53"/><path d="M46 103c-18 3-21 22-4 31 14 8 28-4 26-18-1-11-11-17-22-15Z" fill="#d47b9b" stroke="#8e526b" stroke-width="2"/><circle cx="55" cy="122" r="3" fill="#6a3a53"/><path d="M31 120c-18 3-21 22-4 31 14 8 28-4 26-18-1-11-11-17-22-15Z" fill="#d47b9b" stroke="#8e526b" stroke-width="2"/><circle cx="40" cy="139" r="3" fill="#6a3a53"/><path d="M46 137c-18 3-21 22-4 31 14 8 28-4 26-18-1-11-11-17-22-15Z" fill="#d47b9b" stroke="#8e526b" stroke-width="2"/><circle cx="55" cy="156" r="3" fill="#6a3a53"/><path d="M31 154c-18 3-21 22-4 31 14 8 28-4 26-18-1-11-11-17-22-15Z" fill="#d47b9b" stroke="#8e526b" stroke-width="2"/><circle cx="40" cy="173" r="3" fill="#6a3a53"/><path d="M46 171c-18 3-21 22-4 31 14 8 28-4 26-18-1-11-11-17-22-15Z" fill="#d47b9b" stroke="#8e526b" stroke-width="2"/><circle cx="55" cy="190" r="3" fill="#6a3a53"/></symbol>
+</defs>
+<rect width="1600" height="1100" fill="url(#paper)"/>
+<rect x="0" y="0" width="1600" height="1100" fill="#fff" opacity=".08"/>
+<g opacity=".34" stroke="#9d8766" fill="#eee2c9"><rect x="155" y="80" width="185" height="220"/><rect x="1260" y="100" width="190" height="230"/><rect x="95" y="520" width="190" height="220"/><rect x="1320" y="505" width="180" height="230"/></g>
+<g opacity=".28" stroke="#5c755a" fill="none" stroke-width="3"><path d="M205 267c33-95 58-118 78-154m-55 99l-36-28m58 1l38-33"/><path d="M1320 285c18-90 60-119 86-151m-62 91l-31-25m59 1l42-34"/><path d="M150 705c25-91 63-126 100-155m-60 99l-41-24m69-10l39-31"/><path d="M1373 692c15-79 52-111 90-150m-59 95l-38-24m68-4l36-31"/></g>
+<g filter="url(#shadow)"><use href="#leaf" x="40" y="170" width="38.879999999999995" height="24.48" transform="rotate(-34 59.44 182.24)"/><use href="#leaf" x="87" y="182" width="43.2" height="27.200000000000003" transform="rotate(-17 108.6 195.6)"/><use href="#leaf" x="134" y="194" width="47.52" height="29.92" transform="rotate(0 157.76 208.96)"/><use href="#leaf" x="181" y="170" width="51.839999999999996" height="32.64" transform="rotate(17 206.92 186.32)"/><use href="#leaf" x="228" y="182" width="56.160000000000004" height="35.36" transform="rotate(-34 256.08 199.68)"/><use href="#leaf" x="275" y="194" width="38.879999999999995" height="24.48" transform="rotate(-17 294.44 206.24)"/><use href="#leaf" x="50" y="252" width="43.2" height="27.200000000000003" transform="rotate(0 71.6 265.6)"/><use href="#leaf" x="97" y="264" width="47.52" height="29.92" transform="rotate(17 120.76 278.96)"/><use href="#leaf" x="144" y="276" width="51.839999999999996" height="32.64" transform="rotate(-34 169.92 292.32)"/><use href="#leaf" x="191" y="252" width="56.160000000000004" height="35.36" transform="rotate(-17 219.08 269.68)"/><use href="#leaf" x="238" y="264" width="38.879999999999995" height="24.48" transform="rotate(0 257.44 276.24)"/><use href="#leaf" x="285" y="276" width="43.2" height="27.200000000000003" transform="rotate(17 306.6 289.6)"/><use href="#leaf" x="40" y="334" width="47.52" height="29.92" transform="rotate(-34 63.760000000000005 348.96)"/><use href="#leaf" x="87" y="346" width="51.839999999999996" height="32.64" transform="rotate(-17 112.92 362.32)"/><use href="#leaf" x="134" y="358" width="56.160000000000004" height="35.36" transform="rotate(0 162.08 375.68)"/><use href="#leaf" x="181" y="334" width="38.879999999999995" height="24.48" transform="rotate(17 200.44 346.24)"/><use href="#leaf" x="228" y="346" width="43.2" height="27.200000000000003" transform="rotate(-34 249.6 359.6)"/><use href="#leaf" x="275" y="358" width="47.52" height="29.92" transform="rotate(-17 298.76 372.96)"/><use href="#leaf" x="50" y="416" width="51.839999999999996" height="32.64" transform="rotate(0 75.92 432.32)"/><use href="#leaf" x="97" y="428" width="56.160000000000004" height="35.36" transform="rotate(17 125.08 445.68)"/><use href="#leaf" x="144" y="440" width="38.879999999999995" height="24.48" transform="rotate(-34 163.44 452.24)"/><use href="#leaf" x="191" y="416" width="43.2" height="27.200000000000003" transform="rotate(-17 212.6 429.6)"/><use href="#leaf" x="238" y="428" width="47.52" height="29.92" transform="rotate(0 261.76 442.96)"/><use href="#leaf" x="285" y="440" width="51.839999999999996" height="32.64" transform="rotate(17 310.92 456.32)"/><use href="#leaf" x="40" y="498" width="56.160000000000004" height="35.36" transform="rotate(-34 68.08 515.68)"/><use href="#leaf" x="87" y="510" width="38.879999999999995" height="24.48" transform="rotate(-17 106.44 522.24)"/><use href="#leaf" x="134" y="522" width="43.2" height="27.200000000000003" transform="rotate(0 155.6 535.6)"/><use href="#leaf" x="181" y="498" width="47.52" height="29.92" transform="rotate(17 204.76 512.96)"/><use href="#leaf" x="228" y="510" width="51.839999999999996" height="32.64" transform="rotate(-34 253.92 526.32)"/><use href="#leaf" x="275" y="522" width="56.160000000000004" height="35.36" transform="rotate(-17 303.08 539.68)"/><use href="#leaf" x="50" y="580" width="38.879999999999995" height="24.48" transform="rotate(0 69.44 592.24)"/><use href="#leaf" x="97" y="592" width="43.2" height="27.200000000000003" transform="rotate(17 118.6 605.6)"/><use href="#leaf" x="144" y="604" width="47.52" height="29.92" transform="rotate(-34 167.76 618.96)"/><use href="#leaf" x="191" y="580" width="51.839999999999996" height="32.64" transform="rotate(-17 216.92 596.32)"/><use href="#leaf" x="238" y="592" width="56.160000000000004" height="35.36" transform="rotate(0 266.08 609.68)"/><use href="#leaf" x="285" y="604" width="38.879999999999995" height="24.48" transform="rotate(17 304.44 616.24)"/><use href="#leaf" x="40" y="662" width="43.2" height="27.200000000000003" transform="rotate(-34 61.6 675.6)"/><use href="#leaf" x="87" y="674" width="47.52" height="29.92" transform="rotate(-17 110.76 688.96)"/><use href="#leaf" x="134" y="686" width="51.839999999999996" height="32.64" transform="rotate(0 159.92 702.32)"/><use href="#leaf" x="181" y="662" width="56.160000000000004" height="35.36" transform="rotate(17 209.08 679.68)"/><use href="#leaf" x="228" y="674" width="38.879999999999995" height="24.48" transform="rotate(-34 247.44 686.24)"/><use href="#leaf" x="275" y="686" width="43.2" height="27.200000000000003" transform="rotate(-17 296.6 699.6)"/><use href="#leaf" x="50" y="744" width="47.52" height="29.92" transform="rotate(0 73.76 758.96)"/><use href="#leaf" x="97" y="756" width="51.839999999999996" height="32.64" transform="rotate(17 122.92 772.32)"/><use href="#leaf" x="144" y="768" width="56.160000000000004" height="35.36" transform="rotate(-34 172.08 785.68)"/><use href="#leaf" x="191" y="744" width="38.879999999999995" height="24.48" transform="rotate(-17 210.44 756.24)"/><use href="#leaf" x="238" y="756" width="43.2" height="27.200000000000003" transform="rotate(0 259.6 769.6)"/><use href="#leaf" x="285" y="768" width="47.52" height="29.92" transform="rotate(17 308.76 782.96)"/><use href="#leaf" x="40" y="826" width="51.839999999999996" height="32.64" transform="rotate(-34 65.92 842.32)"/><use href="#leaf" x="87" y="838" width="56.160000000000004" height="35.36" transform="rotate(-17 115.08 855.68)"/><use href="#leaf" x="134" y="850" width="38.879999999999995" height="24.48" transform="rotate(0 153.44 862.24)"/><use href="#leaf" x="181" y="826" width="43.2" height="27.200000000000003" transform="rotate(17 202.6 839.6)"/><use href="#leaf" x="228" y="838" width="47.52" height="29.92" transform="rotate(-34 251.76 852.96)"/><use href="#leaf" x="275" y="850" width="51.839999999999996" height="32.64" transform="rotate(-17 300.92 866.32)"/><use href="#leaf" x="1466" y="170" width="38.879999999999995" height="24.48" transform="rotate(34 1485.44 182.24)"/><use href="#leaf" x="1419" y="182" width="43.2" height="27.200000000000003" transform="rotate(17 1440.6 195.6)"/><use href="#leaf" x="1372" y="194" width="47.52" height="29.92" transform="rotate(0 1395.76 208.96)"/><use href="#leaf" x="1325" y="170" width="51.839999999999996" height="32.64" transform="rotate(-17 1350.92 186.32)"/><use href="#leaf" x="1278" y="182" width="56.160000000000004" height="35.36" transform="rotate(34 1306.08 199.68)"/><use href="#leaf" x="1231" y="194" width="38.879999999999995" height="24.48" transform="rotate(17 1250.44 206.24)"/><use href="#leaf" x="1456" y="252" width="43.2" height="27.200000000000003" transform="rotate(0 1477.6 265.6)"/><use href="#leaf" x="1409" y="264" width="47.52" height="29.92" transform="rotate(-17 1432.76 278.96)"/><use href="#leaf" x="1362" y="276" width="51.839999999999996" height="32.64" transform="rotate(34 1387.92 292.32)"/><use href="#leaf" x="1315" y="252" width="56.160000000000004" height="35.36" transform="rotate(17 1343.08 269.68)"/><use href="#leaf" x="1268" y="264" width="38.879999999999995" height="24.48" transform="rotate(0 1287.44 276.24)"/><use href="#leaf" x="1221" y="276" width="43.2" height="27.200000000000003" transform="rotate(-17 1242.6 289.6)"/><use href="#leaf" x="1466" y="334" width="47.52" height="29.92" transform="rotate(34 1489.76 348.96)"/><use href="#leaf" x="1419" y="346" width="51.839999999999996" height="32.64" transform="rotate(17 1444.92 362.32)"/><use href="#leaf" x="1372" y="358" width="56.160000000000004" height="35.36" transform="rotate(0 1400.08 375.68)"/><use href="#leaf" x="1325" y="334" width="38.879999999999995" height="24.48" transform="rotate(-17 1344.44 346.24)"/><use href="#leaf" x="1278" y="346" width="43.2" height="27.200000000000003" transform="rotate(34 1299.6 359.6)"/><use href="#leaf" x="1231" y="358" width="47.52" height="29.92" transform="rotate(17 1254.76 372.96)"/><use href="#leaf" x="1456" y="416" width="51.839999999999996" height="32.64" transform="rotate(0 1481.92 432.32)"/><use href="#leaf" x="1409" y="428" width="56.160000000000004" height="35.36" transform="rotate(-17 1437.08 445.68)"/><use href="#leaf" x="1362" y="440" width="38.879999999999995" height="24.48" transform="rotate(34 1381.44 452.24)"/><use href="#leaf" x="1315" y="416" width="43.2" height="27.200000000000003" transform="rotate(17 1336.6 429.6)"/><use href="#leaf" x="1268" y="428" width="47.52" height="29.92" transform="rotate(0 1291.76 442.96)"/><use href="#leaf" x="1221" y="440" width="51.839999999999996" height="32.64" transform="rotate(-17 1246.92 456.32)"/><use href="#leaf" x="1466" y="498" width="56.160000000000004" height="35.36" transform="rotate(34 1494.08 515.68)"/><use href="#leaf" x="1419" y="510" width="38.879999999999995" height="24.48" transform="rotate(17 1438.44 522.24)"/><use href="#leaf" x="1372" y="522" width="43.2" height="27.200000000000003" transform="rotate(0 1393.6 535.6)"/><use href="#leaf" x="1325" y="498" width="47.52" height="29.92" transform="rotate(-17 1348.76 512.96)"/><use href="#leaf" x="1278" y="510" width="51.839999999999996" height="32.64" transform="rotate(34 1303.92 526.32)"/><use href="#leaf" x="1231" y="522" width="56.160000000000004" height="35.36" transform="rotate(17 1259.08 539.68)"/><use href="#leaf" x="1456" y="580" width="38.879999999999995" height="24.48" transform="rotate(0 1475.44 592.24)"/><use href="#leaf" x="1409" y="592" width="43.2" height="27.200000000000003" transform="rotate(-17 1430.6 605.6)"/><use href="#leaf" x="1362" y="604" width="47.52" height="29.92" transform="rotate(34 1385.76 618.96)"/><use href="#leaf" x="1315" y="580" width="51.839999999999996" height="32.64" transform="rotate(17 1340.92 596.32)"/><use href="#leaf" x="1268" y="592" width="56.160000000000004" height="35.36" transform="rotate(0 1296.08 609.68)"/><use href="#leaf" x="1221" y="604" width="38.879999999999995" height="24.48" transform="rotate(-17 1240.44 616.24)"/><use href="#leaf" x="1466" y="662" width="43.2" height="27.200000000000003" transform="rotate(34 1487.6 675.6)"/><use href="#leaf" x="1419" y="674" width="47.52" height="29.92" transform="rotate(17 1442.76 688.96)"/><use href="#leaf" x="1372" y="686" width="51.839999999999996" height="32.64" transform="rotate(0 1397.92 702.32)"/><use href="#leaf" x="1325" y="662" width="56.160000000000004" height="35.36" transform="rotate(-17 1353.08 679.68)"/><use href="#leaf" x="1278" y="674" width="38.879999999999995" height="24.48" transform="rotate(34 1297.44 686.24)"/><use href="#leaf" x="1231" y="686" width="43.2" height="27.200000000000003" transform="rotate(17 1252.6 699.6)"/><use href="#leaf" x="1456" y="744" width="47.52" height="29.92" transform="rotate(0 1479.76 758.96)"/><use href="#leaf" x="1409" y="756" width="51.839999999999996" height="32.64" transform="rotate(-17 1434.92 772.32)"/><use href="#leaf" x="1362" y="768" width="56.160000000000004" height="35.36" transform="rotate(34 1390.08 785.68)"/><use href="#leaf" x="1315" y="744" width="38.879999999999995" height="24.48" transform="rotate(17 1334.44 756.24)"/><use href="#leaf" x="1268" y="756" width="43.2" height="27.200000000000003" transform="rotate(0 1289.6 769.6)"/><use href="#leaf" x="1221" y="768" width="47.52" height="29.92" transform="rotate(-17 1244.76 782.96)"/><use href="#leaf" x="1466" y="826" width="51.839999999999996" height="32.64" transform="rotate(34 1491.92 842.32)"/><use href="#leaf" x="1419" y="838" width="56.160000000000004" height="35.36" transform="rotate(17 1447.08 855.68)"/><use href="#leaf" x="1372" y="850" width="38.879999999999995" height="24.48" transform="rotate(0 1391.44 862.24)"/><use href="#leaf" x="1325" y="826" width="43.2" height="27.200000000000003" transform="rotate(-17 1346.6 839.6)"/><use href="#leaf" x="1278" y="838" width="47.52" height="29.92" transform="rotate(34 1301.76 852.96)"/><use href="#leaf" x="1231" y="850" width="51.839999999999996" height="32.64" transform="rotate(17 1256.92 866.32)"/><use href="#fox" x="88" y="250" width="105" height="220" opacity=".98"/><use href="#daisy" x="185" y="340" width="115" height="115" opacity=".98"/><use href="#lav" x="55" y="435" width="95" height="190" opacity=".98"/><use href="#ech" x="214" y="545" width="120" height="125" opacity=".98"/><use href="#hyd" x="105" y="660" width="145" height="120" opacity=".98"/><use href="#daisy" x="170" y="760" width="115" height="115" opacity=".98"/><use href="#fox" x="62" y="860" width="105" height="220" opacity=".98"/><use href="#fox" x="1452" y="250" width="105" height="220" opacity=".98"/><use href="#daisy" x="1350" y="340" width="115" height="115" opacity=".98"/><use href="#lav" x="1490" y="435" width="95" height="190" opacity=".98"/><use href="#ech" x="1325" y="545" width="120" height="125" opacity=".98"/><use href="#hyd" x="1435" y="660" width="145" height="120" opacity=".98"/><use href="#daisy" x="1365" y="760" width="115" height="115" opacity=".98"/><use href="#fox" x="1502" y="860" width="105" height="220" opacity=".98"/></g>
+<g filter="url(#shadow)"><use href="#leaf" x="170" y="70" width="60" height="37" transform="rotate(-28 200 88)"/><use href="#leaf" x="204" y="84" width="60" height="37" transform="rotate(-9 234 102)"/><use href="#leaf" x="238" y="98" width="60" height="37" transform="rotate(10 268 116)"/><use href="#leaf" x="272" y="112" width="60" height="37" transform="rotate(-27 302 130)"/><use href="#leaf" x="306" y="70" width="60" height="37" transform="rotate(-8 336 88)"/><use href="#leaf" x="340" y="84" width="60" height="37" transform="rotate(11 370 102)"/><use href="#leaf" x="374" y="98" width="60" height="37" transform="rotate(-26 404 116)"/><use href="#leaf" x="408" y="112" width="60" height="37" transform="rotate(-7 438 130)"/><use href="#leaf" x="442" y="70" width="60" height="37" transform="rotate(12 472 88)"/><use href="#leaf" x="476" y="84" width="60" height="37" transform="rotate(-25 506 102)"/><use href="#leaf" x="510" y="98" width="60" height="37" transform="rotate(-6 540 116)"/><use href="#leaf" x="544" y="112" width="60" height="37" transform="rotate(13 574 130)"/><use href="#leaf" x="578" y="70" width="60" height="37" transform="rotate(-24 608 88)"/><use href="#leaf" x="612" y="84" width="60" height="37" transform="rotate(-5 642 102)"/><use href="#leaf" x="646" y="98" width="60" height="37" transform="rotate(14 676 116)"/><use href="#leaf" x="680" y="112" width="60" height="37" transform="rotate(-23 710 130)"/><use href="#leaf" x="714" y="70" width="60" height="37" transform="rotate(-4 744 88)"/><use href="#leaf" x="748" y="84" width="60" height="37" transform="rotate(15 778 102)"/><use href="#leaf" x="782" y="98" width="60" height="37" transform="rotate(-22 812 116)"/><use href="#leaf" x="816" y="112" width="60" height="37" transform="rotate(-3 846 130)"/><use href="#leaf" x="850" y="70" width="60" height="37" transform="rotate(16 880 88)"/><use href="#leaf" x="884" y="84" width="60" height="37" transform="rotate(-21 914 102)"/><use href="#leaf" x="918" y="98" width="60" height="37" transform="rotate(-2 948 116)"/><use href="#leaf" x="952" y="112" width="60" height="37" transform="rotate(17 982 130)"/><use href="#leaf" x="986" y="70" width="60" height="37" transform="rotate(-20 1016 88)"/><use href="#leaf" x="1020" y="84" width="60" height="37" transform="rotate(-1 1050 102)"/><use href="#leaf" x="1054" y="98" width="60" height="37" transform="rotate(18 1084 116)"/><use href="#leaf" x="1088" y="112" width="60" height="37" transform="rotate(-19 1118 130)"/><use href="#leaf" x="1122" y="70" width="60" height="37" transform="rotate(0 1152 88)"/><use href="#leaf" x="1156" y="84" width="60" height="37" transform="rotate(19 1186 102)"/><use href="#leaf" x="1190" y="98" width="60" height="37" transform="rotate(-18 1220 116)"/><use href="#leaf" x="1224" y="112" width="60" height="37" transform="rotate(1 1254 130)"/><use href="#leaf" x="1258" y="70" width="60" height="37" transform="rotate(20 1288 88)"/><use href="#leaf" x="1292" y="84" width="60" height="37" transform="rotate(-17 1322 102)"/><use href="#leaf" x="1326" y="98" width="60" height="37" transform="rotate(2 1356 116)"/><use href="#leaf" x="1360" y="112" width="60" height="37" transform="rotate(21 1390 130)"/><use href="#leaf" x="1394" y="70" width="60" height="37" transform="rotate(-16 1424 88)"/><use href="#leaf" x="1428" y="84" width="60" height="37" transform="rotate(3 1458 102)"/><use href="#daisy" x="340" y="38" width="100" height="100"/><use href="#lav" x="520" y="0" width="90" height="180"/><use href="#daisy" x="1010" y="34" width="100" height="100"/><use href="#hyd" x="1180" y="35" width="135" height="110"/></g>
+<path d="M300 94C480 170 640 62 800 123 980 190 1130 74 1305 128" fill="none" stroke="#405c42" stroke-width="7"/>
+<g><use href="#leaf" x="310" y="84" width="58" height="36" transform="rotate(-25 339 102)"/><use href="#leaf" x="352" y="100" width="58" height="36" transform="rotate(-6 381 118)"/><use href="#leaf" x="394" y="116" width="58" height="36" transform="rotate(13 423 134)"/><use href="#leaf" x="436" y="132" width="58" height="36" transform="rotate(-23 465 150)"/><use href="#leaf" x="478" y="84" width="58" height="36" transform="rotate(-4 507 102)"/><use href="#leaf" x="520" y="100" width="58" height="36" transform="rotate(15 549 118)"/><use href="#leaf" x="562" y="116" width="58" height="36" transform="rotate(-21 591 134)"/><use href="#leaf" x="604" y="132" width="58" height="36" transform="rotate(-2 633 150)"/><use href="#leaf" x="646" y="84" width="58" height="36" transform="rotate(17 675 102)"/><use href="#leaf" x="688" y="100" width="58" height="36" transform="rotate(-19 717 118)"/><use href="#leaf" x="730" y="116" width="58" height="36" transform="rotate(0 759 134)"/><use href="#leaf" x="772" y="132" width="58" height="36" transform="rotate(19 801 150)"/><use href="#leaf" x="814" y="84" width="58" height="36" transform="rotate(-17 843 102)"/><use href="#leaf" x="856" y="100" width="58" height="36" transform="rotate(2 885 118)"/><use href="#leaf" x="898" y="116" width="58" height="36" transform="rotate(21 927 134)"/><use href="#leaf" x="940" y="132" width="58" height="36" transform="rotate(-15 969 150)"/><use href="#leaf" x="982" y="84" width="58" height="36" transform="rotate(4 1011 102)"/><use href="#leaf" x="1024" y="100" width="58" height="36" transform="rotate(23 1053 118)"/><use href="#leaf" x="1066" y="116" width="58" height="36" transform="rotate(-13 1095 134)"/><use href="#leaf" x="1108" y="132" width="58" height="36" transform="rotate(6 1137 150)"/><use href="#leaf" x="1150" y="84" width="58" height="36" transform="rotate(25 1179 102)"/><use href="#leaf" x="1192" y="100" width="58" height="36" transform="rotate(-11 1221 118)"/><use href="#leaf" x="1234" y="116" width="58" height="36" transform="rotate(8 1263 134)"/><use href="#leaf" x="1276" y="132" width="58" height="36" transform="rotate(27 1305 150)"/></g>
 
-            <symbol id="leaf" viewBox="0 0 56 34">
-              <path d="M2 18C13 2 38 0 54 15 42 31 17 36 2 18Z" fill="url(#leafGreen)"/>
-              <path d="M4 18C21 17 34 16 51 15" fill="none" stroke="#354a36" stroke-width="1.2" opacity=".65"/>
-              <path d="M18 17l-7-7M27 16l-6-10M36 16l-3-9M18 19l-8 7M28 18l-6 10M38 17l-3 8" fill="none" stroke="#829073" stroke-width=".65" opacity=".55"/>
-            </symbol>
-            <symbol id="leaf-dark" viewBox="0 0 54 32">
-              <path d="M2 16C13 2 38 0 52 14 41 28 18 34 2 16Z" fill="url(#leafDark)"/>
-              <path d="M4 16C20 15 35 14 49 14" fill="none" stroke="#243628" stroke-width="1.1" opacity=".7"/>
-            </symbol>
-            <symbol id="flower-cream" viewBox="0 0 70 70">
-              <g transform="translate(35 35)">
-                <ellipse rx="11" ry="24" cy="-19" fill="url(#petalCream)"/>
-                <ellipse rx="11" ry="24" cy="-19" transform="rotate(60)" fill="url(#petalCream)"/>
-                <ellipse rx="11" ry="24" cy="-19" transform="rotate(120)" fill="url(#petalCream)"/>
-                <ellipse rx="11" ry="24" cy="-19" transform="rotate(180)" fill="url(#petalCream)"/>
-                <ellipse rx="11" ry="24" cy="-19" transform="rotate(240)" fill="url(#petalCream)"/>
-                <ellipse rx="11" ry="24" cy="-19" transform="rotate(300)" fill="url(#petalCream)"/>
-                <circle r="10" fill="#aa7f36"/>
-                <circle r="5.5" fill="#d5b45f"/>
-              </g>
-            </symbol>
-            <symbol id="flower-rose" viewBox="0 0 70 70">
-              <g transform="translate(35 35)">
-                <ellipse rx="12" ry="23" cy="-18" fill="url(#petalRose)"/>
-                <ellipse rx="12" ry="23" cy="-18" transform="rotate(60)" fill="url(#petalRose)"/>
-                <ellipse rx="12" ry="23" cy="-18" transform="rotate(120)" fill="url(#petalRose)"/>
-                <ellipse rx="12" ry="23" cy="-18" transform="rotate(180)" fill="url(#petalRose)"/>
-                <ellipse rx="12" ry="23" cy="-18" transform="rotate(240)" fill="url(#petalRose)"/>
-                <ellipse rx="12" ry="23" cy="-18" transform="rotate(300)" fill="url(#petalRose)"/>
-                <circle r="9" fill="#6d4b37"/>
-              </g>
-            </symbol>
-          </defs>
-        </svg>
+<g filter="url(#shadow)">
+ <rect x="414" y="128" width="772" height="850" rx="8" fill="url(#woodWhite)" stroke="#8f826b" stroke-width="4"/>
+ <rect x="425" y="139" width="750" height="828" fill="url(#crackle)" opacity=".6"/>
+ <path d="M390 145h820l-35-70H425Z" fill="url(#woodWhite)" stroke="#8f826b" stroke-width="4"/>
+ <path d="M435 104h730" stroke="#c4b59a" stroke-width="9"/><path d="M456 119h686" stroke="#fffaf0" stroke-width="4"/>
+ <circle cx="800" cy="92" r="43" fill="#f8f3e7" stroke="#8e8168" stroke-width="5"/><path d="M800 68v48M776 92h48" stroke="#6b7c64" stroke-width="11" stroke-linecap="round"/>
+ <rect x="446" y="190" width="332" height="610" rx="3" fill="url(#glass)" stroke="#a79a81" stroke-width="5"/>
+ <rect x="822" y="190" width="332" height="610" rx="3" fill="url(#glass)" stroke="#a79a81" stroke-width="5"/>
+ <rect x="458" y="202" width="308" height="586" fill="none" stroke="#f7f1e4" stroke-width="5"/>
+ <rect x="834" y="202" width="308" height="586" fill="none" stroke="#f7f1e4" stroke-width="5"/>
+ <g stroke="#9e8260" stroke-width="8"><line x1="459" y1="375" x2="765" y2="375"/><line x1="459" y1="560" x2="765" y2="560"/><line x1="459" y1="744" x2="765" y2="744"/><line x1="835" y1="375" x2="1142" y2="375"/><line x1="835" y1="560" x2="1142" y2="560"/><line x1="835" y1="744" x2="1142" y2="744"/></g>
+ <g opacity=".38" fill="#fff"><path d="M474 215l72 0-73 545h-16Z"/><path d="M853 215h63l-67 545h-14Z"/></g>
+ <g transform="translate(485 295)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="42" rx="7" fill="#b26d32" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g><g transform="translate(541 303)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="50" rx="7" fill="#d6cab0" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g><g transform="translate(597 295)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="58" rx="7" fill="#5f7659" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g><g transform="translate(653 303)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="42" rx="7" fill="#c58c48" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g><g transform="translate(709 295)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="50" rx="7" fill="#e0d4b9" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g><g transform="translate(862 295)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="42" rx="7" fill="#b26d32" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g><g transform="translate(918 303)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="50" rx="7" fill="#d6cab0" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g><g transform="translate(974 295)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="58" rx="7" fill="#5f7659" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g><g transform="translate(1030 303)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="42" rx="7" fill="#c58c48" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g><g transform="translate(1086 295)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="50" rx="7" fill="#e0d4b9" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g><g transform="translate(485 475)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="42" rx="7" fill="#b26d32" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g><g transform="translate(541 483)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="50" rx="7" fill="#d6cab0" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g><g transform="translate(597 475)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="58" rx="7" fill="#5f7659" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g><g transform="translate(653 483)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="42" rx="7" fill="#c58c48" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g><g transform="translate(709 475)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="50" rx="7" fill="#e0d4b9" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g><g transform="translate(862 475)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="42" rx="7" fill="#b26d32" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g><g transform="translate(918 483)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="50" rx="7" fill="#d6cab0" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g><g transform="translate(974 475)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="58" rx="7" fill="#5f7659" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g><g transform="translate(1030 483)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="42" rx="7" fill="#c58c48" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g><g transform="translate(1086 475)"><rect x="9" y="0" width="22" height="11" rx="3" fill="#b8ad96" stroke="#746b5b"/><rect x="3" y="10" width="34" height="50" rx="7" fill="#e0d4b9" fill-opacity=".62" stroke="#756a58" stroke-width="2"/><rect x="8" y="28" width="24" height="11" rx="2" fill="#efe4c7" stroke="#a69672"/></g>
+ <rect x="495" y="672" width="23" height="58" rx="2" fill="#34483e" stroke="#2e2a25" stroke-width="2"/><line x1="500" y1="684" x2="513" y2="684" stroke="#c8a965" stroke-width="2"/><line x1="500" y1="717" x2="513" y2="717" stroke="#c8a965" stroke-width="2"/><rect x="522" y="663" width="23" height="67" rx="2" fill="#634236" stroke="#2e2a25" stroke-width="2"/><line x1="527" y1="675" x2="540" y2="675" stroke="#c8a965" stroke-width="2"/><line x1="527" y1="717" x2="540" y2="717" stroke="#c8a965" stroke-width="2"/><rect x="549" y="654" width="23" height="76" rx="2" fill="#77623d" stroke="#2e2a25" stroke-width="2"/><line x1="554" y1="666" x2="567" y2="666" stroke="#c8a965" stroke-width="2"/><line x1="554" y1="717" x2="567" y2="717" stroke="#c8a965" stroke-width="2"/><rect x="576" y="672" width="23" height="58" rx="2" fill="#3e4d48" stroke="#2e2a25" stroke-width="2"/><line x1="581" y1="684" x2="594" y2="684" stroke="#c8a965" stroke-width="2"/><line x1="581" y1="717" x2="594" y2="717" stroke="#c8a965" stroke-width="2"/><rect x="603" y="663" width="23" height="67" rx="2" fill="#72523b" stroke="#2e2a25" stroke-width="2"/><line x1="608" y1="675" x2="621" y2="675" stroke="#c8a965" stroke-width="2"/><line x1="608" y1="717" x2="621" y2="717" stroke="#c8a965" stroke-width="2"/><rect x="630" y="654" width="23" height="76" rx="2" fill="undefined" stroke="#2e2a25" stroke-width="2"/><line x1="635" y1="666" x2="648" y2="666" stroke="#c8a965" stroke-width="2"/><line x1="635" y1="717" x2="648" y2="717" stroke="#c8a965" stroke-width="2"/><rect x="880" y="672" width="23" height="58" rx="2" fill="#34483e" stroke="#2e2a25" stroke-width="2"/><line x1="885" y1="684" x2="898" y2="684" stroke="#c8a965" stroke-width="2"/><line x1="885" y1="717" x2="898" y2="717" stroke="#c8a965" stroke-width="2"/><rect x="907" y="663" width="23" height="67" rx="2" fill="#634236" stroke="#2e2a25" stroke-width="2"/><line x1="912" y1="675" x2="925" y2="675" stroke="#c8a965" stroke-width="2"/><line x1="912" y1="717" x2="925" y2="717" stroke="#c8a965" stroke-width="2"/><rect x="934" y="654" width="23" height="76" rx="2" fill="#77623d" stroke="#2e2a25" stroke-width="2"/><line x1="939" y1="666" x2="952" y2="666" stroke="#c8a965" stroke-width="2"/><line x1="939" y1="717" x2="952" y2="717" stroke="#c8a965" stroke-width="2"/><rect x="961" y="672" width="23" height="58" rx="2" fill="#3e4d48" stroke="#2e2a25" stroke-width="2"/><line x1="966" y1="684" x2="979" y2="684" stroke="#c8a965" stroke-width="2"/><line x1="966" y1="717" x2="979" y2="717" stroke="#c8a965" stroke-width="2"/><rect x="988" y="663" width="23" height="67" rx="2" fill="#72523b" stroke="#2e2a25" stroke-width="2"/><line x1="993" y1="675" x2="1006" y2="675" stroke="#c8a965" stroke-width="2"/><line x1="993" y1="717" x2="1006" y2="717" stroke="#c8a965" stroke-width="2"/><rect x="1015" y="654" width="23" height="76" rx="2" fill="undefined" stroke="#2e2a25" stroke-width="2"/><line x1="1020" y1="666" x2="1033" y2="666" stroke="#c8a965" stroke-width="2"/><line x1="1020" y1="717" x2="1033" y2="717" stroke="#c8a965" stroke-width="2"/>
+ <g transform="translate(642 645)"><ellipse cx="0" cy="34" rx="52" ry="18" fill="#c9bea8" stroke="#7d715d" stroke-width="3"/><path d="M-50 33Q-42 86 0 86Q42 86 50 33" fill="#eee6d5" stroke="#7d715d" stroke-width="3"/><rect x="22" y="-28" width="13" height="73" rx="6" fill="#c8b793" stroke="#796b55" stroke-width="3" transform="rotate(24)"/></g>
+ <g transform="translate(1018 645)"><ellipse cx="0" cy="34" rx="52" ry="18" fill="#a98445" stroke="#624924" stroke-width="3"/><path d="M-50 33Q-42 86 0 86Q42 86 50 33" fill="#c6a05b" stroke="#624924" stroke-width="3"/><rect x="22" y="-28" width="13" height="73" rx="6" fill="#af8847" stroke="#624924" stroke-width="3" transform="rotate(24)"/></g>
+ <rect x="492" y="815" width="616" height="118" rx="4" fill="url(#woodWhite)" stroke="#93856d" stroke-width="4"/>
+ <line x1="800" y1="817" x2="800" y2="930" stroke="#a9997e" stroke-width="3"/>
+ <path d="M635 850h110M855 850h110" stroke="#8c806a" stroke-width="4" stroke-linecap="round"/>
+ <path d="M642 850q48 32 96 0M862 850q48 32 96 0" fill="none" stroke="#8c806a" stroke-width="3"/>
+ <circle cx="788" cy="485" r="12" fill="#b39658" stroke="#594524" stroke-width="4"/><circle cx="812" cy="485" r="12" fill="#b39658" stroke="#594524" stroke-width="4"/>
+</g>
 
-        <div class="pharmacy-wall-panel" aria-hidden="true">
-          <div class="wall-line wall-line-a"></div>
-          <div class="wall-line wall-line-b"></div>
-        </div>
-
-        <div class="pharmacy-top-garland" aria-hidden="true">
-          <svg viewBox="0 0 1000 150" preserveAspectRatio="none">
-            <path d="M15 45C180 105 310 20 500 71 690 121 822 29 985 59" fill="none" stroke="#4d624c" stroke-width="7" opacity=".95"/>
-            <use href="#leaf-dark" x="28" y="42" width="58" height="35" transform="rotate(22 57 59)"/><use href="#leaf" x="72" y="54" width="58" height="35" transform="rotate(-18 101 71)"/><use href="#leaf" x="116" y="66" width="58" height="35" transform="rotate(22 145 83)"/><use href="#leaf-dark" x="160" y="78" width="58" height="35" transform="rotate(-18 189 95)"/><use href="#leaf" x="204" y="42" width="58" height="35" transform="rotate(22 233 59)"/><use href="#leaf" x="248" y="54" width="58" height="35" transform="rotate(-18 277 71)"/><use href="#leaf-dark" x="292" y="66" width="58" height="35" transform="rotate(22 321 83)"/><use href="#leaf" x="336" y="78" width="58" height="35" transform="rotate(-18 365 95)"/><use href="#leaf" x="380" y="42" width="58" height="35" transform="rotate(22 409 59)"/><use href="#leaf-dark" x="424" y="54" width="58" height="35" transform="rotate(-18 453 71)"/><use href="#leaf" x="468" y="66" width="58" height="35" transform="rotate(22 497 83)"/><use href="#leaf" x="512" y="78" width="58" height="35" transform="rotate(-18 541 95)"/><use href="#leaf-dark" x="556" y="42" width="58" height="35" transform="rotate(22 585 59)"/><use href="#leaf" x="600" y="54" width="58" height="35" transform="rotate(-18 629 71)"/><use href="#leaf" x="644" y="66" width="58" height="35" transform="rotate(22 673 83)"/><use href="#leaf-dark" x="688" y="78" width="58" height="35" transform="rotate(-18 717 95)"/><use href="#leaf" x="732" y="42" width="58" height="35" transform="rotate(22 761 59)"/><use href="#leaf" x="776" y="54" width="58" height="35" transform="rotate(-18 805 71)"/><use href="#leaf-dark" x="820" y="66" width="58" height="35" transform="rotate(22 849 83)"/><use href="#leaf" x="864" y="78" width="58" height="35" transform="rotate(-18 893 95)"/><use href="#leaf" x="908" y="42" width="58" height="35" transform="rotate(22 937 59)"/><use href="#leaf-dark" x="952" y="54" width="58" height="35" transform="rotate(-18 981 71)"/>
-            <use href="#flower-cream" x="154" y="54" width="58" height="58"/>
-            <use href="#flower-rose" x="350" y="20" width="52" height="52"/>
-            <use href="#flower-cream" x="615" y="62" width="64" height="64"/>
-            <use href="#flower-rose" x="826" y="29" width="50" height="50"/>
-          </svg>
-        </div>
-
-        <aside class="pharmacy-botanical-column botanical-column-left" aria-hidden="true">
-          <div class="apothecary-wall-shelf">
-            <span class="herb-jar jar-a"></span>
-            <span class="herb-jar jar-b"></span>
-            <span class="herb-jar jar-c"></span>
-          </div>
-          <svg class="dense-bouquet bouquet-left-top" viewBox="0 0 240 410">
-            <path d="M123 395C100 290 111 184 144 34M112 392C71 286 53 193 69 79M132 392C168 288 181 189 174 91" fill="none" stroke="#415640" stroke-width="5"/>
-            <use href="#leaf-dark" x="43" y="70" width="58" height="35" transform="rotate(-32 72 87)"/><use href="#leaf" x="70" y="103" width="58" height="35" transform="rotate(25 99 120)"/><use href="#leaf" x="40" y="139" width="58" height="35" transform="rotate(-26 69 156)"/><use href="#leaf" x="78" y="167" width="58" height="35" transform="rotate(31 107 184)"/><use href="#leaf-dark" x="46" y="210" width="58" height="35" transform="rotate(-31 75 227)"/><use href="#leaf" x="85" y="237" width="58" height="35" transform="rotate(20 114 254)"/><use href="#leaf" x="52" y="280" width="58" height="35" transform="rotate(-27 81 297)"/><use href="#leaf" x="93" y="309" width="58" height="35" transform="rotate(25 122 326)"/><use href="#leaf-dark" x="124" y="46" width="58" height="35" transform="rotate(24 153 63)"/><use href="#leaf" x="107" y="83" width="58" height="35" transform="rotate(-24 136 100)"/><use href="#leaf" x="139" y="118" width="58" height="35" transform="rotate(27 168 135)"/><use href="#leaf" x="111" y="153" width="58" height="35" transform="rotate(-28 140 170)"/><use href="#leaf-dark" x="146" y="190" width="58" height="35" transform="rotate(22 175 207)"/><use href="#leaf" x="115" y="224" width="58" height="35" transform="rotate(-27 144 241)"/><use href="#leaf" x="151" y="260" width="58" height="35" transform="rotate(28 180 277)"/><use href="#leaf" x="123" y="297" width="58" height="35" transform="rotate(-20 152 314)"/><use href="#leaf-dark" x="170" y="92" width="58" height="35" transform="rotate(-22 199 109)"/><use href="#leaf" x="183" y="129" width="58" height="35" transform="rotate(28 212 146)"/><use href="#leaf" x="164" y="165" width="58" height="35" transform="rotate(-26 193 182)"/><use href="#leaf" x="190" y="202" width="58" height="35" transform="rotate(23 219 219)"/><use href="#leaf-dark" x="161" y="242" width="58" height="35" transform="rotate(-26 190 259)"/><use href="#leaf" x="185" y="281" width="58" height="35" transform="rotate(20 214 298)"/>
-            <use href="#flower-cream" x="19" y="115" width="62" height="62"/>
-            <use href="#flower-rose" x="142" y="64" width="65" height="65"/>
-            <use href="#flower-cream" x="115" y="198" width="72" height="72"/>
-            <use href="#flower-rose" x="30" y="244" width="56" height="56"/>
-          </svg>
-          <div class="botanical-pot porcelain-pot">
-            <span class="pot-rim"></span><span class="pot-mark">RH</span>
-          </div>
-
-          <div class="hanging-herb-rack">
-            <span class="rope"></span>
-            <div class="herb-bundle bundle-1"></div>
-            <div class="herb-bundle bundle-2"></div>
-            <div class="herb-bundle bundle-3"></div>
-          </div>
-        </aside>
-
-        <div class="pharmacy-cabinet">
-          <div class="cabinet-aging cabinet-aging-left"></div>
-          <div class="cabinet-aging cabinet-aging-right"></div>
-
-          <div class="pharmacy-crown">
-            <div class="crown-carving carving-left"></div>
-            <div class="pharmacy-medallion">
-              <span class="medallion-cross">✚</span>
+<g filter="url(#shadow)">
+ <use href="#fox" x="15" y="190" width="115" height="270"/><use href="#fox" x="1480" y="220" width="105" height="250"/>
+ <use href="#lav" x="270" y="640" width="110" height="260"/><use href="#lav" x="1220" y="640" width="110" height="260"/>
+ <use href="#ech" x="200" y="610" width="145" height="145"/><use href="#ech" x="1270" y="580" width="150" height="150"/>
+ <use href="#hyd" x="70" y="735" width="190" height="160"/><use href="#hyd" x="1350" y="740" width="185" height="155"/>
+ <use href="#daisy" x="20" y="845" width="78" height="78"/><use href="#daisy" x="91" y="880" width="78" height="78"/><use href="#daisy" x="162" y="915" width="78" height="78"/><use href="#daisy" x="233" y="845" width="78" height="78"/><use href="#daisy" x="304" y="880" width="78" height="78"/><use href="#daisy" x="45" y="915" width="78" height="78"/><use href="#daisy" x="116" y="845" width="78" height="78"/><use href="#daisy" x="187" y="880" width="78" height="78"/><use href="#daisy" x="258" y="915" width="78" height="78"/><use href="#daisy" x="329" y="845" width="78" height="78"/><use href="#daisy" x="70" y="880" width="78" height="78"/><use href="#daisy" x="141" y="915" width="78" height="78"/><use href="#daisy" x="212" y="845" width="78" height="78"/><use href="#daisy" x="283" y="880" width="78" height="78"/><use href="#daisy" x="24" y="915" width="78" height="78"/><use href="#daisy" x="95" y="845" width="78" height="78"/><use href="#daisy" x="166" y="880" width="78" height="78"/><use href="#daisy" x="237" y="915" width="78" height="78"/><use href="#daisy" x="308" y="845" width="78" height="78"/><use href="#daisy" x="49" y="880" width="78" height="78"/><use href="#daisy" x="120" y="915" width="78" height="78"/><use href="#daisy" x="191" y="845" width="78" height="78"/>
+ <use href="#daisy" x="1250" y="835" width="80" height="80"/><use href="#daisy" x="1317" y="866" width="80" height="80"/><use href="#daisy" x="1384" y="897" width="80" height="80"/><use href="#daisy" x="1451" y="928" width="80" height="80"/><use href="#daisy" x="1518" y="835" width="80" height="80"/><use href="#daisy" x="1265" y="866" width="80" height="80"/><use href="#daisy" x="1332" y="897" width="80" height="80"/><use href="#daisy" x="1399" y="928" width="80" height="80"/><use href="#daisy" x="1466" y="835" width="80" height="80"/><use href="#daisy" x="1533" y="866" width="80" height="80"/><use href="#daisy" x="1280" y="897" width="80" height="80"/><use href="#daisy" x="1347" y="928" width="80" height="80"/><use href="#daisy" x="1414" y="835" width="80" height="80"/><use href="#daisy" x="1481" y="866" width="80" height="80"/><use href="#daisy" x="1548" y="897" width="80" height="80"/><use href="#daisy" x="1295" y="928" width="80" height="80"/><use href="#daisy" x="1362" y="835" width="80" height="80"/><use href="#daisy" x="1429" y="866" width="80" height="80"/><use href="#daisy" x="1496" y="897" width="80" height="80"/><use href="#daisy" x="1563" y="928" width="80" height="80"/><use href="#daisy" x="1310" y="835" width="80" height="80"/><use href="#daisy" x="1377" y="866" width="80" height="80"/>
+</g>
+<g opacity=".98">
+ <use href="#leaf" x="320" y="930" width="62" height="39" transform="rotate(-35 351 950)"/><use href="#leaf" x="357" y="958" width="62" height="39" transform="rotate(-12 388 978)"/><use href="#leaf" x="394" y="986" width="62" height="39" transform="rotate(11 425 1006)"/><use href="#leaf" x="431" y="1014" width="62" height="39" transform="rotate(34 462 1034)"/><use href="#leaf" x="468" y="930" width="62" height="39" transform="rotate(-13 499 950)"/><use href="#leaf" x="505" y="958" width="62" height="39" transform="rotate(10 536 978)"/><use href="#leaf" x="542" y="986" width="62" height="39" transform="rotate(33 573 1006)"/><use href="#leaf" x="579" y="1014" width="62" height="39" transform="rotate(-14 610 1034)"/><use href="#leaf" x="616" y="930" width="62" height="39" transform="rotate(9 647 950)"/><use href="#leaf" x="653" y="958" width="62" height="39" transform="rotate(32 684 978)"/><use href="#leaf" x="690" y="986" width="62" height="39" transform="rotate(-15 721 1006)"/><use href="#leaf" x="727" y="1014" width="62" height="39" transform="rotate(8 758 1034)"/><use href="#leaf" x="764" y="930" width="62" height="39" transform="rotate(31 795 950)"/><use href="#leaf" x="801" y="958" width="62" height="39" transform="rotate(-16 832 978)"/><use href="#leaf" x="838" y="986" width="62" height="39" transform="rotate(7 869 1006)"/><use href="#leaf" x="875" y="1014" width="62" height="39" transform="rotate(30 906 1034)"/><use href="#leaf" x="912" y="930" width="62" height="39" transform="rotate(-17 943 950)"/><use href="#leaf" x="949" y="958" width="62" height="39" transform="rotate(6 980 978)"/><use href="#leaf" x="986" y="986" width="62" height="39" transform="rotate(29 1017 1006)"/><use href="#leaf" x="1023" y="1014" width="62" height="39" transform="rotate(-18 1054 1034)"/><use href="#leaf" x="1060" y="930" width="62" height="39" transform="rotate(5 1091 950)"/><use href="#leaf" x="1097" y="958" width="62" height="39" transform="rotate(28 1128 978)"/><use href="#leaf" x="1134" y="986" width="62" height="39" transform="rotate(-19 1165 1006)"/><use href="#leaf" x="1171" y="1014" width="62" height="39" transform="rotate(4 1202 1034)"/><use href="#leaf" x="1208" y="930" width="62" height="39" transform="rotate(27 1239 950)"/><use href="#leaf" x="1245" y="958" width="62" height="39" transform="rotate(-20 1276 978)"/><use href="#leaf" x="342" y="986" width="62" height="39" transform="rotate(3 373 1006)"/><use href="#leaf" x="379" y="1014" width="62" height="39" transform="rotate(26 410 1034)"/>
+</g>
+</svg>
+        <div class="pharmacy-ledger">
+          <div class="pharmacy-ledger-head">
+            <div>
+              <span>PHARMACIE · RHODES · 1889</span>
+              <strong>Registre de l’armoire</strong>
             </div>
-            <div class="pharmacy-title-block">
-              <small>CABINET MÉDICAL DE RHODES · ÉTABLI EN 1889</small>
-              <h3>PHARMACIE</h3>
-              <span>Armoire des remèdes et préparations</span>
-            </div>
-            <div class="crown-carving carving-right"></div>
+            <button class="btn secondary" id="refreshPharmacy" type="button">Actualiser</button>
           </div>
-
-          <div class="pharmacy-upper-moulding">
-            <i></i><i></i><i></i>
+          <div class="pharmacy-table-wrap">
+            <table class="pharmacy-table">
+              <thead><tr><th>Recette</th><th>Prix unité</th><th>Quantité pharmacie</th><th>Quantité actuelle</th></tr></thead>
+              <tbody id="pharmacyBody"><tr><td colspan="4" class="pharmacy-empty">Ouverture de l’armoire…</td></tr></tbody>
+            </table>
           </div>
-
-          <div class="pharmacy-doors">
-            <div class="pharmacy-side-door pharmacy-side-door-left" aria-hidden="true">
-              <div class="door-frame-inner">
-                <div class="glass-pane pane-top">
-                  <span class="bottle bottle-amber"></span>
-                  <span class="bottle bottle-green bottle-small"></span>
-                </div>
-                <div class="glass-pane pane-bottom">
-                  <span class="folded-linen"></span>
-                  <span class="bottle bottle-clear bottle-small"></span>
-                </div>
-              </div>
-              <span class="brass-handle"></span>
-            </div>
-
-            <div class="pharmacy-display">
-              <div class="pharmacy-instructions">
-                <div>
-                  <strong>Registre de l’armoire</strong>
-                  <span>Réapprovisionne à gauche, puis indique à droite ce qu’il reste réellement en pharmacie.</span>
-                </div>
-                <button class="btn secondary" id="refreshPharmacy" type="button">Actualiser</button>
-              </div>
-
-              <div class="pharmacy-glass">
-                <div class="glass-reflection reflection-one"></div>
-                <div class="glass-reflection reflection-two"></div>
-                <div class="pharmacy-shelf pharmacy-shelf-top"><span></span></div>
-                <div class="pharmacy-table-wrap">
-                  <table class="pharmacy-table">
-                    <thead>
-                      <tr>
-                        <th>Recette</th>
-                        <th>Prix unité</th>
-                        <th>Quantité dans la pharmacie</th>
-                        <th>Quantité actuelle dans la pharmacie</th>
-                      </tr>
-                    </thead>
-                    <tbody id="pharmacyBody">
-                      <tr><td colspan="4" class="pharmacy-empty">Ouverture de l’armoire…</td></tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div class="pharmacy-shelf"><span></span></div>
-              </div>
-
-              <div class="pharmacy-foot">
-                <span class="pharmacy-foot-cross">✚</span>
-                <p>La différence entre le stock enregistré et le comptage actuel correspond aux ventes et est ajoutée automatiquement à la caisse du cabinet.</p>
-                <span class="pharmacy-foot-cross">✚</span>
-              </div>
-            </div>
-
-            <div class="pharmacy-side-door pharmacy-side-door-right" aria-hidden="true">
-              <div class="door-frame-inner">
-                <div class="glass-pane pane-top">
-                  <span class="bottle bottle-clear"></span>
-                  <span class="bottle bottle-amber bottle-small"></span>
-                </div>
-                <div class="glass-pane pane-bottom">
-                  <span class="rolled-bandage"></span>
-                  <span class="bottle bottle-green bottle-small"></span>
-                </div>
-              </div>
-              <span class="brass-handle"></span>
-            </div>
-          </div>
-
-          <div class="pharmacy-base-moulding">
-            <span class="base-rosette">✦</span>
-            <b>RHODES · LEMOYNE</b>
-            <span class="base-rosette">✦</span>
-          </div>
-          <div class="pharmacy-feet" aria-hidden="true"><i></i><i></i></div>
-        </div>
-
-        <aside class="pharmacy-botanical-column botanical-column-right" aria-hidden="true">
-          <div class="hanging-herb-rack right-rack">
-            <span class="rope"></span>
-            <div class="herb-bundle bundle-4"></div>
-            <div class="herb-bundle bundle-5"></div>
-            <div class="herb-bundle bundle-6"></div>
-          </div>
-
-          <svg class="dense-bouquet bouquet-right-top" viewBox="0 0 240 410">
-            <path d="M117 395C142 284 135 177 102 28M128 394C171 286 189 191 173 78M108 393C72 287 58 187 65 89" fill="none" stroke="#415640" stroke-width="5"/>
-            <use href="#leaf-dark" x="157" y="64" width="58" height="35" transform="rotate(28 186 81)"/><use href="#leaf" x="128" y="99" width="58" height="35" transform="rotate(-25 157 116)"/><use href="#leaf" x="164" y="138" width="58" height="35" transform="rotate(26 193 155)"/><use href="#leaf" x="124" y="171" width="58" height="35" transform="rotate(-31 153 188)"/><use href="#leaf-dark" x="169" y="210" width="58" height="35" transform="rotate(31 198 227)"/><use href="#leaf" x="119" y="239" width="58" height="35" transform="rotate(-20 148 256)"/><use href="#leaf" x="164" y="280" width="58" height="35" transform="rotate(27 193 297)"/><use href="#leaf" x="112" y="307" width="58" height="35" transform="rotate(-25 141 324)"/><use href="#leaf-dark" x="86" y="42" width="58" height="35" transform="rotate(-24 115 59)"/><use href="#leaf" x="103" y="81" width="58" height="35" transform="rotate(24 132 98)"/><use href="#leaf" x="73" y="117" width="58" height="35" transform="rotate(-27 102 134)"/><use href="#leaf" x="102" y="153" width="58" height="35" transform="rotate(28 131 170)"/><use href="#leaf-dark" x="65" y="191" width="58" height="35" transform="rotate(-23 94 208)"/><use href="#leaf" x="96" y="226" width="58" height="35" transform="rotate(27 125 243)"/><use href="#leaf" x="60" y="264" width="58" height="35" transform="rotate(-28 89 281)"/><use href="#leaf" x="88" y="298" width="58" height="35" transform="rotate(19 117 315)"/><use href="#leaf-dark" x="34" y="91" width="58" height="35" transform="rotate(22 63 108)"/><use href="#leaf" x="20" y="129" width="58" height="35" transform="rotate(-28 49 146)"/><use href="#leaf" x="40" y="167" width="58" height="35" transform="rotate(25 69 184)"/><use href="#leaf" x="14" y="205" width="58" height="35" transform="rotate(-24 43 222)"/><use href="#leaf-dark" x="44" y="242" width="58" height="35" transform="rotate(24 73 259)"/><use href="#leaf" x="19" y="281" width="58" height="35" transform="rotate(-18 48 298)"/>
-            <use href="#flower-rose" x="154" y="111" width="62" height="62"/>
-            <use href="#flower-cream" x="31" y="67" width="65" height="65"/>
-            <use href="#flower-rose" x="65" y="202" width="72" height="72"/>
-            <use href="#flower-cream" x="145" y="251" width="57" height="57"/>
-          </svg>
-          <div class="botanical-pot porcelain-pot pot-right">
-            <span class="pot-rim"></span><span class="pot-mark">⚕</span>
-          </div>
-
-          <div class="apothecary-wall-shelf shelf-right">
-            <span class="herb-jar jar-d"></span>
-            <span class="herb-jar jar-e"></span>
-            <span class="herb-jar jar-f"></span>
-          </div>
-        </aside>
-
-        <div class="pharmacy-floor-garden" aria-hidden="true">
-          <svg class="floor-garden-svg" viewBox="0 0 1400 170" preserveAspectRatio="none">
-            <path d="M0 155C174 82 318 146 470 101 650 46 756 144 934 100 1100 57 1221 119 1400 72V170H0Z" fill="rgba(37,54,38,.22)"/>
-            <use href="#leaf-dark" x="-20" y="85" width="37.7" height="22.75" transform="rotate(-35 -1.1499999999999986 96.05)"/><use href="#leaf" x="23" y="95" width="44.660000000000004" height="26.95" transform="rotate(-24 45.33 108.09)"/><use href="#leaf" x="66" y="105" width="51.62" height="31.150000000000002" transform="rotate(-13 91.81 120.13)"/><use href="#leaf" x="109" y="115" width="58.58" height="35.35" transform="rotate(-2 138.29 132.17000000000002)"/><use href="#leaf" x="152" y="125" width="37.7" height="22.75" transform="rotate(9 170.85 136.05)"/><use href="#leaf-dark" x="195" y="85" width="44.660000000000004" height="26.95" transform="rotate(20 217.33 98.09)"/><use href="#leaf" x="238" y="95" width="51.62" height="31.150000000000002" transform="rotate(31 263.81 110.13)"/><use href="#leaf" x="281" y="105" width="58.58" height="35.35" transform="rotate(-35 310.29 122.17)"/><use href="#leaf" x="324" y="115" width="37.7" height="22.75" transform="rotate(-24 342.85 126.05)"/><use href="#leaf" x="367" y="125" width="44.660000000000004" height="26.95" transform="rotate(-13 389.33 138.09)"/><use href="#leaf-dark" x="410" y="85" width="51.62" height="31.150000000000002" transform="rotate(-2 435.81 100.13)"/><use href="#leaf" x="453" y="95" width="58.58" height="35.35" transform="rotate(9 482.29 112.17)"/><use href="#leaf" x="496" y="105" width="37.7" height="22.75" transform="rotate(20 514.85 116.05)"/><use href="#leaf" x="539" y="115" width="44.660000000000004" height="26.95" transform="rotate(31 561.33 128.09)"/><use href="#leaf" x="582" y="125" width="51.62" height="31.150000000000002" transform="rotate(-35 607.81 140.13)"/><use href="#leaf-dark" x="625" y="85" width="58.58" height="35.35" transform="rotate(-24 654.29 102.17)"/><use href="#leaf" x="668" y="95" width="37.7" height="22.75" transform="rotate(-13 686.85 106.05)"/><use href="#leaf" x="711" y="105" width="44.660000000000004" height="26.95" transform="rotate(-2 733.33 118.09)"/><use href="#leaf" x="754" y="115" width="51.62" height="31.150000000000002" transform="rotate(9 779.81 130.13)"/><use href="#leaf" x="797" y="125" width="58.58" height="35.35" transform="rotate(20 826.29 142.17000000000002)"/><use href="#leaf-dark" x="840" y="85" width="37.7" height="22.75" transform="rotate(31 858.85 96.05)"/><use href="#leaf" x="883" y="95" width="44.660000000000004" height="26.95" transform="rotate(-35 905.33 108.09)"/><use href="#leaf" x="926" y="105" width="51.62" height="31.150000000000002" transform="rotate(-24 951.81 120.13)"/><use href="#leaf" x="969" y="115" width="58.58" height="35.35" transform="rotate(-13 998.29 132.17000000000002)"/><use href="#leaf" x="1012" y="125" width="37.7" height="22.75" transform="rotate(-2 1030.85 136.05)"/><use href="#leaf-dark" x="1055" y="85" width="44.660000000000004" height="26.95" transform="rotate(9 1077.33 98.09)"/><use href="#leaf" x="1098" y="95" width="51.62" height="31.150000000000002" transform="rotate(20 1123.81 110.13)"/><use href="#leaf" x="1141" y="105" width="58.58" height="35.35" transform="rotate(31 1170.29 122.17)"/><use href="#leaf" x="1184" y="115" width="37.7" height="22.75" transform="rotate(-35 1202.85 126.05)"/><use href="#leaf" x="1227" y="125" width="44.660000000000004" height="26.95" transform="rotate(-24 1249.33 138.09)"/><use href="#leaf-dark" x="1270" y="85" width="51.62" height="31.150000000000002" transform="rotate(-13 1295.81 100.13)"/><use href="#leaf" x="1313" y="95" width="58.58" height="35.35" transform="rotate(-2 1342.29 112.17)"/><use href="#leaf" x="1356" y="105" width="37.7" height="22.75" transform="rotate(9 1374.85 116.05)"/><use href="#leaf" x="1399" y="115" width="44.660000000000004" height="26.95" transform="rotate(20 1421.33 128.09)"/>
-            <use href="#flower-cream" x="120" y="61" width="55" height="55"/>
-            <use href="#flower-rose" x="345" y="81" width="48" height="48"/>
-            <use href="#flower-cream" x="965" y="58" width="54" height="54"/>
-            <use href="#flower-rose" x="1190" y="76" width="50" height="50"/>
-          </svg>
+          <div class="pharmacy-ledger-foot">La différence validée correspond aux ventes et est ajoutée automatiquement à la caisse du cabinet.</div>
         </div>
       </div>
     </section>
@@ -3594,18 +3346,10 @@ $('adminNotebookIndex').addEventListener('click',e=>{
     body.innerHTML=pharmacyItems.map(item=>{
       const productId=item.product_resource_id;
       const qty=Math.max(0,num(item.pharmacy_quantity));
-      const sellable=item.pharmacy_sellable!==false;
-      const price=sellable
-        ? '<span class="pharmacy-price">'+money(item.pharmacy_price)+'</span>'
-        : '<span class="pharmacy-not-sold">Non vendu</span>';
-      const currentCell=sellable
-        ? `<div class="pharmacy-qty-box">
+      const price='<span class="pharmacy-price">'+money(item.pharmacy_price)+'</span>';
+      const currentCell=`<div class="pharmacy-qty-box">
             <input class="pharmacy-current-qty" type="number" min="0" step="1" value="${qty}">
             <button class="btn pharmacy-small-btn pharmacy-count" type="button" data-pharmacy-count-save>Valider</button>
-          </div>`
-        : `<div class="pharmacy-qty-box">
-            <input class="pharmacy-current-qty" type="number" min="0" step="1" value="${qty}" disabled>
-            <button class="btn pharmacy-small-btn pharmacy-count" type="button" disabled>Non vendu</button>
           </div>`;
 
       return `<tr data-pharmacy-product="${esc(productId)}">
@@ -3630,7 +3374,7 @@ $('adminNotebookIndex').addEventListener('click',e=>{
     try{
       const {data,error}=await db.rpc("get_pharmacy_inventory");
       if(error)throw error;
-      pharmacyItems=data||[];
+      pharmacyItems=(data||[]).filter(item=>item.pharmacy_sellable!==false);
       renderPharmacy();
     }catch(err){
       dbError(err,"Impossible de charger la pharmacie.");
