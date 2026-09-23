@@ -926,46 +926,89 @@
     .pharmacy-table{min-width:610px}
   }
 
-  /* Lisibilité du registre de pharmacie */
+  /* Registre contenu dans les portes de l'armoire, papier translucide. */
+  #pharmacy .pharmacy-photo-scene{
+    aspect-ratio:4/3;min-height:0;
+  }
+  #pharmacy .pharmacy-photo-bg{
+    inset:0;width:100%;min-width:0;height:100%;
+    transform:none;object-fit:cover;
+  }
   #pharmacy .pharmacy-glass-ledger{
-    left:6%;right:6%;top:18%;bottom:8%;
-    background:transparent;backdrop-filter:none;
-    box-shadow:0 8px 24px rgba(32,31,24,.18);
+    left:27%;right:26%;top:16%;bottom:13%;height:auto;
+    background:rgba(242,233,211,.30);
+    backdrop-filter:none;
+    border-color:rgba(108,82,42,.7);
+    box-shadow:0 5px 18px rgba(40,29,15,.25);
   }
   #pharmacy .pharmacy-glass-ledger::before{display:none}
-  #pharmacy .pharmacy-glass-ledger-head,
-  #pharmacy .pharmacy-table-wrap,
-  #pharmacy .pharmacy-table,
-  #pharmacy .pharmacy-table tbody,
-  #pharmacy .pharmacy-table tr,
-  #pharmacy .pharmacy-table td,
-  #pharmacy .pharmacy-glass-ledger-foot{background:transparent}
-  #pharmacy .pharmacy-glass-ledger-head{padding:16px;gap:14px}
-  #pharmacy .pharmacy-glass-ledger-head span{font-size:13px;color:#443621}
-  #pharmacy .pharmacy-glass-ledger-head strong{font-size:26px;color:#293428}
-  #pharmacy .pharmacy-glass-ledger-head small{font-size:15px;line-height:1.45;color:#302e26}
-  #pharmacy .pharmacy-glass-ledger-head .btn{font-size:13px;padding:11px 14px;min-height:42px}
-  #pharmacy .pharmacy-table-wrap{padding:12px}
-  #pharmacy .pharmacy-table{min-width:640px;border-spacing:0 10px}
-  #pharmacy .pharmacy-table th{font-size:14px;line-height:1.4;padding:10px 8px;color:#fff1cc;background:#701c13;text-shadow:none}
-  #pharmacy .pharmacy-table td{padding:14px 8px;color:#263323;border-color:rgba(79,68,42,.55);font-size:18px}
-  #pharmacy .pharmacy-remedy{font-size:18px;line-height:1.4;color:#263323}
-  #pharmacy .pharmacy-price{font-size:18px;color:#573b15}
-  #pharmacy .pharmacy-qty-box{gap:7px;flex-wrap:wrap}
-  #pharmacy .pharmacy-qty-box input{width:70px;min-width:70px;height:42px;font-size:18px}
-  #pharmacy .pharmacy-small-btn{height:42px;padding:0 11px;font-size:12px}
-  #pharmacy .pharmacy-glass-ledger-foot{font-size:14px;line-height:1.5;padding:12px 16px;color:#302e26}
-  #pharmacy .pharmacy-remedy,#pharmacy .pharmacy-price,
-  #pharmacy .pharmacy-glass-ledger-head span,#pharmacy .pharmacy-glass-ledger-head strong,
-  #pharmacy .pharmacy-glass-ledger-head small,#pharmacy .pharmacy-glass-ledger-foot{
-    text-shadow:0 1px 2px #fff7df,0 0 5px #fff7df;
+  #pharmacy .pharmacy-glass-ledger-head{
+    padding:12px;gap:10px;flex-wrap:wrap;
+    background:rgba(248,239,217,.88);
   }
-  @media(max-width:760px){
-    #pharmacy .pharmacy-glass-ledger{left:8px;right:8px;top:15%;bottom:12px;height:auto}
-    #pharmacy .pharmacy-glass-ledger-head{flex-direction:row;flex-wrap:wrap}
-    #pharmacy .pharmacy-glass-ledger-head strong{font-size:23px}
+  #pharmacy .pharmacy-glass-ledger-head span{font-size:12px;color:#62492b}
+  #pharmacy .pharmacy-glass-ledger-head strong{font-size:23px;color:#293428}
+  #pharmacy .pharmacy-glass-ledger-head small{font-size:14px;line-height:1.4;color:#423b2c}
+  #pharmacy .pharmacy-glass-ledger-head .btn{
+    font-size:12px;padding:9px 12px;min-height:36px;
   }
-
+  #pharmacy .pharmacy-table-wrap{padding:8px;min-height:0;background:transparent}
+  #pharmacy .pharmacy-table{
+    width:100%;min-width:0;table-layout:fixed;border-spacing:0 8px;
+    background:transparent;
+  }
+  #pharmacy .pharmacy-table th{
+    font-size:12px;line-height:1.35;padding:8px 5px;
+    color:#fff1cc;background:rgba(105,28,18,.94);
+    letter-spacing:0;overflow-wrap:anywhere;
+  }
+  #pharmacy .pharmacy-table th:nth-child(1){width:27%}
+  #pharmacy .pharmacy-table th:nth-child(2){width:15%}
+  #pharmacy .pharmacy-table th:nth-child(3),
+  #pharmacy .pharmacy-table th:nth-child(4){width:29%}
+  #pharmacy .pharmacy-table tr{background:transparent}
+  #pharmacy .pharmacy-table td{
+    padding:10px 5px;font-size:16px;color:#293428;
+    background:rgba(255,248,229,.88);
+    border-color:rgba(104,86,53,.4);overflow-wrap:anywhere;
+  }
+  #pharmacy .pharmacy-remedy{font-size:16px;line-height:1.45;color:#293428}
+  #pharmacy .pharmacy-price{font-size:16px;color:#634719;white-space:normal}
+  #pharmacy .pharmacy-qty-box{
+    display:flex;flex-direction:column;align-items:stretch;gap:6px;
+  }
+  #pharmacy .pharmacy-qty-box input{
+    width:100%;min-width:0;height:36px;padding:4px;font-size:17px;
+    box-sizing:border-box;
+  }
+  #pharmacy .pharmacy-small-btn{
+    width:100%;min-width:0;height:auto;min-height:34px;
+    padding:7px 3px;font-size:11px;letter-spacing:0;white-space:normal;
+    overflow-wrap:anywhere;
+  }
+  #pharmacy .pharmacy-glass-ledger-foot{
+    padding:9px 10px;font-size:13px;line-height:1.4;color:#423b2c;
+    background:rgba(248,239,217,.88);
+  }
+  @media(max-width:1150px){
+    #pharmacy .pharmacy-photo-scene{aspect-ratio:auto;min-height:880px}
+    #pharmacy .pharmacy-photo-bg{
+      width:1173.333px;min-width:1173.333px;height:880px;
+      left:50%;right:auto;transform:translateX(-50%);
+    }
+    #pharmacy .pharmacy-glass-ledger{
+      width:min(552px,calc(100% - 24px));left:50%;right:auto;
+      transform:translateX(-50%);top:141px;bottom:114px;
+    }
+  }
+  @media(max-width:600px){
+    #pharmacy .pharmacy-glass-ledger-head{padding:10px;flex-direction:row;align-items:center}
+    #pharmacy .pharmacy-glass-ledger-head strong{font-size:21px}
+    #pharmacy .pharmacy-table th{font-size:11px;padding:7px 3px}
+    #pharmacy .pharmacy-table td{padding:8px 3px}
+    #pharmacy .pharmacy-remedy,#pharmacy .pharmacy-price{font-size:14px}
+    #pharmacy .pharmacy-small-btn{font-size:10px}
+  }
 </style>
 </head>
 <body class="locked" data-site-version="2026-09-21-1806">
