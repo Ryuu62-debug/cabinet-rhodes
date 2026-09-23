@@ -56,8 +56,11 @@
       box-shadow:12px 0 32px rgba(0,0,0,.28);
       z-index:20;
       overflow:auto;
-      scrollbar-gutter:stable;
+      scrollbar-gutter:auto;
+      scrollbar-width:none;
+      -ms-overflow-style:none;
     }
+    .sidebar::-webkit-scrollbar{display:none;width:0;height:0}
     .brand{text-align:center;margin-bottom:24px}
     .seal{
       width:82px;height:82px;margin:0 auto 12px;border-radius:50%;
