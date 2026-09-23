@@ -925,6 +925,47 @@
     }
     .pharmacy-table{min-width:610px}
   }
+
+  /* Lisibilité du registre de pharmacie */
+  #pharmacy .pharmacy-glass-ledger{
+    left:6%;right:6%;top:18%;bottom:8%;
+    background:transparent;backdrop-filter:none;
+    box-shadow:0 8px 24px rgba(32,31,24,.18);
+  }
+  #pharmacy .pharmacy-glass-ledger::before{display:none}
+  #pharmacy .pharmacy-glass-ledger-head,
+  #pharmacy .pharmacy-table-wrap,
+  #pharmacy .pharmacy-table,
+  #pharmacy .pharmacy-table tbody,
+  #pharmacy .pharmacy-table tr,
+  #pharmacy .pharmacy-table td,
+  #pharmacy .pharmacy-glass-ledger-foot{background:transparent}
+  #pharmacy .pharmacy-glass-ledger-head{padding:16px;gap:14px}
+  #pharmacy .pharmacy-glass-ledger-head span{font-size:13px;color:#443621}
+  #pharmacy .pharmacy-glass-ledger-head strong{font-size:26px;color:#293428}
+  #pharmacy .pharmacy-glass-ledger-head small{font-size:15px;line-height:1.45;color:#302e26}
+  #pharmacy .pharmacy-glass-ledger-head .btn{font-size:13px;padding:11px 14px;min-height:42px}
+  #pharmacy .pharmacy-table-wrap{padding:12px}
+  #pharmacy .pharmacy-table{min-width:640px;border-spacing:0 10px}
+  #pharmacy .pharmacy-table th{font-size:14px;line-height:1.4;padding:10px 8px;color:#fff1cc;background:#701c13;text-shadow:none}
+  #pharmacy .pharmacy-table td{padding:14px 8px;color:#263323;border-color:rgba(79,68,42,.55);font-size:18px}
+  #pharmacy .pharmacy-remedy{font-size:18px;line-height:1.4;color:#263323}
+  #pharmacy .pharmacy-price{font-size:18px;color:#573b15}
+  #pharmacy .pharmacy-qty-box{gap:7px;flex-wrap:wrap}
+  #pharmacy .pharmacy-qty-box input{width:70px;min-width:70px;height:42px;font-size:18px}
+  #pharmacy .pharmacy-small-btn{height:42px;padding:0 11px;font-size:12px}
+  #pharmacy .pharmacy-glass-ledger-foot{font-size:14px;line-height:1.5;padding:12px 16px;color:#302e26}
+  #pharmacy .pharmacy-remedy,#pharmacy .pharmacy-price,
+  #pharmacy .pharmacy-glass-ledger-head span,#pharmacy .pharmacy-glass-ledger-head strong,
+  #pharmacy .pharmacy-glass-ledger-head small,#pharmacy .pharmacy-glass-ledger-foot{
+    text-shadow:0 1px 2px #fff7df,0 0 5px #fff7df;
+  }
+  @media(max-width:760px){
+    #pharmacy .pharmacy-glass-ledger{left:8px;right:8px;top:15%;bottom:12px;height:auto}
+    #pharmacy .pharmacy-glass-ledger-head{flex-direction:row;flex-wrap:wrap}
+    #pharmacy .pharmacy-glass-ledger-head strong{font-size:23px}
+  }
+
 </style>
 </head>
 <body class="locked" data-site-version="2026-09-21-1806">
